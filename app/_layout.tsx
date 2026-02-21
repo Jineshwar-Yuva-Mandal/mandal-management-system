@@ -1,61 +1,74 @@
-// import { Stack, useRouter, useSegments } from "expo-router";
-// import { useEffect, useState } from "react";
-// import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-// export default function RootLayout() {
-//   const [isReady, setIsReady] = useState(false);
-//   const segments = useSegments();
-//   const router = useRouter();
+export default function RootLayout() {
+  const [isReady, setIsReady] = useState(false);
+  const segments = useSegments();
+  const router = useRouter();
 
-//   // Mock Auth State (Connect to Supabase later)
-//   const session = null;
-//   const isApproved = false;
+  // Mock Auth State (Swap with Supabase useAuth hook later)
+  const session = null;
+  const isApproved = false;
 
-//   useEffect(() => {
-//     // This timeout ensures the Layout has finished mounting
-//     const timer = setTimeout(() => {
-//       setIsReady(true);
-//     }, 1);
+  useEffect(() => {
+    // Wait for the navigation state to be stable
+    setIsReady(true);
+  }, []);
 
-//     return () => clearTimeout(timer);
-//   }, []);
+  useEffect(() => {
+    if (!isReady) return;
 
-//   useEffect(() => {
-//     if (!isReady) return; // Don't redirect until we are ready
+    const inAuthGroup = segments[0] === "(auth)";
+    const inAdminGroup = segments[0] === "(admin)";
+    const inMemberGroup = segments[0] === "(member)";
 
-//     const inAuthGroup = segments[0] === "(auth)";
+    // 1. If not logged in and not in Auth folder -> Send to Login
+    if (!session && !inAuthGroup) {
+      router.replace("/(auth)");
+    }
 
-//     if (!session && !inAuthGroup) {
-//       router.replace("/(auth)/login");
-//     } else if (session && !isApproved) {
-//       router.replace("/(auth)/wait-room");
-//     }
-//   }, [session, isReady, segments]);
+    // 2. If logged in but NOT approved -> Send to Wait Room
+    else if (session && !isApproved && segments[1] !== "wait-room") {
+      router.replace("/(auth)/wait-room");
+    }
 
-//   // While waiting for the layout to mount, show a clean loading screen
-//   if (!isReady) {
-//     return (
-//       <View style={styles.loadingContainer}>
-//         <ActivityIndicator size="large" color="#FFD700" />
-//       </View>
-//     );
-//   }
+    // 3. Prevent logged-in users from going back to Login/Index
+    else if (session && isApproved && inAuthGroup) {
+      router.replace("/(member)"); // Or (admin) based on role
+    }
+  }, [session, isApproved, segments, isReady]);
 
-//   return (
-//     <Stack screenOptions={{ headerShown: false }}>
-//       <Stack.Screen name="(auth)" />
-//       <Stack.Screen name="(member)" />
-//       <Stack.Screen name="(admin)" />
-//       <Stack.Screen name="(finance)" />
-//     </Stack>
-//   );
-// }
+  // Premium loading state
+  if (!isReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#21307A" />
+      </View>
+    );
+  }
 
-// const styles = StyleSheet.create({
-//   loadingContainer: {
-//     flex: 1,
-//     justifyContent: "center",
-//     alignItems: "center",
-//     backgroundColor: "#FFFFFF",
-//   },
-// });
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" options={{ animation: "fade" }} />
+      <Stack.Screen
+        name="(member)"
+        options={{ animation: "slide_from_right" }}
+      />
+      <Stack.Screen
+        name="(admin)"
+        options={{ animation: "slide_from_bottom" }}
+      />
+      <Stack.Screen name="(finance)" />
+    </Stack>
+  );
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FDFDFD", // Clean SaaS White
+  },
+});
