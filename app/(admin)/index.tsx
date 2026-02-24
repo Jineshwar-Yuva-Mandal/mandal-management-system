@@ -1,110 +1,253 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
-import { MainNavbar } from "../../components/MainNavbar";
+import {
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, { FadeInRight, FadeInUp } from "react-native-reanimated";
 import { AdminFooter } from "../../components/AdminFooter";
+import { MainNavbar } from "../../components/MainNavbar";
 
-export default function AdminDashboard() {
-  const isPremium = false; // Mock
+const { width } = Dimensions.get("window");
 
+export default function ModernDashboard() {
   return (
     <View style={styles.container}>
-      <MainNavbar title="Samanvay Admin" />
+      <MainNavbar title="Samanvay" />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.mainWrapper}>
-          
-          {/* 1. STATUS SUMMARY */}
-          <View style={styles.headerGap}>
-            <Text style={styles.greeting}>Command Center</Text>
-            <Text style={styles.mandalSubtitle}>Jineshwar Yuva Mandal • active now</Text>
-          </View>
-
-          {/* 2. COLLECTION TREND (Modern Insight Card) */}
-          <View style={styles.insightCard}>
-            <View>
-                <Text style={styles.insightLabel}>Total Collection</Text>
-                <Text style={styles.insightValue}>₹1,24,000</Text>
-            </View>
-            <View style={styles.trendBadge}>
-                <Ionicons name="trending-up" size={14} color="#059669" />
-                <Text style={styles.trendText}>+12%</Text>
-            </View>
-          </View>
-
-          {/* 3. PENDING TASKS (High Margin) */}
-          <View style={styles.sectionGap}>
-            <Text style={styles.sectionLabel}>Action Required</Text>
-            
-            <Animated.View entering={FadeInDown.delay(200)} style={styles.taskCard}>
-              <View style={styles.taskIcon}><Ionicons name="people" size={20} color="#21307A" /></View>
-              <View style={{flex: 1}}>
-                <Text style={styles.taskTitle}>8 New Members</Text>
-                <Text style={styles.taskSub}>Verification pending</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.bentoGrid}>
+          {/* 1. HERO CARD (Featured Insight) */}
+          <Animated.View entering={FadeInUp.delay(100)} style={styles.heroCard}>
+            <LinearGradient
+              colors={["#21307A", "#1a2663"]}
+              style={styles.heroGradient}
+            >
+              <View>
+                <Text style={styles.heroLabel}>Total Treasury</Text>
+                <Text style={styles.heroValue}>₹4,82,900</Text>
+                <View style={styles.growthBadge}>
+                  <Ionicons name="trending-up" size={12} color="#4ADE80" />
+                  <Text style={styles.growthText}>+14% this month</Text>
+                </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+              <View style={styles.heroIconCircle}>
+                <Ionicons
+                  name="analytics"
+                  size={32}
+                  color="rgba(255,255,255,0.8)"
+                />
+              </View>
+            </LinearGradient>
+          </Animated.View>
+
+          {/* 2. TWO-COLUMN BENTO ROW */}
+          <View style={styles.row}>
+            {/* PENDING APPROVALS (Vertical Bento) */}
+            <Animated.View
+              entering={FadeInUp.delay(200)}
+              style={[styles.bentoTile, { flex: 1.2, backgroundColor: "#FFF" }]}
+            >
+              <View style={[styles.tileIcon, { backgroundColor: "#EEF2FF" }]}>
+                <Ionicons name="shield-checkmark" size={20} color="#21307A" />
+              </View>
+              <Text style={styles.tileValue}>08</Text>
+              <Text style={styles.tileLabel}>Pending{"\n"}Approvals</Text>
+              <TouchableOpacity style={styles.miniActionBtn}>
+                <Text style={styles.miniActionText}>Review</Text>
+              </TouchableOpacity>
             </Animated.View>
 
-            <Animated.View entering={FadeInDown.delay(300)} style={[styles.taskCard, {marginTop: 12}]}>
-              <View style={[styles.taskIcon, {backgroundColor: '#FEF3C7'}]}><Ionicons name="calendar" size={20} color="#B45309" /></View>
-              <View style={{flex: 1}}>
-                <Text style={styles.taskTitle}>Upcoming Event</Text>
-                <Text style={styles.taskSub}>Mahavir Jayanti Planning</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
-            </Animated.View>
+            {/* QUICK STATS (Stacked Bento) */}
+            <View style={{ flex: 1, gap: 12 }}>
+              <Animated.View
+                entering={FadeInRight.delay(300)}
+                style={[styles.bentoTile, { backgroundColor: "#FFF" }]}
+              >
+                <Text style={styles.smallTileValue}>142</Text>
+                <Text style={styles.smallTileLabel}>Members</Text>
+              </Animated.View>
+              <Animated.View
+                entering={FadeInRight.delay(400)}
+                style={[styles.bentoTile, { backgroundColor: "#21307A" }]}
+              >
+                <Text style={[styles.smallTileValue, { color: "#FFF" }]}>
+                  04
+                </Text>
+                <Text
+                  style={[
+                    styles.smallTileLabel,
+                    { color: "rgba(255,255,255,0.6)" },
+                  ]}
+                >
+                  Events
+                </Text>
+              </Animated.View>
+            </View>
           </View>
 
+          {/* 3. RECENT ACTIVITY (Wide Bento) */}
+          <Animated.View
+            entering={FadeInUp.delay(500)}
+            style={styles.activityTile}
+          >
+            <View style={styles.tileHeader}>
+              <Text style={styles.sectionTitle}>Recent Activity</Text>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </View>
+
+            <View style={styles.activityItem}>
+              <View style={styles.dot} />
+              <Text style={styles.activityText}>
+                <Text style={{ fontWeight: "700" }}>Ankit J.</Text> paid
+                membership fees
+              </Text>
+              <Text style={styles.activityTime}>2m ago</Text>
+            </View>
+
+            <View style={styles.activityItem}>
+              <View style={[styles.dot, { backgroundColor: "#FFD700" }]} />
+              <Text style={styles.activityText}>
+                New event <Text style={{ fontWeight: "700" }}>Pratikraman</Text>{" "}
+                created
+              </Text>
+              <Text style={styles.activityTime}>1h ago</Text>
+            </View>
+          </Animated.View>
         </View>
       </ScrollView>
 
-      {/* 4. THE NEW FOOTER NAV */}
-      <AdminFooter isPremium={isPremium} />
+      <AdminFooter isPremium={true} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FDFDFD" },
-  scrollContent: { paddingTop: 110, paddingBottom: 100 },
-  mainWrapper: { paddingHorizontal: 24 },
-  headerGap: { marginBottom: 24 },
-  greeting: { fontSize: 26, fontWeight: "900", color: "#1E293B", letterSpacing: -0.8 },
-  mandalSubtitle: { fontSize: 14, color: "#94A3B8", fontWeight: "500" },
+  container: { flex: 1, backgroundColor: "#F8FAFC" }, // Modern subtle blue-grey tint
+  scrollContent: { paddingTop: 110, paddingBottom: 110 },
+  bentoGrid: { paddingHorizontal: 20, gap: 12 },
 
-  // Insight Card
-  insightCard: {
-    backgroundColor: '#21307A',
-    borderRadius: 24,
-    padding: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 32,
-    elevation: 4,
+  // Hero Card
+  heroCard: {
+    borderRadius: 32,
+    overflow: "hidden",
+    elevation: 8,
+    shadowColor: "#21307A",
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
   },
-  insightLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
-  insightValue: { color: '#FFF', fontSize: 28, fontWeight: '800', marginTop: 4 },
-  trendBadge: { backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 },
-  trendText: { color: '#059669', fontSize: 12, fontWeight: '800' },
-
-  // Sections
-  sectionGap: { marginBottom: 28 },
-  sectionLabel: { fontSize: 12, fontWeight: "800", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 16 },
-  
-  // Task Cards
-  taskCard: {
-    backgroundColor: "#FFF",
-    borderRadius: 20,
-    padding: 16,
+  heroGradient: {
+    padding: 28,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  heroLabel: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 13,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  heroValue: { color: "#FFF", fontSize: 34, fontWeight: "900", marginTop: 4 },
+  growthBadge: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "rgba(74, 222, 128, 0.15)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginTop: 12,
+    alignSelf: "flex-start",
+  },
+  growthText: {
+    color: "#4ADE80",
+    fontSize: 11,
+    fontWeight: "700",
+    marginLeft: 4,
+  },
+  heroIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  // Bento Tiles
+  row: { flexDirection: "row", gap: 12 },
+  bentoTile: {
+    borderRadius: 28,
+    padding: 20,
+    justifyContent: "space-between",
     borderWidth: 1,
     borderColor: "#F1F5F9",
-    gap: 15
   },
-  taskIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#E8EBF5', justifyContent: 'center', alignItems: 'center' },
-  taskTitle: { fontSize: 16, fontWeight: '700', color: '#1E293B' },
-  taskSub: { fontSize: 13, color: '#94A3B8', marginTop: 1 },
+  tileIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  tileValue: { fontSize: 32, fontWeight: "800", color: "#1E293B" },
+  tileLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748B",
+    lineHeight: 20,
+  },
+
+  smallTileValue: { fontSize: 22, fontWeight: "800", color: "#1E293B" },
+  smallTileLabel: { fontSize: 12, fontWeight: "600", color: "#94A3B8" },
+
+  miniActionBtn: {
+    backgroundColor: "#21307A",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginTop: 15,
+    alignSelf: "flex-start",
+  },
+  miniActionText: { color: "#FFF", fontSize: 12, fontWeight: "700" },
+
+  // Activity Tile
+  activityTile: {
+    backgroundColor: "#FFF",
+    borderRadius: 28,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+  },
+  tileHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  sectionTitle: { fontSize: 16, fontWeight: "800", color: "#1E293B" },
+  activityItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#4ADE80",
+    marginRight: 12,
+  },
+  activityText: { flex: 1, fontSize: 13, color: "#64748B" },
+  activityTime: { fontSize: 11, color: "#CBD5E1", fontWeight: "600" },
 });
