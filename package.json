@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "prestart": "node scripts/update-version.js",
+    "build": "npm run prestart && npx expo export",
     "start": "npm run prestart && expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "npm run prestart && expo start --android",
