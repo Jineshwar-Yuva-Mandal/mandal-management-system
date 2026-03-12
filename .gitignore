@@ -1,45 +1,35 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# CAP mandal-management-system
+_out
+*.db
+*.sqlite
+connection.properties
+default-*.json
+.cdsrc-private.json
+gen/
 node_modules/
+target/
 
-# Expo
-.expo/
-dist/
-web-build/
-expo-env.d.ts
+# Web IDE, App Studio
+.che/
+.gen/
+.vscode/
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+# MTA
+*_mta_build_tmp
+*.mtar
+mta_archives/
 
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
+# Other
 .DS_Store
-*.pem
+*.orig
+*.log
 
-# local env files
-.env*.local
+*.iml
+*.flattened-pom.xml
 
-# typescript
-*.tsbuildinfo
+# IDEs
+# .vscode
+# .idea
 
-app-example
-
-# generated native folders
-/ios
-/android
-version.json
-supabase/.temp/
+# @cap-js/cds-typer
+@cds-models
