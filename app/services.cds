@@ -8,3 +8,5 @@ using from './admin/fines/annotations';
 using from './admin/ledger/annotations';
 
 using from './admin/courses/annotations';
+
+using from './admin/joinrequests/annotations';

@@ -22,13 +22,15 @@
     "watch-eventsandattendance": "cds watch --open admin/eventsandattendance/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-fines": "cds watch --open admin/fines/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-ledger": "cds watch --open admin/ledger/webapp/index.html?sap-ui-xx-viewCache=false",
-    "watch-courses": "cds watch --open admin/courses/webapp/index.html?sap-ui-xx-viewCache=false"
+    "watch-courses": "cds watch --open admin/courses/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-joinrequests": "cds watch --open admin/joinrequests/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "sapux": [
     "app/admin/members",
     "app/admin/eventsandattendance",
     "app/admin/fines",
     "app/admin/ledger",
-    "app/admin/courses"
+    "app/admin/courses",
+    "app/admin/joinrequests"
   ]
 }
