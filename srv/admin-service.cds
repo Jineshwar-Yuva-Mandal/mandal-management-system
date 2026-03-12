@@ -18,7 +18,7 @@ using { com.samanvay.MandalMemberFieldConfigs } from '../db/member_field_config'
 // If user is admin of multiple mandals, they select which mandal to manage.
 // Handler enforces: only show data where mandal_ID matches the user's active mandal.
 // ═══════════════════════════════════════════════════
-@(requires: 'authenticated-user')
+// @(requires: 'authenticated-user')
 service AdminService @(path: '/api/admin') {
 
   // ─── My Mandals (mandals where I am admin/have positions) ───
