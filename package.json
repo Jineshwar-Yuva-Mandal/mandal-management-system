@@ -27,6 +27,19 @@
     "watch-positions": "cds watch --open admin/positions/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-mandal": "cds watch --open admin/mandal/webapp/index.html?sap-ui-xx-viewCache=false"
   },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "db/sprints.db"
+        }
+      },
+      "auth": {
+        "kind": "dummy"
+      }
+    }
+  },
   "sapux": [
     "app/admin/members",
     "app/admin/eventsandattendance",
