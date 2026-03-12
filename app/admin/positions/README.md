@@ -9,7 +9,7 @@
 |**Service Type**<br>Local Cap|
 |**Service URL**<br>http://localhost:4004/api/admin/|
 |**Module Name**<br>positions|
-|**Application Title**<br>Manadal Positions|
+|**Application Title**<br>Mandal Positions|
 |**Namespace**<br>com.samanvay.admin|
 |**UI5 Theme**<br>sap_horizon|
 |**UI5 Version**<br>1.145.0|
