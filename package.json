@@ -18,9 +18,11 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false"
+    "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-eventsandattendance": "cds watch --open admin/eventsandattendance/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "sapux": [
-    "app/admin/members"
+    "app/admin/members",
+    "app/admin/eventsandattendance"
   ]
 }
