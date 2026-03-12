@@ -1,0 +1,51 @@
+ID,name,description
+1767649d-6887-4ef0-b555-1cbdbe343c50,Users,User profiles and personal information
+31467785-34f7-4540-b774-8c99ba95aa4d,Mandals,Mandal organization details
+31467786-f45d-47be-91d3-d8b6ab84cea2,MandalMemberships,Membership records linking users to mandals
+31467787-c0fe-4ca8-accf-ccc106bd59ec,Events,Event information and schedules
+31467788-edca-4697-a34d-f5e27920bcfc,EventAttendance,Attendance records for events
+31467789-1143-436b-ab46-8b2f63f61af5,Fines,Fine records for absent members
+31467790-5a23-487d-918f-4a8b2a89d852,LedgerEntries,Financial ledger entries
+31467791-1c38-4f03-bbb1-ab05368b4fa5,Courses,Educational courses offered by mandals
+31467792-8679-4865-9ae4-c68dc6fd7c11,CourseAssignments,Course assignments to members
+31467793-29b5-4239-9c6b-72fdef9fe6e7,SyllabusTopics,Topics within course syllabus
+31467794-ef07-48c7-8cdf-1e2c3b38f6f2,CourseTopicProgress,Progress on individual course topics
+31467795-1232-446c-bd55-dfe934e168c6,Positions,Committee positions within mandals
+31467796-3065-4913-89db-51f5c9821a7e,UserPositionAssignments,Assignment of users to positions
+31467797-2db4-4207-a777-5c92c8ac53cd,EntityPermissions,Entity-level CRUD permissions
+31467798-17c2-4f61-bc85-71d2db14ae89,FieldPermissions,Field-level visibility permissions
+31467799-7cac-4d37-99a5-d005af593d44,ProtectedFields,Fields that can be permission-controlled
+31467800-2451-4d84-9713-687144b16871,ApprovalWorkflows,Workflow configurations for approvals
+31467801-7dc6-4815-b939-835fc2a144b9,ApprovalWorkflowSteps,Individual steps in approval workflows
+31467802-edf2-402d-b836-de8b8ea81298,MembershipRequests,Requests to join mandals
+31467803-1d5f-4e21-a463-980c6f6c730f,MembershipApprovals,Approval decisions on membership requests
+31467804-78a4-4967-829b-a7f5927ab229,MandalMemberFieldConfigs,Field configuration for mandal registration forms
+31467805-77b5-411b-a13a-e803fd8f1705,CustomEntity22,Custom entity configuration 22
+31467806-93b3-456c-83a7-4980920a83e4,CustomEntity23,Custom entity configuration 23
+31467807-3d42-47fd-b758-317347bb8c7a,CustomEntity24,Custom entity configuration 24
+31467808-53e0-492e-8efd-f5f805b68c9b,CustomEntity25,Custom entity configuration 25
+31467809-6759-42da-8a4d-57441ba836d2,CustomEntity26,Custom entity configuration 26
+31467810-64f9-4e13-9f99-312b779f1d92,CustomEntity27,Custom entity configuration 27
+31467811-ddbb-41be-a949-ff95c04c2848,CustomEntity28,Custom entity configuration 28
+31467812-310f-4f53-bd2f-08a4d08b7319,CustomEntity29,Custom entity configuration 29
+31467813-1e97-4803-b56b-acc0a2839842,CustomEntity30,Custom entity configuration 30
+31467814-5a80-4feb-8f0f-61dbff0a7c6d,CustomEntity31,Custom entity configuration 31
+31467815-b864-4318-8138-fa2691e8e61e,CustomEntity32,Custom entity configuration 32
+31467816-abcd-4c17-9a53-1aba624e544e,CustomEntity33,Custom entity configuration 33
+31467817-811e-434d-94a4-b979134d8ece,CustomEntity34,Custom entity configuration 34
+31467818-f342-4947-a903-3504fb8ed84a,CustomEntity35,Custom entity configuration 35
+31467819-900d-447a-97f6-6e5f72a6046c,CustomEntity36,Custom entity configuration 36
+31467820-17dd-4764-9249-8ad302833ea5,CustomEntity37,Custom entity configuration 37
+31467821-b2e3-4e7c-9b68-96bd831e69ac,CustomEntity38,Custom entity configuration 38
+31467822-2b2c-42d3-b05e-69420a1c080d,CustomEntity39,Custom entity configuration 39
+31467823-3e25-46de-ab4d-86aad92733fe,CustomEntity40,Custom entity configuration 40
+31467824-9a68-436c-8298-446c7d9763ff,CustomEntity41,Custom entity configuration 41
+31467825-a5b1-4839-870c-48b5099412c7,CustomEntity42,Custom entity configuration 42
+31467826-83ee-45c3-a140-07879fee6813,CustomEntity43,Custom entity configuration 43
+31467827-d21f-4224-aa4e-31566ba584d9,CustomEntity44,Custom entity configuration 44
+31467828-4bb5-42c5-943d-dcc424bd4717,CustomEntity45,Custom entity configuration 45
+31467829-d64f-45cc-85de-042cb7b12487,CustomEntity46,Custom entity configuration 46
+31467830-19a2-45fa-ab19-23bd67ccba76,CustomEntity47,Custom entity configuration 47
+31467831-2d20-4e71-91e2-2f156df33b1e,CustomEntity48,Custom entity configuration 48
+31467832-537f-42b2-be83-14fd61046d70,CustomEntity49,Custom entity configuration 49
+31467833-e731-4497-8b14-fe0e7dce6f1d,CustomEntity50,Custom entity configuration 50

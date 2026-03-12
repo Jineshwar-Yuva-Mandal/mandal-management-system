@@ -1,0 +1,3 @@
+ID,entity_permission_ID,field_ID,visible,editable,createdAt,createdBy,modifiedAt,modifiedBy
+31712139-7e12-4578-965a-d4e8d90e61fe,18814462-f8fd-4f0e-856b-950cc0b00813,11807935-01ea-4f19-8aea-b5b97a2db3ee,true,true,2023-10-07T18:30:00.000Z,system,2023-07-08T18:30:00.000Z,system
+31712140-6f61-4d56-bea4-38c1aa17f3bc,18814462-f8fd-4f0e-856b-950cc0b00813,11807936-67d3-4f27-b2aa-1bbdbd16d464,true,false,2022-07-10T18:30:00.000Z,system,2024-10-17T18:30:00.000Z,system

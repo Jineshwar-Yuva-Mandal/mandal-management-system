@@ -1,0 +1,51 @@
+ID,name,description,mandal_ID,createdAt,createdBy,modifiedAt,modifiedBy
+21401943-1132-42f6-a231-5049c18017d4,Adhyaksh,President - Leads the mandal and chairs meetings,27036764-62df-458f-b580-6e512cf5b9c7,2022-05-27T18:30:00.000Z,system,2023-05-23T18:30:00.000Z,system
+21401944-c0ea-4b6d-83e0-296d3b2d198b,Upadhyaksh,Vice President - Assists the president,27036764-62df-458f-b580-6e512cf5b9c7,2022-10-11T18:30:00.000Z,system,2023-11-07T18:30:00.000Z,system
+21401945-ae97-4228-b424-7100dc1c14aa,Mantri,Secretary - Manages communications and records,27036764-62df-458f-b580-6e512cf5b9c7,2021-09-05T18:30:00.000Z,system,2023-09-16T18:30:00.000Z,system
+21401946-5330-4448-a79b-fdc94143cb01,Sahayak Mantri,Assistant Secretary - Supports the secretary,27036764-62df-458f-b580-6e512cf5b9c7,2022-11-06T18:30:00.000Z,system,2023-06-07T18:30:00.000Z,system
+21401947-43d8-450d-8284-a76f34efdd68,Koshadhyaksh,Treasurer - Manages finances and accounts,27036764-62df-458f-b580-6e512cf5b9c7,2022-03-10T18:30:00.000Z,system,2024-01-22T18:30:00.000Z,system
+21401948-30aa-4b56-9f0f-c297ce05d6a5,Sanchalak,Coordinator - Organizes activities and events,27036764-62df-458f-b580-6e512cf5b9c7,2021-03-17T18:30:00.000Z,system,2024-04-04T18:30:00.000Z,system
+21401949-3ab8-4315-9077-9efc74a9f0ce,Karyakarini Sadasy,Executive Committee Member,27036764-62df-458f-b580-6e512cf5b9c7,2022-09-05T18:30:00.000Z,system,2024-05-05T18:30:00.000Z,system
+21401950-38d2-4c46-b76e-fd7d76300faf,Sampark Pramukh,Communication Head - Social media and outreach,27036764-62df-458f-b580-6e512cf5b9c7,2022-08-20T18:30:00.000Z,system,2024-02-15T18:30:00.000Z,system
+21401951-11bd-4c0c-92de-e7c154e46009,Shiksha Pramukh,Education Head - Manages courses and learning,27036764-62df-458f-b580-6e512cf5b9c7,2022-07-02T18:30:00.000Z,system,2024-06-02T18:30:00.000Z,system
+21401952-0781-4373-a902-231b79f72fe1,Krida Pramukh,Sports Head - Organizes sports activities,27036764-62df-458f-b580-6e512cf5b9c7,2022-12-10T18:30:00.000Z,system,2024-03-04T18:30:00.000Z,system
+21401953-6ce2-4796-9b62-5cf95747c964,Adhyaksh,President - Leads the mandal and chairs meetings,36770777-0a4d-45b0-89d4-6191567a75c5,2022-07-11T18:30:00.000Z,system,2023-02-07T18:30:00.000Z,system
+21401954-b0c2-4cb9-ac7c-8a91df526997,Upadhyaksh,Vice President - Assists the president,36770777-0a4d-45b0-89d4-6191567a75c5,2022-01-04T18:30:00.000Z,system,2024-12-19T18:30:00.000Z,system
+21401955-ca66-4699-813c-9c6e954861f8,Mantri,Secretary - Manages communications and records,36770777-0a4d-45b0-89d4-6191567a75c5,2022-07-04T18:30:00.000Z,system,2024-08-31T18:30:00.000Z,system
+21401956-dfe9-425e-9715-4d8ae5bd52b9,Sahayak Mantri,Assistant Secretary - Supports the secretary,36770777-0a4d-45b0-89d4-6191567a75c5,2022-10-16T18:30:00.000Z,system,2023-03-29T18:30:00.000Z,system
+21401957-c10a-4c53-8540-e364ece6ea28,Koshadhyaksh,Treasurer - Manages finances and accounts,36770777-0a4d-45b0-89d4-6191567a75c5,2021-04-22T18:30:00.000Z,system,2023-09-12T18:30:00.000Z,system
+21401958-a1fc-4fbb-93eb-f677454674a3,Sanchalak,Coordinator - Organizes activities and events,36770777-0a4d-45b0-89d4-6191567a75c5,2022-11-05T18:30:00.000Z,system,2024-11-11T18:30:00.000Z,system
+21401959-a7ac-4005-b693-678a6eefcf0d,Karyakarini Sadasy,Executive Committee Member,36770777-0a4d-45b0-89d4-6191567a75c5,2021-12-30T18:30:00.000Z,system,2023-06-20T18:30:00.000Z,system
+21401960-4654-4a6f-bebd-6db56a59cb71,Sampark Pramukh,Communication Head - Social media and outreach,36770777-0a4d-45b0-89d4-6191567a75c5,2022-10-25T18:30:00.000Z,system,2024-09-19T18:30:00.000Z,system
+21401961-5c69-4f35-a095-1bd6d0ffaaf6,Shiksha Pramukh,Education Head - Manages courses and learning,36770777-0a4d-45b0-89d4-6191567a75c5,2021-02-15T18:30:00.000Z,system,2024-07-30T18:30:00.000Z,system
+21401962-a9e1-49d6-8611-3dea779e2d58,Krida Pramukh,Sports Head - Organizes sports activities,36770777-0a4d-45b0-89d4-6191567a75c5,2022-10-23T18:30:00.000Z,system,2024-11-24T18:30:00.000Z,system
+21401963-a6e5-4ad5-b8f0-9e736759f792,Adhyaksh,President - Leads the mandal and chairs meetings,3677078a-98cb-4d73-b193-55fc664d5131,2022-10-25T18:30:00.000Z,system,2024-02-14T18:30:00.000Z,system
+21401964-2380-4d3c-b159-00bef7c32d6f,Upadhyaksh,Vice President - Assists the president,3677078a-98cb-4d73-b193-55fc664d5131,2021-12-06T18:30:00.000Z,system,2024-03-16T18:30:00.000Z,system
+21401965-1054-497f-9f4d-cdbe9061a841,Mantri,Secretary - Manages communications and records,3677078a-98cb-4d73-b193-55fc664d5131,2021-04-19T18:30:00.000Z,system,2023-01-11T18:30:00.000Z,system
+21401966-d33d-4ae5-97be-bbb647b858d6,Sahayak Mantri,Assistant Secretary - Supports the secretary,3677078a-98cb-4d73-b193-55fc664d5131,2021-04-11T18:30:00.000Z,system,2023-09-22T18:30:00.000Z,system
+21401967-ec61-406a-8c46-1a1b1eaa445e,Koshadhyaksh,Treasurer - Manages finances and accounts,3677078a-98cb-4d73-b193-55fc664d5131,2021-08-16T18:30:00.000Z,system,2024-06-06T18:30:00.000Z,system
+21401968-9d33-4165-ac09-f4d00a811e5d,Sanchalak,Coordinator - Organizes activities and events,3677078a-98cb-4d73-b193-55fc664d5131,2022-06-16T18:30:00.000Z,system,2024-07-25T18:30:00.000Z,system
+21401969-5b21-4fa4-ad76-6d79c660a39a,Karyakarini Sadasy,Executive Committee Member,3677078a-98cb-4d73-b193-55fc664d5131,2022-08-18T18:30:00.000Z,system,2024-12-05T18:30:00.000Z,system
+21401970-bdd7-4597-9397-a26753f9a555,Sampark Pramukh,Communication Head - Social media and outreach,3677078a-98cb-4d73-b193-55fc664d5131,2022-08-13T18:30:00.000Z,system,2023-08-15T18:30:00.000Z,system
+21401971-2bb2-4294-90c1-f1245fe8f15c,Shiksha Pramukh,Education Head - Manages courses and learning,3677078a-98cb-4d73-b193-55fc664d5131,2022-04-02T18:30:00.000Z,system,2024-01-19T18:30:00.000Z,system
+21401972-5686-4e59-8309-605ceefea112,Krida Pramukh,Sports Head - Organizes sports activities,3677078a-98cb-4d73-b193-55fc664d5131,2022-02-05T18:30:00.000Z,system,2024-04-19T18:30:00.000Z,system
+21401973-7e26-43db-8786-3beb34421279,Adhyaksh,President - Leads the mandal and chairs meetings,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2022-11-27T18:30:00.000Z,system,2024-08-25T18:30:00.000Z,system
+21401974-a5db-4ef6-8594-ca1937666930,Upadhyaksh,Vice President - Assists the president,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2022-12-09T18:30:00.000Z,system,2024-05-27T18:30:00.000Z,system
+21401975-e25e-4bd5-b898-0cef7ad075cd,Mantri,Secretary - Manages communications and records,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-06-04T18:30:00.000Z,system,2023-12-20T18:30:00.000Z,system
+21401976-ed64-4cc5-97e3-8b7f93d06279,Sahayak Mantri,Assistant Secretary - Supports the secretary,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-01-26T18:30:00.000Z,system,2024-05-09T18:30:00.000Z,system
+21401977-4aa3-42eb-88e5-132571e7eb9b,Koshadhyaksh,Treasurer - Manages finances and accounts,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-04-18T18:30:00.000Z,system,2023-10-30T18:30:00.000Z,system
+21401978-e746-4e3b-a75d-59d51f2a8fec,Sanchalak,Coordinator - Organizes activities and events,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2022-03-02T18:30:00.000Z,system,2023-03-29T18:30:00.000Z,system
+21401979-a83c-4738-8c93-98a50fca5d8d,Karyakarini Sadasy,Executive Committee Member,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-04-29T18:30:00.000Z,system,2023-05-26T18:30:00.000Z,system
+21401980-d8f8-4852-97e6-97bdb13631dc,Sampark Pramukh,Communication Head - Social media and outreach,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-12-23T18:30:00.000Z,system,2023-11-16T18:30:00.000Z,system
+21401981-8740-447d-a2d0-c4120a800386,Shiksha Pramukh,Education Head - Manages courses and learning,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-12-18T18:30:00.000Z,system,2024-04-11T18:30:00.000Z,system
+21401982-cf22-484b-a4ad-6f9e579d4bbf,Krida Pramukh,Sports Head - Organizes sports activities,3677079d-0dbd-4226-b85e-d72bfbdc2c46,2021-07-31T18:30:00.000Z,system,2024-06-17T18:30:00.000Z,system
+21401983-6129-4aab-a964-647e809757ad,Adhyaksh,President - Leads the mandal and chairs meetings,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2022-05-10T18:30:00.000Z,system,2023-12-23T18:30:00.000Z,system
+21401984-e446-45e7-8074-bea8410de168,Upadhyaksh,Vice President - Assists the president,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2022-05-03T18:30:00.000Z,system,2023-04-10T18:30:00.000Z,system
+21401985-baf3-400e-9596-a0e267db7bf3,Mantri,Secretary - Manages communications and records,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2022-03-25T18:30:00.000Z,system,2024-12-14T18:30:00.000Z,system
+21401986-0363-4da6-ae2e-15609de7ca1c,Sahayak Mantri,Assistant Secretary - Supports the secretary,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2022-04-09T18:30:00.000Z,system,2023-11-23T18:30:00.000Z,system
+21401987-3500-4793-b950-feb2e6f759f3,Koshadhyaksh,Treasurer - Manages finances and accounts,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2021-03-10T18:30:00.000Z,system,2023-11-04T18:30:00.000Z,system
+21401988-f5c6-426a-85bd-5b081564d7c9,Sanchalak,Coordinator - Organizes activities and events,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2021-02-15T18:30:00.000Z,system,2024-12-28T18:30:00.000Z,system
+21401989-3ad7-4de0-a47d-fd50a1f88dd4,Karyakarini Sadasy,Executive Committee Member,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2021-04-28T18:30:00.000Z,system,2023-01-24T18:30:00.000Z,system
+21401990-8b2c-49a0-b5d8-389903128a32,Sampark Pramukh,Communication Head - Social media and outreach,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2021-12-18T18:30:00.000Z,system,2024-10-25T18:30:00.000Z,system
+21401991-5b15-4f25-b1fc-2b0de12773a7,Shiksha Pramukh,Education Head - Manages courses and learning,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2021-04-22T18:30:00.000Z,system,2024-11-24T18:30:00.000Z,system
+21401992-6258-4419-b74e-acafe50c2101,Krida Pramukh,Sports Head - Organizes sports activities,36770802-28ce-40bf-bbc8-e9bf7d2efa5b,2021-06-18T18:30:00.000Z,system,2023-09-07T18:30:00.000Z,system

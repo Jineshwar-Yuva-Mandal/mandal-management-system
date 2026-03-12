@@ -1,0 +1,51 @@
+ID,name,area,city,state,joining_fee,has_joining_fee,admin_ID,createdAt,createdBy,modifiedAt,modifiedBy
+27036764-62df-458f-b580-6e512cf5b9c7,Shantinath Yuva Mandal Ahmedabad,Maninagar,Ahmedabad,Gujarat,674.84,true,11905383-b787-4e90-b973-ba9217cb55e5,2021-08-27T18:30:00.000Z,system,2024-01-12T18:30:00.000Z,system
+36770777-0a4d-45b0-89d4-6191567a75c5,Rishabh Yuva Mandal Surat,Piplod,Surat,Gujarat,0,false,11650404-f2c5-4c67-abf9-4e271a52515c,2020-09-30T18:30:00.000Z,system,2024-05-04T18:30:00.000Z,system
+3677078a-98cb-4d73-b193-55fc664d5131,Mahavir Yuva Mandal Rajkot,Jamnagar Road,Rajkot,Gujarat,989.95,true,11650405-99a5-4092-ba11-cc9ff73722f0,2022-02-04T18:30:00.000Z,system,2024-03-01T18:30:00.000Z,system
+3677079d-0dbd-4226-b85e-d72bfbdc2c46,Suvidhinath Yuva Mandal Vadodara,Gotri,Vadodara,Gujarat,781.62,true,11650409-0d0e-4a1a-9589-af219484a1e1,2021-05-21T18:30:00.000Z,system,2024-11-27T18:30:00.000Z,system
+36770802-28ce-40bf-bbc8-e9bf7d2efa5b,Rishabh Yuva Mandal Jamnagar,Summair Club Road,Jamnagar,Gujarat,173.68,true,11650417-e90c-480c-9196-b8afd6b84ab9,2022-12-17T18:30:00.000Z,system,2024-12-21T18:30:00.000Z,system
+36770814-0934-4d66-bf08-68fb3af1b59e,Neminath Yuva Mandal Bhavnagar,Central,Bhavnagar,Gujarat,0,false,11650421-c6b8-4ad0-855d-3771538e067a,2020-08-17T18:30:00.000Z,system,2023-03-05T18:30:00.000Z,system
+36770828-3931-4bc4-be5a-e9cb38e404ab,Suvidhinath Yuva Mandal Gandhinagar,Central,Gandhinagar,Gujarat,281.94,true,11650420-2ac6-458b-9026-02f0cbb0d457,2020-11-02T18:30:00.000Z,system,2023-06-18T18:30:00.000Z,system
+3677083c-2b35-4084-a76d-e1acbdd5057e,Neminath Yuva Mandal Junagadh,Central,Junagadh,Gujarat,497.66,true,11650409-0d0e-4a1a-9589-af219484a1e1,2022-09-28T18:30:00.000Z,system,2023-04-04T18:30:00.000Z,system
+3677084c-b6f3-4eaa-8366-1715f45a80d8,Suvidhinath Yuva Mandal Anand,Central,Anand,Gujarat,150.07,true,11650407-1655-473a-9d02-88834368cf8d,2022-11-17T18:30:00.000Z,system,2024-03-01T18:30:00.000Z,system
+3677085e-af76-49b9-a60f-f08f56ed2cf8,Padmaprabhu Yuva Mandal Nadiad,Central,Nadiad,Gujarat,602.92,true,11650412-36e5-4f89-b44f-b4ca88c9f8b3,2020-02-14T18:30:00.000Z,system,2024-02-10T18:30:00.000Z,system
+3677086f-5849-4b40-a615-fac046477da1,Shantinath Yuva Mandal Mehsana,Central,Mehsana,Gujarat,771.22,true,11650421-c6b8-4ad0-855d-3771538e067a,2020-05-29T18:30:00.000Z,system,2023-02-16T18:30:00.000Z,system
+3677087b-e617-492c-92da-a3272a7056a8,Chandraprabhu Yuva Mandal Navsari,Central,Navsari,Gujarat,157.38,true,11650404-f2c5-4c67-abf9-4e271a52515c,2020-05-21T18:30:00.000Z,system,2024-04-28T18:30:00.000Z,system
+36770885-83f1-4372-b0ae-81736538c9d8,Jineshwar Yuva Mandal Vapi,Central,Vapi,Gujarat,0,false,11650408-8d4f-49f0-822b-d7363b80e47d,2020-10-04T18:30:00.000Z,system,2024-10-18T18:30:00.000Z,system
+3677089f-e6e1-43b7-ad7c-c20d57ddcedc,Chandraprabhu Yuva Mandal Bharuch,Central,Bharuch,Gujarat,902.20,true,11650417-e90c-480c-9196-b8afd6b84ab9,2022-02-12T18:30:00.000Z,system,2024-01-20T18:30:00.000Z,system
+36770909-1307-4a0c-86b4-1f71734e7128,Parshwanath Yuva Mandal Morbi,Central,Morbi,Gujarat,695.61,true,11650420-2ac6-458b-9026-02f0cbb0d457,2020-09-29T18:30:00.000Z,system,2024-10-31T18:30:00.000Z,system
+36770917-0fc2-49d7-a9eb-0738df114fab,Neminath Yuva Mandal Palanpur,Central,Palanpur,Gujarat,0,false,11650420-2ac6-458b-9026-02f0cbb0d457,2022-03-15T18:30:00.000Z,system,2024-06-25T18:30:00.000Z,system
+36770923-22f6-4d74-baa9-a4cd4252140c,Mahavir Yuva Mandal Bhuj,Central,Bhuj,Gujarat,300.42,true,11905383-b787-4e90-b973-ba9217cb55e5,2020-02-16T18:30:00.000Z,system,2023-11-02T18:30:00.000Z,system
+3677093a-d55b-4f1f-ada8-a633acee5afa,Padmaprabhu Yuva Mandal Porbandar,Central,Porbandar,Gujarat,590.00,true,11650420-2ac6-458b-9026-02f0cbb0d457,2022-02-15T18:30:00.000Z,system,2023-08-24T18:30:00.000Z,system
+3677094b-fbba-42fd-9937-29c7a6b02868,Adinath Yuva Mandal Godhra,Central,Godhra,Gujarat,239.61,true,11650409-0d0e-4a1a-9589-af219484a1e1,2020-08-19T18:30:00.000Z,system,2023-02-02T18:30:00.000Z,system
+3677095e-f3b5-4a36-a93f-0c14146f0174,Chandraprabhu Yuva Mandal Surendranagar,Central,Surendranagar,Gujarat,942.61,true,11905383-b787-4e90-b973-ba9217cb55e5,2021-05-07T18:30:00.000Z,system,2023-07-31T18:30:00.000Z,system
+36770961-fc3d-4d25-86cd-8a994a78efb0,Parshwanath Yuva Mandal Amreli,Central,Amreli,Gujarat,0,false,11650404-f2c5-4c67-abf9-4e271a52515c,2022-07-03T18:30:00.000Z,system,2024-09-04T18:30:00.000Z,system
+36770970-c755-40f2-b2e9-322306113a58,Jineshwar Yuva Mandal Dahod,Central,Dahod,Gujarat,0,false,11650404-f2c5-4c67-abf9-4e271a52515c,2022-04-03T18:30:00.000Z,system,2024-03-25T18:30:00.000Z,system
+36770986-6eee-42df-9d3c-038789f5bb00,Adinath Yuva Mandal Gandhidham,Central,Gandhidham,Gujarat,778.95,true,11650404-f2c5-4c67-abf9-4e271a52515c,2020-10-13T18:30:00.000Z,system,2024-05-30T18:30:00.000Z,system
+36770992-8ef3-46ad-ae27-d27f850da088,Shantinath Yuva Mandal Valsad,Central,Valsad,Gujarat,0,false,11650421-c6b8-4ad0-855d-3771538e067a,2021-10-15T18:30:00.000Z,system,2024-08-14T18:30:00.000Z,system
+36771004-f477-4dd7-86f6-184050f780ae,Rishabh Yuva Mandal Patan,Central,Patan,Gujarat,836.54,true,11650410-26a2-47d1-afa7-f87c17b453c2,2021-09-10T18:30:00.000Z,system,2023-05-27T18:30:00.000Z,system
+3677101a-41cf-4551-9ded-c51d853f7e8d,Suvidhinath Yuva Mandal Veraval,Central,Veraval,Gujarat,0,false,11650412-36e5-4f89-b44f-b4ca88c9f8b3,2021-07-17T18:30:00.000Z,system,2023-03-04T18:30:00.000Z,system
+3677102a-b711-45bd-87f6-2c39eb8a6ff8,Suvidhinath Yuva Mandal Botad,Central,Botad,Gujarat,891.74,true,11650408-8d4f-49f0-822b-d7363b80e47d,2022-05-24T18:30:00.000Z,system,2024-07-23T18:30:00.000Z,system
+3677103f-b64b-4a8d-8c1d-ca5cdf35e84a,Padmaprabhu Yuva Mandal Deesa,Central,Deesa,Gujarat,0,false,11650414-3e13-4ae5-8350-ccf729e95c7b,2022-02-19T18:30:00.000Z,system,2024-06-21T18:30:00.000Z,system
+3677104e-e891-41bb-b427-93c5b3ef2d06,Neminath Yuva Mandal Jetpur,Central,Jetpur,Gujarat,467.43,true,11650412-36e5-4f89-b44f-b4ca88c9f8b3,2022-02-09T18:30:00.000Z,system,2023-07-08T18:30:00.000Z,system
+36771054-f433-45be-abd3-f63f80cb1cc7,Suvidhinath Yuva Mandal Gondal,Central,Gondal,Gujarat,864.41,true,11650412-36e5-4f89-b44f-b4ca88c9f8b3,2020-10-22T18:30:00.000Z,system,2024-04-19T18:30:00.000Z,system
+3677106f-f619-488f-8099-226ce44e4f11,Jineshwar Yuva Mandal Mumbai,Central,Mumbai,Maharashtra,971.01,true,11650420-2ac6-458b-9026-02f0cbb0d457,2022-12-21T18:30:00.000Z,system,2023-05-18T18:30:00.000Z,system
+36771075-c8e3-4585-8379-ae9da53eb466,Chandraprabhu Yuva Mandal Pune,Central,Pune,Maharashtra,0,false,11650409-0d0e-4a1a-9589-af219484a1e1,2021-11-07T18:30:00.000Z,system,2024-10-24T18:30:00.000Z,system
+36771080-c27e-42bd-ab15-f0c8859b017c,Parshwanath Yuva Mandal Bangalore,Central,Bangalore,Karnataka,862.42,true,11650405-99a5-4092-ba11-cc9ff73722f0,2021-01-25T18:30:00.000Z,system,2023-02-22T18:30:00.000Z,system
+3677109e-cfe5-412f-b8eb-905c20e59ba8,Shantinath Yuva Mandal Chennai,Central,Chennai,Tamil Nadu,644.47,true,11650404-f2c5-4c67-abf9-4e271a52515c,2020-05-29T18:30:00.000Z,system,2023-07-12T18:30:00.000Z,system
+36771108-55ba-4e05-8e4d-36fde5012367,Rishabh Yuva Mandal Hyderabad,Central,Hyderabad,Telangana,602.97,true,11650418-87ba-4f96-9f7d-99a2d0d5df90,2021-03-03T18:30:00.000Z,system,2023-12-07T18:30:00.000Z,system
+3677111b-b815-409d-ac8d-c6d3d006c9af,Shantinath Yuva Mandal Delhi,Central,Delhi,Delhi,113.80,true,11650409-0d0e-4a1a-9589-af219484a1e1,2020-08-28T18:30:00.000Z,system,2024-05-05T18:30:00.000Z,system
+36771123-87b8-4c1f-89c9-14af268601ef,Adinath Yuva Mandal Kolkata,Central,Kolkata,West Bengal,733.39,true,11650415-b415-4f19-a665-53659e32edfe,2021-05-05T18:30:00.000Z,system,2024-07-19T18:30:00.000Z,system
+36771136-b2be-4422-8397-9301ce87a259,Neminath Yuva Mandal Jaipur,Central,Jaipur,Rajasthan,442.60,true,11650420-2ac6-458b-9026-02f0cbb0d457,2022-01-05T18:30:00.000Z,system,2023-11-12T18:30:00.000Z,system
+36771149-38d4-4b08-912d-effca1f3549d,Shantinath Yuva Mandal Udaipur,Central,Udaipur,Rajasthan,894.53,true,11650417-e90c-480c-9196-b8afd6b84ab9,2020-07-20T18:30:00.000Z,system,2024-04-25T18:30:00.000Z,system
+36771151-745e-4d10-b833-9a5b291f38ba,Neminath Yuva Mandal Jodhpur,Central,Jodhpur,Rajasthan,433.63,true,11650416-9c17-4c9e-a967-c2b19f511753,2020-04-03T18:30:00.000Z,system,2024-07-30T18:30:00.000Z,system
+36771163-0164-4b87-8180-13b9c6c932ff,Adinath Yuva Mandal Indore,Central,Indore,Madhya Pradesh,114.60,true,11650420-2ac6-458b-9026-02f0cbb0d457,2022-05-05T18:30:00.000Z,system,2023-10-30T18:30:00.000Z,system
+36771171-7085-4122-beb6-baa04b7e055a,Mahavir Yuva Mandal Bhopal,Central,Bhopal,Madhya Pradesh,0,false,11650410-26a2-47d1-afa7-f87c17b453c2,2022-02-16T18:30:00.000Z,system,2024-08-06T18:30:00.000Z,system
+3677118d-142d-4a6b-a993-ed45f5c68269,Adinath Yuva Mandal Nagpur,Central,Nagpur,Maharashtra,689.15,true,11650413-7a4f-4880-a725-be14f313c67f,2021-06-11T18:30:00.000Z,system,2024-05-15T18:30:00.000Z,system
+3677119f-2b48-4486-97bf-cb38ff8d91fd,Padmaprabhu Yuva Mandal Nashik,Central,Nashik,Maharashtra,759.50,true,11650414-3e13-4ae5-8350-ccf729e95c7b,2020-12-12T18:30:00.000Z,system,2023-05-24T18:30:00.000Z,system
+3677120b-df14-42d1-8784-81d287f0a2c2,Suvidhinath Yuva Mandal Aurangabad,Central,Aurangabad,Maharashtra,925.21,true,11650420-2ac6-458b-9026-02f0cbb0d457,2020-04-30T18:30:00.000Z,system,2024-06-20T18:30:00.000Z,system
+36771218-ffb6-4a40-8cdf-388ec02fe54a,Jineshwar Yuva Mandal Kota,Central,Kota,Rajasthan,166.90,true,11650404-f2c5-4c67-abf9-4e271a52515c,2020-01-14T18:30:00.000Z,system,2024-02-27T18:30:00.000Z,system
+36771220-d75b-4b75-b4a9-6b690529c50c,Mahavir Yuva Mandal Ajmer,Central,Ajmer,Rajasthan,308.29,true,11650407-1655-473a-9d02-88834368cf8d,2020-01-19T18:30:00.000Z,system,2023-08-12T18:30:00.000Z,system
+36771239-4787-4aa3-8886-e0d1675833bb,Suvidhinath Yuva Mandal Bikaner,Central,Bikaner,Rajasthan,154.41,true,11650422-47da-4ddd-8f4f-c05ae3476566,2022-09-16T18:30:00.000Z,system,2024-11-06T18:30:00.000Z,system
+36771248-a0fa-4ff2-b9d9-bea9980e9dae,Padmaprabhu Yuva Mandal Ujjain,Central,Ujjain,Madhya Pradesh,0,false,11650420-2ac6-458b-9026-02f0cbb0d457,2022-04-22T18:30:00.000Z,system,2023-01-13T18:30:00.000Z,system
+36771256-c135-404d-9b87-a56d8b21f9e8,Jineshwar Yuva Mandal Raipur,Central,Raipur,Chhattisgarh,347.27,true,11650412-36e5-4f89-b44f-b4ca88c9f8b3,2020-02-05T18:30:00.000Z,system,2024-05-29T18:30:00.000Z,system

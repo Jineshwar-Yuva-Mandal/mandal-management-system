@@ -1,0 +1,3 @@
+ID,assignment_ID,topic_ID,status,completed_date,marked_by_ID,remarks,createdAt,createdBy,modifiedAt,modifiedBy
+19455120-487e-4cef-ba68-cfade161a75d,83159198-d45a-411d-ad77-08db0094da39,24767839-ad04-4100-88e6-66ff9939687f,completed,2023-11-11,11905383-b787-4e90-b973-ba9217cb55e5,Completed all exercises,2024-03-06T18:30:00.000Z,system,2023-12-06T18:30:00.000Z,system
+19455121-8555-4f7d-b06b-b201e67e4921,83159198-d45a-411d-ad77-08db0094da39,24767840-6f72-4e6e-9899-5b39f8356a5f,completed,2024-01-16,11905383-b787-4e90-b973-ba9217cb55e5,Good understanding demonstrated,2023-09-24T18:30:00.000Z,system,2024-08-22T18:30:00.000Z,system

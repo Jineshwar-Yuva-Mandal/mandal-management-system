@@ -1,0 +1,3 @@
+ID,course_ID,sequence,title,description,material_url,estimated_hours,createdAt,createdBy,modifiedAt,modifiedBy
+24767839-ad04-4100-88e6-66ff9939687f,23035704-0838-4b46-b0c4-28d82934ce77,1,Introduction and History,Overview of the text and its historical context,https://jainlibrary.org/intro,2.0,2023-05-13T18:30:00.000Z,system,2024-07-26T18:30:00.000Z,system
+24767840-6f72-4e6e-9899-5b39f8356a5f,23035704-0838-4b46-b0c4-28d82934ce77,2,Core Concepts,Understanding the fundamental principles,https://jainlibrary.org/core,3.5,2023-04-04T18:30:00.000Z,system,2024-11-27T18:30:00.000Z,system
