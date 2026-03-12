@@ -10,3 +10,5 @@ using from './admin/ledger/annotations';
 using from './admin/courses/annotations';
 
 using from './admin/joinrequests/annotations';
+
+using from './admin/positions/annotations';
