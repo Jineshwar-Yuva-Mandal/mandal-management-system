@@ -20,8 +20,8 @@
     "start": "cds-serve",
     "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-eventsandattendance": "cds watch --open admin/eventsandattendance/webapp/index.html?sap-ui-xx-viewCache=false",
-    "watch-fines": "cds watch --open fines/webapp/index.html?sap-ui-xx-viewCache=false",
-    "watch-ledger": "cds watch --open ledger/webapp/index.html?sap-ui-xx-viewCache=false"
+    "watch-fines": "cds watch --open admin/fines/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-ledger": "cds watch --open admin/ledger/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "sapux": [
     "app/admin/members",
