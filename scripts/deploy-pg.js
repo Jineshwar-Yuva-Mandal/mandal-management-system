@@ -56,12 +56,22 @@ async function main() {
   let sql = execSync('npx cds compile "*" --to sql --dialect postgres', { encoding: 'utf8' });
   console.log('[deploy-pg] Generated DDL:', sql.split('\n').length, 'lines');
 
+  const host = process.env.CDS_REQUIRES_DB_CREDENTIALS_HOST;
+  const user = process.env.CDS_REQUIRES_DB_CREDENTIALS_USER;
+  const password = process.env.CDS_REQUIRES_DB_CREDENTIALS_PASSWORD;
+
+  if (!host || !user || !password) {
+    throw new Error(`Missing env vars — HOST=${host ? 'set' : 'MISSING'}, USER=${user ? 'set' : 'MISSING'}, PASSWORD=${password ? 'set' : 'MISSING'}`);
+  }
+
+  console.log('[deploy-pg] Connecting to', host, 'as', user);
+
   const c = new Client({
-    host: process.env.CDS_REQUIRES_DB_CREDENTIALS_HOST,
+    host,
     port: parseInt(process.env.CDS_REQUIRES_DB_CREDENTIALS_PORT || '5432'),
     database: process.env.CDS_REQUIRES_DB_CREDENTIALS_DATABASE || 'postgres',
-    user: process.env.CDS_REQUIRES_DB_CREDENTIALS_USER,
-    password: process.env.CDS_REQUIRES_DB_CREDENTIALS_PASSWORD,
+    user,
+    password,
     ssl: { rejectUnauthorized: false }
   });
 
@@ -130,4 +140,4 @@ async function main() {
   await c.end();
 }
 
-main().catch(e => { console.error('[deploy-pg] FAILED:', e.message); process.exit(1); });
+main().catch(e => { console.error('[deploy-pg] FAILED:', e.message || e); process.exit(1); });
