@@ -34,6 +34,11 @@ sap.ui.define([
 
         /* ── Header actions ── */
 
+        onMenuButtonPress: function () {
+            var oToolPage = this.byId("toolPage");
+            oToolPage.setSideExpanded(!oToolPage.getSideExpanded());
+        },
+
         onHomePress: function () {
             this.byId("navContainer").backToTop();
             this.byId("sideNav").setSelectedKey("");
