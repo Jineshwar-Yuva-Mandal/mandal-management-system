@@ -93,7 +93,11 @@
             }
         },
         "resources": {
-            "css": []
+            "css": [
+                {
+                    "uri": "css/style.css"
+                }
+            ]
         },
         "routing": {
             "config": {},
@@ -117,7 +121,7 @@
                     "options": {
                         "settings": {
                             "contextPath": "/Members",
-                            "variantManagement": "Page",
+                            "variantManagement": "None",
                             "navigation": {
                                 "Members": {
                                     "detail": {
@@ -128,10 +132,74 @@
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
                                     "tableSettings": {
-                                        "type": "ResponsiveTable"
+                                        "type": "ResponsiveTable",
+                                        "header": "Members",
+                                        "selectAll": false,
+                                        "selectionMode": "None",
+                                        "widthIncludingColumnHeader": true,
+                                        "quickVariantSelection": {
+                                            "hideTableTitle": false,
+                                            "showCounts": true
+                                        },
+                                        "personalization": {
+                                            "sort": true,
+                                            "filter": true,
+                                            "column": true
+                                        },
+                                        "disableCopyToClipboard": true,
+                                        "enableExport": true,
+                                        "enableMassEdit": false
+                                    },
+                                    "columns": {
+                                        "DataField::profile_picture": {
+                                            "availability": "Default",
+                                            "widthIncludingColumnHeader": true,
+                                            "width": "5%"
+                                        },
+                                        "DataField::email": {
+                                            "availability": "Default",
+                                            "width": "15%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::full_name": {
+                                            "availability": "Default",
+                                            "width": "15%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::phone": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::dob": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::education": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::gotra": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::profession": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::father_name": {
+                                            "width": "15%",
+                                            "widthIncludingColumnHeader": true
+                                        }
                                     }
                                 }
-                            }
+                            },
+                            "hideFilterBar": false,
+                            "initialLoad": "Enabled"
                         }
                     }
                 },
@@ -142,7 +210,82 @@
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "contextPath": "/Members"
+                            "contextPath": "/Members",
+                            "sectionLayout": "Page",
+                            "content": {
+                                "header": {
+                                    "anchorBarVisible": true,
+                                    "visible": true
+                                }
+                            },
+                            "controlConfiguration": {
+                                "memberships/@com.sap.vocabularies.UI.v1.LineItem#i18nMemberships": {
+                                    "tableSettings": {
+                                        "enableExport": true,
+                                        "disableCopyToClipboard": true,
+                                        "selectAll": false,
+                                        "selectionMode": "None",
+                                        "type": "ResponsiveTable",
+                                        "widthIncludingColumnHeader": true,
+                                        "personalization": {
+                                            "column": true,
+                                            "filter": true,
+                                            "sort": true
+                                        },
+                                        "quickVariantSelection": {
+                                            "hideTableTitle": false,
+                                            "showCounts": true
+                                        }
+                                    },
+                                    "columns": {
+                                        "DataField::mandal::name": {
+                                            "availability": "Default",
+                                            "width": "20%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::mandal::area": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::mandal::state": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::joined_date": {
+                                            "availability": "Default",
+                                            "width": "8%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::left_date": {
+                                            "availability": "Default",
+                                            "width": "8%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::remarks": {
+                                            "availability": "Default",
+                                            "width": "19%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::mandal::logo": {
+                                            "availability": "Default",
+                                            "width": "5%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::user::city": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::membership_status": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

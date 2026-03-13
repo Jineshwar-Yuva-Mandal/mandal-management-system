@@ -108,6 +108,33 @@ sap.ui.define([
             }
         },
 
+        /* ── App page back button ── */
+
+        onAppBackPress: function () {
+            var oIframe = document.querySelector(".samanvayIframe");
+            if (oIframe && oIframe.contentWindow) {
+                try {
+                    var sUrlBefore = oIframe.contentWindow.location.href;
+                    oIframe.contentWindow.history.back();
+                    var that = this;
+                    setTimeout(function () {
+                        try {
+                            var sUrlAfter = oIframe.contentWindow.location.href;
+                            if (sUrlAfter === sUrlBefore) {
+                                that.onHomePress();
+                            }
+                        } catch (e) {
+                            that.onHomePress();
+                        }
+                    }, 300);
+                } catch (e) {
+                    this.onHomePress();
+                }
+            } else {
+                this.onHomePress();
+            }
+        },
+
         /* ── Core app opening logic ── */
 
         _openApp: function (sKey) {

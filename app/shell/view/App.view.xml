@@ -73,7 +73,8 @@
                         <core:Fragment fragmentName="com.samanvay.shell.view.Footer" type="XML"/>
                     </footer>
                 </Page>
-                <Page id="appPage" title="{/appTitle}" showNavButton="true" navButtonPress=".onHomePress"
+                <Page id="appPage" showHeader="true" showNavButton="true"
+                      navButtonPress=".onAppBackPress" title="{/appTitle}"
                       enableScrolling="false" class="samanvayAppPage">
                     <core:HTML id="appFrame" sanitizeContent="false"/>
                 </Page>
