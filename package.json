@@ -8,14 +8,14 @@
   "dependencies": {
     "@cap-js/sqlite": "^2",
     "@sap/cds": "^9",
-    "@sap/cds-dk": "^9",
     "express": "^4"
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
-    "@cap-js/cds-types": "^0.13.0"
+    "@cap-js/cds-types": "^0.13.0",
+    "@sap/cds-dk": "^9"
   },
   "scripts": {
     "build": "npm install && npx cds deploy --to sqlite:db/samanvay.db",
