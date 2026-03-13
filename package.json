@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@cap-js/postgres": "^2.2.0",
     "@cap-js/sqlite": "^2",
     "@sap/cds": "^9",
     "express": "^4"
@@ -18,7 +19,8 @@
     "@sap/cds-dk": "^9"
   },
   "scripts": {
-    "build": "npm install && npx cds deploy --to sqlite:db/samanvay.db",
+    "build": "npx cds deploy --to sqlite:db/samanvay.db",
+    "build:production": "npx cds deploy --to postgres",
     "start": "cds-serve",
     "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-eventsandattendance": "cds watch --open admin/eventsandattendance/webapp/index.html?sap-ui-xx-viewCache=false",
@@ -39,6 +41,18 @@
       },
       "auth": {
         "kind": "dummy"
+      },
+      "[production]": {
+        "db": {
+          "kind": "postgres",
+          "impl": "@cap-js/postgres",
+          "credentials": {
+            "url": "$DATABASE_URL"
+          }
+        },
+        "auth": {
+          "kind": "dummy"
+        }
       }
     }
   },
