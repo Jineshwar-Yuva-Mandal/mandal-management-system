@@ -1,36 +1,32 @@
-## Application Details
-|               |
-| ------------- |
-|**Generation Date and Time**<br>Thu Mar 12 2026 20:07:54 GMT+0530 (India Standard Time)|
-|**App Generator**<br>@sap/generator-fiori-elements|
-|**App Generator Version**<br>1.15.7|
-|**Generation Platform**<br>Visual Studio Code|
-|**Template Used**<br>List Report Page V4|
-|**Service Type**<br>Local Cap|
-|**Service URL**<br>http://localhost:4004/api/admin/|
-|**Module Name**<br>joinrequests|
-|**Application Title**<br>Membership Requests|
-|**Namespace**<br>com.samanvay.admin|
-|**UI5 Theme**<br>sap_horizon|
-|**UI5 Version**<br>1.145.0|
-|**Enable Code Assist Libraries**<br>False|
-|**Enable TypeScript**<br>False|
-|**Add Eslint configuration**<br>False|
-|**Main Entity**<br>JoinRequests|
-|**Navigation Entity**<br>None|
+# Membership Requests
 
-## joinrequests
+Review, approve, or reject membership join requests. Tracks payment and approval workflow.
 
-An SAP Fiori application.
+**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Ser**Sen F# Members Management
 
-### Starting the generated app
+Manage mandal membe s
+Manage mandal membpai
+**Service Entity:** `AdminService.Members` → `Users`
 
--   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  In order to launch the generated app, simply start your CAP project and navigate to the following location in your browser:
+**Main Fields:** full_namtai
+**Main Fields:** full_name, email, phone, city, gendunt
+**Object Page Sections:**
+- Basic Identity (name, email, phone, profile picture)
+- Personal Details 
+**- Basic Identity (name, ho- Personal Details (dob, gender, marital status, bloolo- Address
+- Family Details
+- Education & Profession
+- Religi> - Familyn/- Education & PE.- Religious / Mandal-spsi- Skills & Interests
+- Health & Emergency Contact
+- Mandal Membak- Health & Emergenc/f- Mandal Memberships (table.
 
-http://localhost:4004/admin/joinrequests/webapp/index.html
+**Dev URL:** [http://localSerEOF
 
-#### Pre-requisites:
+cat > app/admin/joinrequests/README.md << 'EOF'
+# Membership Requests
 
-1. Active NodeJS LTS (Long Term Support) version and associated supported NPM version.  (See https://nodejs.org)
+Review, approve, or reject membership join reqtails (name, description, mandal)
+- Assigned Members (table — user, valid_from, valid_to)
+- Entity Permissions (table — entity, can_create/read/update/delete)
 
-
+**Dev URL:** [http://localhost:4004/admin/positions/webapp/index.html](http://localhost:4004/admin/positions/webapp/index.html)

@@ -1,35 +1,14 @@
-## Application Details
-|               |
-| ------------- |
-|**Generation Date and Time**<br>Thu Mar 12 2026 19:57:44 GMT+0530 (India Standard Time)|
-|**App Generator**<br>@sap/generator-fiori-elements|
-|**App Generator Version**<br>1.15.7|
-|**Generation Platform**<br>Visual Studio Code|
-|**Template Used**<br>List Report Page V4|
-|**Service Type**<br>Local Cap|
-|**Service URL**<br>http://localhost:4004/api/admin/|
-|**Module Name**<br>fines|
-|**Application Title**<br>Fines Management|
-|**Namespace**<br>com.samanvay.admin|
-|**UI5 Theme**<br>sap_horizon|
-|**UI5 Version**<br>1.145.0|
-|**Enable Code Assist Libraries**<br>False|
-|**Enable TypeScript**<br>False|
-|**Add Eslint configuration**<br>False|
-|**Main Entity**<br>MemberFines|
+# Fines Management
 
-## fines
+Track fines generated from event absences. Verify member payments and link to the financial ledger.
 
-An SAP Fiori application.
+**Service Entity:** `AdminService.MemberFines` → `Fines`
 
-### Starting the generated app
+**Main Fields:** user, event, amount, status, due_date, paid_amount, payment_mode
 
--   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  In order to launch the generated app, simply start your CAP project and navigate to the following location in your browser:
+**Object Page Sections:**
+- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, mandal, amount,- Fine Details (user, event, m type, description, amount, direction, status, mandal)
+- People (related_user, recorded_by, verified_by, verified_at)
+- Notes (remarks)
 
-http://localhost:4004/admin/fines/webapp/index.html
-
-#### Pre-requisites:
-
-1. Active NodeJS LTS (Long Term Support) version and associated supported NPM version.  (See https://nodejs.org)
-
-
+**Dev URL:** [http://localhost:4004/admin/ledger/webapp/index.html](http://localhost:4004/admin/ledger/webapp/index.html)

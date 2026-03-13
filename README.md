@@ -1,50 +1,112 @@
-# Welcome to your Expo app 👋
+# Samanvay — Mandal Management System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive platform for managing mandal operations — members, events, finances, courses, and more.
 
-## Get started
+Built with [SAP Cloud Application Programming Model (CAP)](https://cap.cloud.sap/docs/) and [SAPUI5 Fiori Elements](https://ui5.sap.com/).
 
-1. Install dependencies
+## Architecture
 
-   ```bash
-   npm install
-   ```
+| Layer | Technology | Details |
+|---|---|---|
+| **Backend** | SAP CAP (Node.js) | OData V4 services, SQLite database |
+| **Frontend** | SAPUI5 Fiori Elements | List Report + Object Page apps |
+| **Shell** | Custom UI5 Component | Launchpad with ShellBar, SideNavigation, tile dashboard |
+| **Hosting** | Vercel (UI) + Render (API) | Static frontend, proxied API calls |
 
-2. Start the app
+## Project Structure
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+├── app/
+│   ├── launchpage.html          # Entry point — bootstraps UI5 shell
+│   ├── shell/                   # Custom launchpad (Component, views, controller, CSS)
+│   ├── vercel.json              # Vercel deployment config
+│   └── admin/                   # Fiori Elements apps
+│       ├── members/             # Member management
+│       ├── joinrequests/        # Membership request review
+│       ├── positions/           # Positions & permissions
+│       ├── eventsandattendance/ # Events & attendance tracking
+│       ├── courses/             # Course & syllabus management
+│       ├── fines/               # Fine tracking & payment verification
+│       ├── ledger/              # Financial ledger
+│       └── mandal/              # Mandal settings
+├── db/                          # CDS data models
+│   ├── users.cds                # Users entity (80+ fields)
+│   ├── mandal.cds               # Mandals & memberships
+│   ├── authorization.cds        # Positions, permissions (entity + field level)
+│   ├── membership.cds           # Join requests, approval workflows
+│   ├── event.cds                # Events & attendance
+│   ├── course.cds               # Courses, syllabus, assignments, progress
+│   ├── fine.cds                 # Fines lifecycle
+│   ├── ledger.cds               # Financial ledger entries
+│   └── member_field_config.cds  # Per-mandal registration form config
+├── srv/
+│   ├── admin-service.cds        # AdminService — mandal admin operations
+│   ├── member-service.cds       # MemberService — member self-service
+│   ├── platform-service.cds     # PlatformService — platform admin
+│   └── public-service.cds       # PublicService — unauthenticated access
+└── package.json
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js ≥ 20
+- npm
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Install & Run
 
-## Join the community
+```bash
+npm install
+cds watch
+```
 
-Join our community of developers creating universal apps.
+Open [http://localhost:4004/launchpage.html](http://localhost:4004/launchpage.html) in your browser.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Individual Apps (dev)
+
+```bash
+npm run watch-members
+npm run watch-fines
+# etc. — see package.json for all watch-* scripts
+```
+
+## Deployment
+
+### UI (Vercel)
+
+The `app/` folder is deployed as static files. No build step required — UI5 loads from CDN.
+
+| Setting | Value |
+|---|---|
+| Root Directory | `app` |
+| Build Command | _(empty)_ |
+| Output Directory | `.` |
+| Framework | Other |
+
+API calls to `/api/*` are proxied to the backend via `vercel.json` rewrites.
+
+### Backend (Render)
+
+CAP Node.js server with SQLite. Build command:
+
+```bash
+npm install && npx cds deploy --to sqlite:db/samanvay.db
+```
+
+## Admin Apps
+
+| App | Entity | Description |
+|---|---|---|
+| Members | `Users` | Manage mandal members — profiles, contact, family, skills |
+| Join Requests | `MembershipRequests` | Review and approve membership applications |
+| Positions | `Positions` | Define committee positions and assign CRUD permissions |
+| Events & Attendance | `Events` | Create events, mark attendance, auto-generate fines |
+| Courses | `Courses` | Manage courses, syllabus topics, member assignments |
+| Fines | `Fines` | Track fines, verify payments, link to ledger |
+| Financial Ledger | `LedgerEntries` | Central income/expense records with verification |
+| Mandal Settings | `Mandals` | Configure mandal info, joining fees, admin ownership |
+
+## License
+
+See [LICENSE](LICENSE).

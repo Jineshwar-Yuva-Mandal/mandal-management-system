@@ -1,36 +1,14 @@
-## Application Details
-|               |
-| ------------- |
-|**Generation Date and Time**<br>Thu Mar 12 2026 19:53:28 GMT+0530 (India Standard Time)|
-|**App Generator**<br>@sap/generator-fiori-elements|
-|**App Generator Version**<br>1.15.7|
-|**Generation Platform**<br>Visual Studio Code|
-|**Template Used**<br>List Report Page V4|
-|**Service Type**<br>Local Cap|
-|**Service URL**<br>http://localhost:4004/api/admin/|
-|**Module Name**<br>eventsandattendance|
-|**Application Title**<br>Events &amp; Attendance|
-|**Namespace**<br>com.samanvay.admin|
-|**UI5 Theme**<br>sap_horizon|
-|**UI5 Version**<br>1.145.0|
-|**Enable Code Assist Libraries**<br>False|
-|**Enable TypeScript**<br>False|
-|**Add Eslint configuration**<br>False|
-|**Main Entity**<br>MandalEvents|
-|**Navigation Entity**<br>None|
+# Events & Attendance
 
-## eventsandattendance
+Create mandal events, mark attendance, and optionally auto-generate fines for absentees.
 
-An SAP Fiori application.
+**Service Entity:** `AdminService.MandalEvents` → `Events`
 
-### Starting the generated app
+**Main Fields:** title, event_date, location, has_fine, fine_amount
 
--   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  In order to launch the generated app, simply start your CAP project and navigate to the following location in your browser:
+**Object Page Sections:**
+- Event Details (title, description, date, time, location, mandal)
+- Fine Configuration (has_fine, fine_amount, fine_deadline)
+- Attendance (table — user, status, marked_by, marked_at, remarks)
 
-http://localhost:4004/admin/eventsandattendance/webapp/index.html
-
-#### Pre-requisites:
-
-1. Active NodeJS LTS (Long Term Support) version and associated supported NPM version.  (See https://nodejs.org)
-
-
+**Dev URL:** [http://localhost:4004/admin/eventsandattendance/webapp/index.html](http://localhost:4004/admin/eventsandattendance/webapp/index.html)

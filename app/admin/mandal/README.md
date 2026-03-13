@@ -1,36 +1,14 @@
-## Application Details
-|               |
-| ------------- |
-|**Generation Date and Time**<br>Thu Mar 12 2026 20:13:48 GMT+0530 (India Standard Time)|
-|**App Generator**<br>@sap/generator-fiori-elements|
-|**App Generator Version**<br>1.15.7|
-|**Generation Platform**<br>Visual Studio Code|
-|**Template Used**<br>List Report Page V4|
-|**Service Type**<br>Local Cap|
-|**Service URL**<br>http://localhost:4004/api/admin/|
-|**Module Name**<br>mandal|
-|**Application Title**<br>Mandal Settings|
-|**Namespace**<br>com.samanvay.admin|
-|**UI5 Theme**<br>sap_horizon|
-|**UI5 Version**<br>1.145.0|
-|**Enable Code Assist Libraries**<br>False|
-|**Enable TypeScript**<br>False|
-|**Add Eslint configuration**<br>False|
-|**Main Entity**<br>Mandal|
-|**Navigation Entity**<br>None|
+# Mandal Settings
 
-## mandal
+Configure mandal info, joining fees, and admin ownership.
 
-An SAP Fiori application.
+**Service Entity:** `AdminService.Mandal` → `Mandals`
 
-### Starting the generated app
+**Main Fields:** name, area, city, state, joining_fee, has_joining_fee
 
--   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  In order to launch the generated app, simply start your CAP project and navigate to the following location in your browser:
+**Object Page Sections:**
+- Mandal Info (name, area, city, state, logo, admin)
+- Fee Configuration (has_joining_fee, joining_fee)
+- Memberships (table — user, membership_status, membership_number, joined_date)
 
-http://localhost:4004/admin/mandal/webapp/index.html
-
-#### Pre-requisites:
-
-1. Active NodeJS LTS (Long Term Support) version and associated supported NPM version.  (See https://nodejs.org)
-
-
+**Dev URL:** [http://localhost:4004/admin/mandal/webapp/index.html](http://localhost:4004/admin/mandal/webapp/index.html)
