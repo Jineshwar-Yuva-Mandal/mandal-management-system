@@ -1,0 +1,136 @@
+/* ── ShellBar padding adjustment ── */
+.sapFShellBar,
+.sapFShellBar.sapFShellBarSizeS,
+.sapFShellBar.sapFShellBarSizeM,
+.sapFShellBar.sapFShellBarSizeL,
+.sapFShellBar.sapFShellBarSizeXL {
+    padding: 0 0.75rem !important;
+}
+
+.sapTntToolPageHeader .sapFShellBar,
+.sapTntToolPageHeader .sapFShellBar * {
+    box-sizing: border-box;
+}
+
+.sapFShellBar .sapMOTB {
+    padding: 0 !important;
+}
+
+.sapFShellBar .sapMBarLeft,
+.sapFShellBar .sapMBarMiddle,
+.sapFShellBar .sapMBarRight,
+.sapFShellBar .sapMTBShrinkItem {
+    margin: 0 !important;
+}
+
+/* ── Welcome page ── */
+.samanvayWelcome {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+    margin: 0;
+}
+
+.samanvaySubtitle {
+    color: #6a6d70;
+    text-align: left;
+    max-width: 100%;
+}
+
+.samanvayGroupHeading {
+    padding-left: 0;
+}
+
+.samanvayTileSection {
+    max-width: 100%;
+    width: 100%;
+}
+
+.samanvayTileGrid {
+    padding: 0;
+    width: 100%;
+    gap: 0.75rem;
+}
+
+/* ── Custom card tiles ── */
+.samanvayCard {
+    width: 20rem;
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.samanvayCard:hover {
+    border-color: #0070f2;
+    box-shadow: 0 2px 8px rgba(0, 112, 242, 0.12);
+}
+
+.samanvayCardIcon {
+    color: #0054b6 !important;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.samanvayCardText {
+    min-width: 0;
+}
+
+.samanvayCardDesc {
+    color: #6a6d70 !important;
+    font-size: 0.8125rem !important;
+    margin-top: 0.125rem;
+}
+
+/* ── Embedded app iframe ── */
+.samanvayIframe {
+    width: 100%;
+    height: calc(100vh - 2.75rem);
+    border: none;
+}
+
+.samanvayAppPage .sapMPageEnableScrolling {
+    overflow: hidden;
+}
+
+/* ── Placeholder page for coming-soon apps ── */
+.samanvayPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 2.75rem);
+    color: #6a6d70;
+    font-family: '72', 'Segoe UI', Arial, sans-serif;
+}
+
+.samanvayPlaceholder h2 {
+    color: #32363a;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.samanvayPlaceholder p {
+    font-size: 0.875rem;
+}
+
+/* ── Profile popover buttons ── */
+.samanvayProfileBtn {
+    justify-content: flex-start !important;
+}
+
+/* ── Footer ── */
+.samanvayFooter {
+    border-top: 1px solid #e5e5e5;
+    background: #f5f6fa !important;
+}
+
+.samanvayFooterText {
+    font-size: 0.75rem !important;
+    color: #6a6d70 !important;
+}
+
+.samanvayProfileBtn .sapMBtnInner {
+    justify-content: flex-start;
+}

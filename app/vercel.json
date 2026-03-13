@@ -5,6 +5,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://samanvay-0kb2.onrender.com/api/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "/launchpage.html"
     }
   ],
   "headers": [

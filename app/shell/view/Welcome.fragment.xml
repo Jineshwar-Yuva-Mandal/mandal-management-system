@@ -1,0 +1,46 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="samanvayWelcome" alignItems="Start">
+
+        <Title text="Welcome to Samanvay" level="H1" titleStyle="H3" />
+        <Text text="Manage your mandal — members, events, finances, and more — all in one place."
+              class="sapUiSmallMarginBottom samanvaySubtitle"/>
+
+        <VBox width="100%" class="samanvayTileSection">
+
+            <!-- Admin tiles -->
+            <Title text="Admin" level="H4" class="sapUiMediumMarginTop sapUiSmallMarginBottom samanvayGroupHeading"/>
+            <FlexBox wrap="Wrap" class="samanvayTileGrid" items="{/adminApps}">
+                <HBox class="samanvayCard" alignItems="Center">
+                    <core:Icon src="{icon}" size="2rem" class="samanvayCardIcon"/>
+                    <VBox class="samanvayCardText">
+                        <Title text="{title}" level="H5" titleStyle="H5"/>
+                        <Label text="{desc}" design="Light" wrapping="true" class="samanvayCardDesc"/>
+                    </VBox>
+                    <customData>
+                        <core:CustomData key="appKey" value="{key}"/>
+                    </customData>
+                </HBox>
+            </FlexBox>
+
+            <!-- Member tiles -->
+            <Title text="Member" level="H4" class="sapUiMediumMarginTop sapUiSmallMarginBottom samanvayGroupHeading"/>
+            <FlexBox wrap="Wrap" class="samanvayTileGrid" items="{/memberApps}">
+                <HBox class="samanvayCard" alignItems="Center">
+                    <core:Icon src="{icon}" size="2rem" class="samanvayCardIcon"/>
+                    <VBox class="samanvayCardText">
+                        <Title text="{title}" level="H5" titleStyle="H5"/>
+                        <Label text="{desc}" design="Light" wrapping="true" class="samanvayCardDesc"/>
+                    </VBox>
+                    <customData>
+                        <core:CustomData key="appKey" value="{key}"/>
+                    </customData>
+                </HBox>
+            </FlexBox>
+
+        </VBox>
+    </VBox>
+
+</core:FragmentDefinition>
