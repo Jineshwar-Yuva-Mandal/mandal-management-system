@@ -24,8 +24,21 @@ function parseDDL(sql) {
     if (tableMatch) {
       const name = tableMatch[1].toLowerCase();
       const body = tableMatch[2];
-      // Parse columns — each line is a column def or constraint
-      const cols = body.split(',').map(c => c.trim()).filter(Boolean);
+      // Parse columns — split on commas but respect parentheses (e.g. DECIMAL(10, 2))
+      const cols = [];
+      let depth = 0, current = '';
+      for (const ch of body) {
+        if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        if (ch === ',' && depth === 0) {
+          cols.push(current.trim());
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      if (current.trim()) cols.push(current.trim());
+
       const columns = [];
       for (const col of cols) {
         // Skip PRIMARY KEY(...) constraints
@@ -140,4 +153,8 @@ async function main() {
   await c.end();
 }
 
-main().catch(e => { console.error('[deploy-pg] FAILED:', e.message || e); process.exit(1); });
+main().catch(e => {
+  console.error('[deploy-pg] FAILED:', e.message || e);
+  if (e.query) console.error('[deploy-pg] Failing SQL:', e.query.substring(0, 200));
+  process.exit(1);
+});
