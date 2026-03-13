@@ -72,10 +72,26 @@ sap.ui.define([
         onNavItemSelect: function (oEvent) {
             var oItem = oEvent.getParameter("item");
             var sKey = oItem.getKey();
-            if (!sKey) {
-                return; // parent group toggled, no navigation
+            if (!sKey || sKey.startsWith("http") || sKey.startsWith("mailto:")) {
+                return;
             }
             this._openApp(sKey);
+        },
+
+        onFixedNavItemSelect: function (oEvent) {
+            var oItem = oEvent.getParameter("item");
+            var sUrl = oItem.getKey();
+            if (sUrl) {
+                if (sUrl.startsWith("mailto:")) {
+                    var oLink = document.createElement("a");
+                    oLink.href = sUrl;
+                    oLink.click();
+                } else {
+                    window.open(sUrl, "_blank", "noopener");
+                }
+            }
+            // Deselect so it doesn't stay highlighted
+            this.byId("sideNav").setSelectedKey("");
         },
 
         /* ── Welcome tile press ── */

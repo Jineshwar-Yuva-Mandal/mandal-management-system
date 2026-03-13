@@ -13,6 +13,7 @@
         <tnt:header>
             <f:ShellBar
                 title="Samanvay"
+                secondTitle="Mandal Management System"
                 homeIcon="./logo.png"
                 homeIconPressed=".onHomePress"
                 avatarPressed=".onAvatarPress">
@@ -50,6 +51,14 @@
                         </tnt:NavigationListItem>
                     </tnt:NavigationList>
                 </tnt:item>
+                <tnt:fixedItem>
+                    <tnt:NavigationList itemSelect=".onFixedNavItemSelect">
+                        <tnt:NavigationListItem text="UI5 Docs" icon="sap-icon://learning-assistant" key="https://ui5.sap.com"/>
+                        <tnt:NavigationListItem text="CAP Docs" icon="sap-icon://course-book" key="https://cap.cloud.sap/docs/"/>
+                        <tnt:NavigationListItem text="Contact Us" icon="sap-icon://email" key="mailto:jymdigital@samanvay.org"/>
+                        <tnt:NavigationListItem text="Raise an Issue" icon="sap-icon://alert" key="https://github.com/Jineshwar-Yuva-Mandal/mandal-management-system/issues"/>
+                    </tnt:NavigationList>
+                </tnt:fixedItem>
             </tnt:SideNavigation>
         </tnt:sideContent>
 
