@@ -44,6 +44,17 @@
       "auth": {
         "kind": "dummy"
       },
+      "[test]": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": "db/samanvay.db"
+          }
+        },
+        "auth": {
+          "kind": "dummy"
+        }
+      },
       "[production]": {
         "db": {
           "kind": "postgres",
