@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "npm install && npx cds deploy --to sqlite:db/samanvay.db",
+    "build:test": "npm install && npx cds deploy --to sqlite:db/samanvay.db",
     "build:production": "npm install && node scripts/deploy-pg.js",
     "start": "cds-serve",
     "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false",
