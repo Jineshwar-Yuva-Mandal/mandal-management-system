@@ -1,7 +1,7 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     <Toolbar class="samanvayFooter" design="Transparent">
         <ToolbarSpacer/>
-        <Label text="© 2026 Samanvay by JYM-Digital" design="Light" class="samanvayFooterText"/>
+        <Label text="© 2026 Samanvay by JYM-Digital" design="Standard" class="samanvayFooterText"/>
         <ToolbarSpacer/>
     </Toolbar>
 </core:FragmentDefinition>

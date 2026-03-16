@@ -29,7 +29,7 @@ entity Users : managed, cuid {
   city              : String(50);
   state             : String(50);
   pincode           : String(10);
-  country           : Country default 'India';
+  country           : Country default '055';
 
   // ─── Family Details ───
   father_name       : String(100);

@@ -1,4 +1,4 @@
-using AdminService as service from '../../../srv/admin-service';
+using AdminService as service from '../../../srv/services/admin-service';
 annotate service.Members with @(
     UI.LineItem : [
         {

@@ -1,18 +1,19 @@
-using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from '../db/mandal';
-using { com.samanvay.Users } from '../db/users';
-using { com.samanvay.Events, com.samanvay.EventAttendance } from '../db/event';
-using { com.samanvay.Fines } from '../db/fine';
-using { com.samanvay.LedgerEntries } from '../db/ledger';
+using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from '../../db/mandal';
+using { com.samanvay.Users } from '../../db/users';
+using { com.samanvay.Events, com.samanvay.EventAttendance } from '../../db/event';
+using { com.samanvay.Fines } from '../../db/fine';
+using { com.samanvay.LedgerEntries } from '../../db/ledger';
 using { com.samanvay.Courses, com.samanvay.SyllabusTopics,
-        com.samanvay.CourseAssignments, com.samanvay.CourseTopicProgress } from '../db/course';
-using { com.samanvay.MembershipRequests } from '../db/membership';
-using { com.samanvay.Positions, com.samanvay.UserPositionAssignments } from '../db/authorization';
+        com.samanvay.CourseAssignments, com.samanvay.CourseTopicProgress } from '../../db/course';
+using { com.samanvay.MembershipRequests } from '../../db/membership';
+using { com.samanvay.Positions, com.samanvay.UserPositionAssignments } from '../../db/authorization';
 
 // ═══════════════════════════════════════════════════
 // MemberService — For Authenticated Mandal Members
 // Scoped to user's mandal(s). If member of multiple, they select active mandal.
 // ═══════════════════════════════════════════════════
 @(requires: 'authenticated-user')
+@impl: 'srv/handlers/member-service.js'
 service MemberService @(path: '/api/member') {
 
   // ─── My Profile ───

@@ -11,13 +11,14 @@
         <VBox width="100%" class="samanvayTileSection">
 
             <!-- Admin tiles -->
-            <Title text="Admin" level="H4" class="sapUiMediumMarginTop sapUiSmallMarginBottom samanvayGroupHeading"/>
-            <FlexBox wrap="Wrap" class="samanvayTileGrid" items="{/adminApps}">
+            <Title text="Admin" level="H4" class="sapUiMediumMarginTop sapUiSmallMarginBottom samanvayGroupHeading"
+                   visible="{/isAdmin}"/>
+            <FlexBox wrap="Wrap" class="samanvayTileGrid" items="{/adminApps}" visible="{/isAdmin}">
                 <HBox class="samanvayCard" alignItems="Center">
                     <core:Icon src="{icon}" size="2rem" class="samanvayCardIcon"/>
                     <VBox class="samanvayCardText">
                         <Title text="{title}" level="H5" titleStyle="H5"/>
-                        <Label text="{desc}" design="Light" wrapping="true" class="samanvayCardDesc"/>
+                        <Label text="{desc}" design="Standard" wrapping="true" class="samanvayCardDesc"/>
                     </VBox>
                     <customData>
                         <core:CustomData key="appKey" value="{key}"/>
@@ -32,7 +33,7 @@
                     <core:Icon src="{icon}" size="2rem" class="samanvayCardIcon"/>
                     <VBox class="samanvayCardText">
                         <Title text="{title}" level="H5" titleStyle="H5"/>
-                        <Label text="{desc}" design="Light" wrapping="true" class="samanvayCardDesc"/>
+                        <Label text="{desc}" design="Standard" wrapping="true" class="samanvayCardDesc"/>
                     </VBox>
                     <customData>
                         <core:CustomData key="appKey" value="{key}"/>

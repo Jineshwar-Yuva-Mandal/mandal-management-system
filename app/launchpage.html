@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Samanvay</title>
     <link rel="icon" type="image/png" href="./logo.png" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script id="sap-ui-bootstrap"
         src="https://ui5.sap.com/resources/sap-ui-core.js"
         data-sap-ui-theme="sap_horizon"
@@ -22,8 +23,17 @@
          data-settings='{"id":"shell"}'
          style="height:100%">
     </div>
-    <script defer src="/_vercel/insights/script.js"></script>
-    <script defer src="https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"></script>
+    <script>
+      // Vercel analytics — only load when deployed on Vercel
+      if (location.hostname !== 'localhost') {
+        var s1 = document.createElement('script');
+        s1.defer = true; s1.src = '/_vercel/insights/script.js';
+        document.body.appendChild(s1);
+        var s2 = document.createElement('script');
+        s2.defer = true; s2.src = 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js';
+        document.body.appendChild(s2);
+      }
+    </script>
 </body>
 </html>
 

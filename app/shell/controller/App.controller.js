@@ -1,7 +1,9 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/ui/core/Fragment"
-], function (Controller, Fragment) {
+    "sap/ui/core/Fragment",
+    "sap/m/MessageToast",
+    "sap/m/MessageBox"
+], function (Controller, Fragment, MessageToast, MessageBox) {
     "use strict";
 
     return Controller.extend("com.samanvay.shell.controller.App", {
@@ -10,13 +12,19 @@ sap.ui.define([
             this._fnPostMessage = this._onPostMessage.bind(this);
             window.addEventListener("message", this._fnPostMessage);
 
-            // Event delegation for card clicks
             this._fnCardClick = this._onCardClick.bind(this);
             document.addEventListener("click", this._fnCardClick);
         },
 
+        _showBusy: function (sText) {
+            this.getOwnerComponent()._showBusy(sText);
+        },
+
+        _hideBusy: function () {
+            this.getOwnerComponent()._hideBusy();
+        },
+
         _onCardClick: function (oEvent) {
-            // Walk up from click target to find a .samanvayCard element
             var oEl = oEvent.target;
             while (oEl && !oEl.classList.contains("samanvayCard")) {
                 oEl = oEl.parentElement;
@@ -32,7 +40,312 @@ sap.ui.define([
             }
         },
 
-        /* ── Header actions ── */
+        /* ═══════════════════════════════════════════
+           ── Auth: Login / Signup
+           ═══════════════════════════════════════════ */
+
+        onAuthToggle: function () {
+            var oModel = this.getView().getModel();
+            var bSignup = !oModel.getProperty("/auth/isSignup");
+            oModel.setProperty("/auth/isSignup", bSignup);
+            oModel.setProperty("/auth/errorMessage", "");
+            oModel.setProperty("/auth/subtitle", bSignup ? "Create a new account" : "Sign in to your account");
+            oModel.setProperty("/auth/submitText", bSignup ? "Sign Up" : "Sign In");
+            oModel.setProperty("/auth/toggleText", bSignup
+                ? "Already have an account? Sign In"
+                : "Don't have an account? Sign Up");
+        },
+
+        onAuthSubmit: function () {
+            var oModel = this.getView().getModel();
+            var bSignup = oModel.getProperty("/auth/isSignup");
+            oModel.setProperty("/auth/errorMessage", "");
+            oModel.setProperty("/auth/busy", true);
+            this._showBusy(bSignup ? "Creating your account…" : "Signing you in…");
+
+            if (bSignup) {
+                this._doSignup(oModel);
+            } else {
+                this._doLogin(oModel);
+            }
+        },
+
+        _doLogin: function (oModel) {
+            var that = this;
+            var sEmail = (oModel.getProperty("/auth/email") || "").trim().toLowerCase();
+            var sPassword = oModel.getProperty("/auth/password") || "";
+
+            if (!sEmail || !sPassword) {
+                oModel.setProperty("/auth/errorMessage", "Please enter email and password.");
+                oModel.setProperty("/auth/busy", false);
+                this._hideBusy();
+                return;
+            }
+
+            var oSupabase = this.getOwnerComponent().getSupabase();
+            if (!oSupabase) {
+                oModel.setProperty("/auth/errorMessage", "Auth service not available.");
+                oModel.setProperty("/auth/busy", false);
+                this._hideBusy();
+                return;
+            }
+
+            oSupabase.auth.signInWithPassword({ email: sEmail, password: sPassword })
+                .then(function (result) {
+                    oModel.setProperty("/auth/busy", false);
+                    if (result.error) {
+                        that._hideBusy();
+                        oModel.setProperty("/auth/errorMessage", result.error.message);
+                        return;
+                    }
+                    oModel.setProperty("/auth/password", "");
+                    that.getOwnerComponent()._onAuthenticated(oModel, result.data.user);
+                });
+        },
+
+        _doSignup: function (oModel) {
+            var that = this;
+            var sEmail = (oModel.getProperty("/auth/email") || "").trim().toLowerCase();
+            var sPassword = oModel.getProperty("/auth/password") || "";
+            var sConfirm = oModel.getProperty("/auth/confirmPassword") || "";
+            var sFullName = (oModel.getProperty("/auth/fullName") || "").trim();
+            var sPhone = (oModel.getProperty("/auth/phone") || "").trim();
+
+            if (!sEmail || !sPassword || !sFullName) {
+                oModel.setProperty("/auth/errorMessage", "Please fill in all required fields.");
+                oModel.setProperty("/auth/busy", false);
+                this._hideBusy();
+                return;
+            }
+            if (sPassword.length < 6) {
+                oModel.setProperty("/auth/errorMessage", "Password must be at least 6 characters.");
+                oModel.setProperty("/auth/busy", false);
+                this._hideBusy();
+                return;
+            }
+            if (sPassword !== sConfirm) {
+                oModel.setProperty("/auth/errorMessage", "Passwords do not match.");
+                oModel.setProperty("/auth/busy", false);
+                this._hideBusy();
+                return;
+            }
+
+            var oSupabase = this.getOwnerComponent().getSupabase();
+            if (!oSupabase) {
+                oModel.setProperty("/auth/errorMessage", "Auth service not available.");
+                oModel.setProperty("/auth/busy", false);
+                this._hideBusy();
+                return;
+            }
+
+            oSupabase.auth.signUp({
+                email: sEmail,
+                password: sPassword,
+                options: { data: { full_name: sFullName, phone: sPhone } }
+            }).then(function (result) {
+                if (result.error) {
+                    oModel.setProperty("/auth/errorMessage", result.error.message);
+                    oModel.setProperty("/auth/busy", false);
+                    that._hideBusy();
+                    return;
+                }
+                // Create platform user record via standard OData POST
+                return fetch("./api/public/NewUser", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: sEmail, full_name: sFullName, phone: sPhone })
+                }).then(function (resp) {
+                    if (!resp.ok) {
+                        return resp.json().then(function (body) {
+                            var sMsg = (body.error && body.error.message) || "Registration failed.";
+                            throw new Error(sMsg);
+                        });
+                    }
+                    oModel.setProperty("/auth/busy", false);
+                    oModel.setProperty("/auth/password", "");
+                    oModel.setProperty("/auth/confirmPassword", "");
+
+                    if (result.data.session) {
+                        // Auto-confirmed — proceed (busy stays until onAuthenticated finishes)
+                        that.getOwnerComponent()._onAuthenticated(oModel, result.data.user);
+                    } else {
+                        // Email confirmation required
+                        that._hideBusy();
+                        MessageBox.information(
+                            "Your account has been created successfully!\n\nPlease check your email and click the verification link to complete your registration. Once verified, you can sign in.",
+                            {
+                                title: "Verify Your Email",
+                                onClose: function () {
+                                    oModel.setProperty("/auth/isSignup", false);
+                                    oModel.setProperty("/auth/subtitle", "Sign in to your account");
+                                    oModel.setProperty("/auth/submitText", "Sign In");
+                                    oModel.setProperty("/auth/toggleText", "Don't have an account? Sign Up");
+                                    oModel.setProperty("/auth/email", sEmail);
+                                }
+                            }
+                        );
+                    }
+                });
+            }).catch(function (err) {
+                oModel.setProperty("/auth/errorMessage", err.message || "Signup failed.");
+                oModel.setProperty("/auth/busy", false);
+                that._hideBusy();
+            });
+        },
+
+        /* ═══════════════════════════════════════════
+           ── Onboarding: Create / Join Mandal
+           ═══════════════════════════════════════════ */
+
+        onGoToCreateMandal: function () {
+            this.getView().getModel().setProperty("/authView", "createMandal");
+            this.getOwnerComponent()._navigateTo("createMandalPage");
+        },
+
+        onGoToJoinMandal: function () {
+            var that = this;
+            var oModel = this.getView().getModel();
+            oModel.setProperty("/joinMandal/busy", true);
+            oModel.setProperty("/joinMandal/errorMessage", "");
+            oModel.setProperty("/joinMandal/successMessage", "");
+            oModel.setProperty("/authView", "joinMandal");
+            this.getOwnerComponent()._navigateTo("joinMandalPage");
+            this._showBusy("Loading mandals…");
+
+            // Fetch mandals
+            fetch("./api/public/BrowseMandals")
+                .then(function (r) { return r.json(); })
+                .then(function (oData) {
+                    var aMandals = oData.value || [];
+                    oModel.setProperty("/joinMandal/mandals", aMandals);
+                    oModel.setProperty("/joinMandal/allMandals", aMandals);
+                    oModel.setProperty("/joinMandal/busy", false);
+                    that._hideBusy();
+                })
+                .catch(function () {
+                    oModel.setProperty("/joinMandal/errorMessage", "Failed to load mandals.");
+                    oModel.setProperty("/joinMandal/busy", false);
+                    that._hideBusy();
+                });
+        },
+
+        onBackToOnboarding: function () {
+            this.getView().getModel().setProperty("/authView", "onboarding");
+            this.getOwnerComponent()._navigateTo("onboardingPage");
+        },
+
+        /* ── Create Mandal ── */
+
+        onCreateMandalSubmit: function () {
+            var oModel = this.getView().getModel();
+            var sName = (oModel.getProperty("/createMandal/name") || "").trim();
+            var sArea = (oModel.getProperty("/createMandal/area") || "").trim();
+            var sCity = (oModel.getProperty("/createMandal/city") || "").trim();
+            var sState = (oModel.getProperty("/createMandal/state") || "").trim();
+
+            if (!sName || !sCity || !sState) {
+                oModel.setProperty("/createMandal/errorMessage", "Please fill in mandal name, city, and state.");
+                return;
+            }
+
+            oModel.setProperty("/createMandal/errorMessage", "");
+            oModel.setProperty("/createMandal/busy", true);
+            this._showBusy("Creating your mandal…");
+
+            var sEmail = oModel.getProperty("/profile/email") || "";
+            var sCreatorName = oModel.getProperty("/profile/name") || "";
+
+            var that = this;
+            fetch("./api/public/createMandal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: sName, area: sArea, city: sCity, state: sState,
+                    creatorEmail: sEmail, creatorName: sCreatorName, creatorPhone: "",
+                    authId: sEmail
+                })
+            })
+            .then(function (r) {
+                if (!r.ok) return r.json().then(function (e) { throw new Error(e.error?.message || "Failed"); });
+                return r.json();
+            })
+            .then(function () {
+                oModel.setProperty("/createMandal/busy", false);
+                that._hideBusy();
+                oModel.setProperty("/isAdmin", true);
+                oModel.setProperty("/authenticated", true);
+                MessageToast.show("Mandal created successfully!");
+                that.getOwnerComponent()._navigateTo("mainShellPage");
+                // Reset form
+                oModel.setProperty("/createMandal/name", "");
+                oModel.setProperty("/createMandal/area", "");
+                oModel.setProperty("/createMandal/city", "");
+                oModel.setProperty("/createMandal/state", "");
+                oModel.setProperty("/authView", "login");
+            })
+            .catch(function (err) {
+                oModel.setProperty("/createMandal/errorMessage", err.message || "Failed to create mandal.");
+                oModel.setProperty("/createMandal/busy", false);
+                that._hideBusy();
+            });
+        },
+
+        /* ── Join Mandal ── */
+
+        onMandalSearch: function (oEvent) {
+            var sQuery = (oEvent.getParameter("newValue") || "").toLowerCase();
+            var oModel = this.getView().getModel();
+            var aAll = oModel.getProperty("/joinMandal/allMandals") || [];
+            if (!sQuery) {
+                oModel.setProperty("/joinMandal/mandals", aAll);
+                return;
+            }
+            var aFiltered = aAll.filter(function (m) {
+                return (m.name || "").toLowerCase().indexOf(sQuery) >= 0
+                    || (m.city || "").toLowerCase().indexOf(sQuery) >= 0
+                    || (m.area || "").toLowerCase().indexOf(sQuery) >= 0;
+            });
+            oModel.setProperty("/joinMandal/mandals", aFiltered);
+        },
+
+        onJoinMandalRequest: function (oEvent) {
+            var oSource = oEvent.getSource();
+            var sMandalId = oSource.data("mandalId");
+            var sMandalName = oSource.data("mandalName");
+            var oModel = this.getView().getModel();
+
+            oModel.setProperty("/joinMandal/errorMessage", "");
+            oModel.setProperty("/joinMandal/successMessage", "");
+
+            var sEmail = oModel.getProperty("/profile/email") || "";
+            var sName = oModel.getProperty("/profile/name") || "";
+
+            fetch("./api/public/JoinRequests", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    mandal_ID: sMandalId,
+                    requester_name: sName,
+                    requester_email: sEmail,
+                    status: "submitted"
+                })
+            })
+            .then(function (r) {
+                if (!r.ok) return r.json().then(function (e) { throw new Error(e.error?.message || "Failed"); });
+                return r.json();
+            })
+            .then(function () {
+                oModel.setProperty("/joinMandal/successMessage",
+                    "Your request to join \"" + sMandalName + "\" has been submitted! The mandal admin will review it.");
+            })
+            .catch(function (err) {
+                oModel.setProperty("/joinMandal/errorMessage", err.message || "Failed to submit join request.");
+            });
+        },
+
+        /* ═══════════════════════════════════════════
+           ── Header actions
+           ═══════════════════════════════════════════ */
 
         onMenuButtonPress: function () {
             var oToolPage = this.byId("toolPage");
@@ -66,10 +379,45 @@ sap.ui.define([
         onProfileMenuAction: function (oEvent) {
             var sAction = oEvent.getSource().data("action");
             this.byId("profilePopover").close();
-            // Extend with real logic as needed
+
             if (sAction === "signout") {
-                // sign-out logic
+                this._doSignOut();
             }
+        },
+
+        onSignOutPress: function () {
+            this._doSignOut();
+        },
+
+        _doSignOut: function () {
+            var oModel = this.getView().getModel();
+            var oSupabase = this.getOwnerComponent().getSupabase();
+
+            if (oSupabase) {
+                oSupabase.auth.signOut();
+            }
+
+            // Clear server session cookie
+            fetch("./auth/logout", { method: "POST" });
+
+            // Reset state
+            oModel.setProperty("/authenticated", false);
+            oModel.setProperty("/isAdmin", false);
+            oModel.setProperty("/profile/name", "");
+            oModel.setProperty("/profile/initials", "");
+            oModel.setProperty("/profile/role", "");
+            oModel.setProperty("/profile/email", "");
+            oModel.setProperty("/auth/email", "");
+            oModel.setProperty("/auth/password", "");
+            oModel.setProperty("/auth/errorMessage", "");
+
+            // Navigate auth view back to login
+            oModel.setProperty("/authView", "login");
+            this.getOwnerComponent()._navigateTo("loginPage");
+            // Navigate main nav back to welcome
+            this.byId("navContainer").backToTop();
+
+            MessageToast.show("Signed out.");
         },
 
         /* ── Side navigation ── */
@@ -95,7 +443,6 @@ sap.ui.define([
                     window.open(sUrl, "_blank", "noopener");
                 }
             }
-            // Deselect so it doesn't stay highlighted
             this.byId("sideNav").setSelectedKey("");
         },
 
@@ -142,7 +489,6 @@ sap.ui.define([
             var oNavContainer = this.byId("navContainer");
             var oAppFrame = this.byId("appFrame");
 
-            // Resolve title from app registry
             var sTitle = this._resolveAppTitle(sKey);
             oModel.setProperty("/appTitle", sTitle);
 
@@ -161,8 +507,6 @@ sap.ui.define([
             oNavContainer.to(this.byId("appPage"));
         },
 
-        /* ── Listen for back messages from embedded apps ── */
-
         _resolveAppTitle: function (sKey) {
             var oModel = this.getView().getModel();
             var aAll = (oModel.getProperty("/adminApps") || []).concat(oModel.getProperty("/memberApps") || []);
@@ -171,7 +515,6 @@ sap.ui.define([
                     return aAll[i].title;
                 }
             }
-            // Fallback: derive from key
             var s = sKey.replace(/#member-/, "").replace(/admin\/|\/.*/g, "").replace(/-/g, " ");
             return s.charAt(0).toUpperCase() + s.slice(1);
         },

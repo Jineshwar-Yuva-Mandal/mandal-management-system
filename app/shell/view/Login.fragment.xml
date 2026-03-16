@@ -1,0 +1,76 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <VBox class="samanvayAuthPage" alignItems="Center" justifyContent="Center">
+        <VBox class="samanvayAuthCard">
+
+            <Image src="./logo.png" width="4rem" class="samanvayAuthLogo"/>
+            <Title text="Samanvay" level="H2" titleStyle="H3" class="sapUiSmallMarginBottom"/>
+            <Text text="{/auth/subtitle}" class="sapUiSmallMarginBottom samanvaySubtitle"/>
+
+            <!-- Error message -->
+            <MessageStrip
+                text="{/auth/errorMessage}"
+                type="Error"
+                showIcon="true"
+                visible="{= !!${/auth/errorMessage} }"
+                class="sapUiSmallMarginBottom"/>
+
+            <!-- Full Name (signup only) -->
+            <Input id="authFullName"
+                placeholder="Full Name"
+                value="{/auth/fullName}"
+                visible="{/auth/isSignup}"
+                class="sapUiSmallMarginBottom samanvayAuthInput"/>
+
+            <!-- Email -->
+            <Input id="authEmail"
+                placeholder="Email"
+                value="{/auth/email}"
+                type="Email"
+                class="sapUiSmallMarginBottom samanvayAuthInput"/>
+
+            <!-- Phone (signup only) -->
+            <Input id="authPhone"
+                placeholder="Phone Number"
+                value="{/auth/phone}"
+                type="Tel"
+                visible="{/auth/isSignup}"
+                class="sapUiSmallMarginBottom samanvayAuthInput"/>
+
+            <!-- Password -->
+            <Input id="authPassword"
+                placeholder="Password"
+                value="{/auth/password}"
+                type="Password"
+                class="sapUiSmallMarginBottom samanvayAuthInput"
+                submit=".onAuthSubmit"/>
+
+            <!-- Confirm Password (signup only) -->
+            <Input id="authConfirmPassword"
+                placeholder="Confirm Password"
+                value="{/auth/confirmPassword}"
+                type="Password"
+                visible="{/auth/isSignup}"
+                class="sapUiSmallMarginBottom samanvayAuthInput"
+                submit=".onAuthSubmit"/>
+
+            <!-- Submit button -->
+            <Button text="{/auth/submitText}"
+                type="Emphasized"
+                width="100%"
+                press=".onAuthSubmit"
+                busy="{/auth/busy}"
+                class="sapUiSmallMarginTop samanvayAuthInput"/>
+
+            <!-- Toggle login/signup -->
+            <Link text="{/auth/toggleText}"
+                press=".onAuthToggle"
+                class="sapUiSmallMarginTop"/>
+
+        </VBox>
+    </VBox>
+
+</core:FragmentDefinition>

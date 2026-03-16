@@ -1,13 +1,14 @@
-using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from '../db/mandal';
-using { com.samanvay.Users } from '../db/users';
-using { com.samanvay.ProtectedEntities, com.samanvay.ProtectedFields } from '../db/authorization';
-using { com.samanvay.LedgerEntries } from '../db/ledger';
+using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from '../../db/mandal';
+using { com.samanvay.Users } from '../../db/users';
+using { com.samanvay.ProtectedEntities, com.samanvay.ProtectedFields } from '../../db/authorization';
+using { com.samanvay.LedgerEntries } from '../../db/ledger';
 
 // ═══════════════════════════════════════════════════
 // PlatformAdminService — For the SaaS platform owner
 // Full visibility & control across ALL mandals, users, and system config
 // ═══════════════════════════════════════════════════
 @(requires: 'platform_admin')
+@impl: 'srv/handlers/platform-service.js'
 service PlatformAdminService @(path: '/api/platform') {
 
   // ─── All Mandals (cross-mandal view) ───

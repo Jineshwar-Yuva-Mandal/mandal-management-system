@@ -1,14 +1,15 @@
 {
   "name": "mandal-management-system",
   "version": "1.0.0",
-  "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
+  "description": "Mandal management SaaS platform built with SAP CAP, Supabase Auth, and PostgreSQL.",
+  "repository": "https://github.com/Jineshwar-Yuva-Mandal/mandal-management-system",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
     "@cap-js/postgres": "^2.2.0",
-    "@cap-js/sqlite": "^2",
     "@sap/cds": "^9",
+    "@supabase/supabase-js": "^2.99.1",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.3.1",
     "express": "^4"
   },
@@ -20,10 +21,12 @@
     "@sap/cds-dk": "^9"
   },
   "scripts": {
-    "build": "npm install && npx cds deploy --to sqlite:db/samanvay.db",
-    "build:test": "npm install && npx cds deploy --to sqlite:db/samanvay.db",
-    "build:production": "npm install && node scripts/deploy-pg.js",
+    "deploy": "NODE_ENV=production cds deploy --to postgres --no-data",
+    "deploy:test": "cds deploy --to postgres",
+    "build": "npm install && npm run deploy:test",
+    "build:production": "npm install && npm run deploy",
     "start": "cds-serve",
+    "start:production": "NODE_ENV=production cds-serve",
     "lint": "npx eslint .",
     "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-eventsandattendance": "cds watch --open admin/eventsandattendance/webapp/index.html?sap-ui-xx-viewCache=false",
@@ -37,39 +40,14 @@
   "cds": {
     "requires": {
       "db": {
-        "kind": "sqlite",
-        "credentials": {
-          "url": "db/samanvay.db"
+        "kind": "postgres",
+        "impl": "@cap-js/postgres",
+        "pool": {
+          "acquireTimeoutMillis": 10000
         }
       },
       "auth": {
-        "kind": "dummy"
-      },
-      "[test]": {
-        "db": {
-          "kind": "sqlite",
-          "credentials": {
-            "url": "db/samanvay.db"
-          }
-        },
-        "auth": {
-          "kind": "dummy"
-        }
-      },
-      "[production]": {
-        "db": {
-          "kind": "postgres",
-          "impl": "@cap-js/postgres",
-          "pool": {
-            "acquireTimeoutMillis": 10000
-          },
-          "credentials": {
-            "url": null
-          }
-        },
-        "auth": {
-          "kind": "dummy"
-        }
+        "impl": "./srv/auth.js"
       }
     }
   },

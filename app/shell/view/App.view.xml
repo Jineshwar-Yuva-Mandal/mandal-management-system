@@ -7,6 +7,24 @@
     xmlns:core="sap.ui.core"
     height="100%">
 
+  <App id="shellApp" height="100%">
+
+    <!-- ── Auth pages ── -->
+    <Page id="loginPage" showHeader="false" enableScrolling="true">
+        <core:Fragment fragmentName="com.samanvay.shell.view.Login" type="XML"/>
+    </Page>
+    <Page id="onboardingPage" showHeader="false" enableScrolling="true">
+        <core:Fragment fragmentName="com.samanvay.shell.view.Onboarding" type="XML"/>
+    </Page>
+    <Page id="createMandalPage" showHeader="false" enableScrolling="true">
+        <core:Fragment fragmentName="com.samanvay.shell.view.CreateMandal" type="XML"/>
+    </Page>
+    <Page id="joinMandalPage" showHeader="false" enableScrolling="true">
+        <core:Fragment fragmentName="com.samanvay.shell.view.JoinMandal" type="XML"/>
+    </Page>
+
+    <!-- ── Main shell (dashboard) ── -->
+    <Page id="mainShellPage" showHeader="false" enableScrolling="false" class="sapUiNoContentPadding">
     <tnt:ToolPage id="toolPage" sideExpanded="false">
 
         <!-- ── Header: ShellBar ── -->
@@ -31,7 +49,8 @@
                 <tnt:item>
                     <tnt:NavigationList>
                         <!-- Admin group -->
-                        <tnt:NavigationListItem text="Admin" icon="sap-icon://shield" expanded="true">
+                        <tnt:NavigationListItem text="Admin" icon="sap-icon://shield" expanded="true"
+                                                visible="{/isAdmin}">
                             <tnt:NavigationListItem text="Members" icon="sap-icon://group" key="admin/members/webapp/index.html"/>
                             <tnt:NavigationListItem text="Join Requests" icon="sap-icon://add-employee" key="admin/joinrequests/webapp/index.html"/>
                             <tnt:NavigationListItem text="Positions" icon="sap-icon://org-chart" key="admin/positions/webapp/index.html"/>
@@ -82,5 +101,8 @@
         </tnt:mainContents>
 
     </tnt:ToolPage>
+    </Page>
+
+  </App>
 
 </mvc:View>

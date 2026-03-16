@@ -1,0 +1,65 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="samanvayAuthPage" alignItems="Center">
+        <VBox class="samanvayJoinCard">
+
+            <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                <Button icon="sap-icon://nav-back" type="Transparent" press=".onBackToOnboarding"
+                        class="sapUiTinyMarginEnd"/>
+                <Title text="Join a Mandal" level="H3" titleStyle="H4"/>
+            </HBox>
+
+            <Text text="Browse mandals and request to join one."
+                  class="sapUiSmallMarginBottom samanvaySubtitle"/>
+
+            <!-- Search -->
+            <SearchField placeholder="Search by name, city, or area..."
+                         liveChange=".onMandalSearch"
+                         class="sapUiSmallMarginBottom"/>
+
+            <!-- Success message -->
+            <MessageStrip
+                text="{/joinMandal/successMessage}"
+                type="Success"
+                showIcon="true"
+                visible="{= !!${/joinMandal/successMessage} }"
+                class="sapUiSmallMarginBottom"/>
+
+            <!-- Error message -->
+            <MessageStrip
+                text="{/joinMandal/errorMessage}"
+                type="Error"
+                showIcon="true"
+                visible="{= !!${/joinMandal/errorMessage} }"
+                class="sapUiSmallMarginBottom"/>
+
+            <!-- Mandal list -->
+            <List items="{/joinMandal/mandals}" noDataText="No mandals found."
+                  busy="{/joinMandal/busy}" class="samanvayMandalList">
+                <CustomListItem type="Inactive" class="sapUiTinyMarginBottom">
+                    <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%"
+                          class="samanvayMandalListItem">
+                        <VBox class="sapUiSmallMarginEnd">
+                            <Title text="{name}" level="H5"/>
+                            <Label text="{area}, {city}, {state}" design="Standard"/>
+                            <Label text="{= ${has_joining_fee} ? 'Joining Fee: ₹' + ${joining_fee} : 'No Joining Fee'}"
+                                   design="Standard" class="sapUiTinyMarginTop"/>
+                        </VBox>
+                        <Button text="Request to Join" type="Emphasized"
+                                press=".onJoinMandalRequest"
+                                class="samanvayJoinBtn">
+                            <customData>
+                                <core:CustomData key="mandalId" value="{ID}"/>
+                                <core:CustomData key="mandalName" value="{name}"/>
+                            </customData>
+                        </Button>
+                    </HBox>
+                </CustomListItem>
+            </List>
+
+        </VBox>
+    </VBox>
+
+</core:FragmentDefinition>

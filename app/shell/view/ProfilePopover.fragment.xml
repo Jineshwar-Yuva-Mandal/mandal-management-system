@@ -6,7 +6,7 @@
                         class="sapUiSmallMarginEnd"/>
                 <VBox>
                     <Title text="{/profile/name}" level="H6"/>
-                    <Label text="{/profile/role}" design="Light"/>
+                    <Label text="{/profile/role}" design="Standard"/>
                 </VBox>
             </HBox>
             <VBox>

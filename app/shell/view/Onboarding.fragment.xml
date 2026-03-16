@@ -1,0 +1,44 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="samanvayAuthPage" alignItems="Center" justifyContent="Center">
+        <VBox class="samanvayOnboardCard" alignItems="Center">
+
+            <Image src="./logo.png" width="4rem" class="samanvayAuthLogo"/>
+            <Title text="Welcome to Samanvay!" level="H2" titleStyle="H3"/>
+            <Text text="You're not part of any mandal yet. Get started by creating your own or joining an existing one."
+                  class="sapUiSmallMarginBottom sapUiSmallMarginTop samanvaySubtitle"
+                  textAlign="Center"/>
+
+            <HBox class="sapUiMediumMarginTop samanvayOnboardActions" justifyContent="Center">
+
+                <!-- Create Mandal card -->
+                <VBox class="samanvayOnboardOption" alignItems="Center">
+                    <core:Icon src="sap-icon://add-product" size="3rem" color="#0854a0"/>
+                    <Title text="Create a Mandal" level="H5" class="sapUiSmallMarginTop"/>
+                    <Text text="Start your own mandal and invite members to join."
+                          class="sapUiTinyMarginTop samanvaySubtitle" textAlign="Center"/>
+                    <Button text="Create Mandal" type="Emphasized"
+                            press=".onGoToCreateMandal" class="sapUiSmallMarginTop"/>
+                </VBox>
+
+                <!-- Join Mandal card -->
+                <VBox class="samanvayOnboardOption" alignItems="Center">
+                    <core:Icon src="sap-icon://group" size="3rem" color="#0854a0"/>
+                    <Title text="Join a Mandal" level="H5" class="sapUiSmallMarginTop"/>
+                    <Text text="Browse existing mandals and request to become a member."
+                          class="sapUiTinyMarginTop samanvaySubtitle" textAlign="Center"/>
+                    <Button text="Browse Mandals" type="Emphasized"
+                            press=".onGoToJoinMandal" class="sapUiSmallMarginTop"/>
+                </VBox>
+
+            </HBox>
+
+            <Button text="Sign Out" icon="sap-icon://log" type="Transparent"
+                    press=".onSignOutPress" class="sapUiMediumMarginTop"/>
+
+        </VBox>
+    </VBox>
+
+</core:FragmentDefinition>

@@ -1,10 +1,54 @@
-require('dotenv').config();
+// Load Supabase auth keys from the right .env file based on NODE_ENV
+// DB credentials come from .cdsrc-private.json (CDS profiles), not .env
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+require('dotenv').config({ path: envFile });
 const cds = require('@sap/cds');
 
+// Register friendly DB error handler middleware
+require('./error-handler');
+
 cds.on('bootstrap', (app) => {
+  // ── Cookie parser (needed for session cookie auth) ──
+  const cookieParser = require('cookie-parser');
+  app.use(cookieParser());
+
+  // ── Health endpoint (UptimeRobot keep-alive) ──
   app.get('/healthz', (_req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
   });
+
+  // ── Session endpoints (cookie-based auth for iframed apps) ──
+  const { SUPABASE_URL, SUPABASE_ANON_KEY } = process.env;
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Shell calls this after login to set a session cookie
+    app.post('/auth/session', async (req, res) => {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing token' });
+      }
+      const token = authHeader.slice(7);
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (error || !user) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+      res.cookie('sb_access_token', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 1000 // 1 hour
+      });
+      res.json({ ok: true });
+    });
+
+    // Clear session on sign-out
+    app.post('/auth/logout', (_req, res) => {
+      res.clearCookie('sb_access_token');
+      res.json({ ok: true });
+    });
+  }
 });
 
 module.exports = cds.server;

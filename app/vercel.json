@@ -7,6 +7,14 @@
       "destination": "https://samanvay-prod.onrender.com/api/:path*"
     },
     {
+      "source": "/auth/:path*",
+      "destination": "https://samanvay-prod.onrender.com/auth/:path*"
+    },
+    {
+      "source": "/healthz",
+      "destination": "https://samanvay-prod.onrender.com/healthz"
+    },
+    {
       "source": "/",
       "destination": "/launchpage.html"
     }

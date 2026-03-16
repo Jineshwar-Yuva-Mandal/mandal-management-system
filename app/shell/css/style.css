@@ -134,3 +134,85 @@
 .samanvayProfileBtn .sapMBtnInner {
     justify-content: flex-start;
 }
+
+/* ═══════════════════════════════════════════
+   ── Auth pages (Login / Signup)
+   ═══════════════════════════════════════════ */
+.samanvayAuthPage {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    padding: 2rem;
+}
+
+.samanvayAuthCard {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 24rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    align-items: center;
+}
+
+.samanvayAuthLogo {
+    margin-bottom: 0.5rem;
+}
+
+.samanvayAuthInput {
+    width: 100% !important;
+    max-width: 20rem;
+}
+
+/* ═══════════════════════════════════════════
+   ── Onboarding page
+   ═══════════════════════════════════════════ */
+.samanvayOnboardCard {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 3rem 2rem;
+    width: 100%;
+    max-width: 40rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.samanvayOnboardActions {
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.samanvayOnboardOption {
+    background: #f5f7fa;
+    border-radius: 0.75rem;
+    padding: 2rem 1.5rem;
+    flex: 1;
+    min-width: 14rem;
+    max-width: 18rem;
+    border: 1px solid #e5e5e5;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.samanvayOnboardOption:hover {
+    border-color: #0070f2;
+    box-shadow: 0 2px 8px rgba(0, 112, 242, 0.10);
+}
+
+/* ═══════════════════════════════════════════
+   ── Join Mandal page
+   ═══════════════════════════════════════════ */
+.samanvayJoinCard {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 36rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    margin-top: 2rem;
+}
+
+.samanvayMandalListItem {
+    padding: 0.75rem 0;
+}
+
+.samanvayJoinBtn {
+    flex-shrink: 0;
+}
