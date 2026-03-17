@@ -9,6 +9,7 @@ using { com.samanvay.MandalMemberFieldConfigs } from '../../db/member_field_conf
 // Create mandal, browse mandals, submit membership request
 // ═══════════════════════════════════════════════════
 @impl: 'srv/handlers/public-service.js'
+@open
 service PublicService @(path: '/api/public') {
 
   // ─── Browse Mandals (read-only, limited fields) ───
