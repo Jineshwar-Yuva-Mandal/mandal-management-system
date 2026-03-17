@@ -21,7 +21,8 @@
     "@sap/cds-dk": "^9"
   },
   "scripts": {
-    "deploy": "NODE_ENV=production cds deploy --to postgres --no-data",
+    "deploy": "mv db/data db/_data_bak && NODE_ENV=production cds deploy --to postgres; mv db/_data_bak db/data",
+    "deploy:initial": "NODE_ENV=production cds deploy --to postgres",
     "deploy:test": "cds deploy --to postgres",
     "build": "npm install && npm run deploy:test",
     "build:production": "npm install && npm run deploy",
@@ -44,6 +45,9 @@
         "impl": "@cap-js/postgres",
         "pool": {
           "acquireTimeoutMillis": 10000
+        },
+        "[production]": {
+          "schema_evolution": "auto"
         }
       },
       "auth": {
