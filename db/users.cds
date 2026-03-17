@@ -1,6 +1,9 @@
 namespace com.samanvay;
 
 using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from './mandal';
+using { com.samanvay.Gender, com.samanvay.MaritalStatus, com.samanvay.BloodGroup,
+        com.samanvay.Education, com.samanvay.AnnualIncome, com.samanvay.DietaryPreference,
+        com.samanvay.PlatformRole } from './types';
 using { managed, cuid, Country } from '@sap/cds/common';
 
 entity Users : managed, cuid {
@@ -17,9 +20,9 @@ entity Users : managed, cuid {
 
   // ─── Personal Details ───
   dob               : Date;
-  gender            : String enum { male; female; other; prefer_not_to_say; } default 'prefer_not_to_say';
-  marital_status    : String enum { single; married; widowed; divorced; prefer_not_to_say; } default 'prefer_not_to_say';
-  blood_group       : String enum { A_pos; A_neg; B_pos; B_neg; AB_pos; AB_neg; O_pos; O_neg; NA; } default 'NA';
+  gender            : Gender default 'prefer_not_to_say';
+  marital_status    : MaritalStatus default 'prefer_not_to_say';
+  blood_group       : BloodGroup default 'NA';
   nationality       : String(50);
   mother_tongue     : String(50);
 
@@ -39,11 +42,11 @@ entity Users : managed, cuid {
   family_members_in_mandal : Integer default 0;  // How many family members are also in the mandal
 
   // ─── Education & Profession ───
-  education         : String enum { below_10th; ssc; hsc; diploma; graduate; post_graduate; doctorate; other; };
+  education         : Education;
   profession        : String(100);
   organization      : String(100);
   designation       : String(100);
-  annual_income     : String enum { below_1L; _1L_3L; _3L_5L; _5L_10L; _10L_25L; above_25L; prefer_not_to_say; };
+  annual_income     : AnnualIncome;
 
   // ─── Religious / Mandal-specific ───
   gotra             : String(50);       // Family lineage (relevant for Hindu mandals)
@@ -65,10 +68,10 @@ entity Users : managed, cuid {
   emergency_contact_phone : String(20);
   emergency_contact_relation : String(50);
   medical_conditions : String(500);     // Allergies, chronic conditions (for event safety)
-  dietary_preference : String enum { vegetarian; vegan; jain; no_preference; } default 'no_preference';
+  dietary_preference : DietaryPreference default 'no_preference';
 
   // ─── Platform ───
-  role              : String enum { platform_admin; member; } default 'member'; // platform_admin = you, the SaaS owner
+  role              : PlatformRole default 'member'; // platform_admin = you, the SaaS owner
 
   // ─── Mandal Memberships (many-to-many) ───
   memberships       : Association to many MandalMemberships on memberships.user = $self;

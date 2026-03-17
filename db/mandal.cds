@@ -3,6 +3,7 @@ namespace com.samanvay;
 using { managed, cuid } from '@sap/cds/common';
 
 using { com.samanvay.Users } from './users';
+using { com.samanvay.MembershipStatus } from './types';
 
 entity Mandals : managed, cuid {
   name        : String(100) @assert.unique;
@@ -27,7 +28,7 @@ entity Mandals : managed, cuid {
 entity MandalMemberships : managed, cuid {
   user              : Association to Users;
   mandal            : Association to Mandals;
-  membership_status : String enum { active; inactive; pending; suspended; } default 'pending';
+  membership_status : MembershipStatus default 'pending';
   membership_number : String(50);       // Mandal-assigned membership ID
   is_admin          : Boolean default false;  // Is this user an admin of this mandal?
   joined_date       : Date;

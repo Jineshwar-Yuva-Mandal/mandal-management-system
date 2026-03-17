@@ -2,6 +2,7 @@ namespace com.samanvay;
 
 using { com.samanvay.Mandals } from './mandal';
 using { com.samanvay.Users } from './users';
+using { com.samanvay.AttendanceStatus } from './types';
 using { managed, cuid } from '@sap/cds/common';
 
 // ─── Events ───
@@ -29,7 +30,7 @@ entity EventAttendance : managed, cuid {
   event         : Association to Events;
   user          : Association to Users;
   mandal        : Association to Mandals;
-  status        : String enum { present; absent; excused; } default 'absent';
+  status        : AttendanceStatus default 'absent';
   marked_by     : Association to Users;  // Admin/assigned member who marked attendance
   marked_at     : Timestamp;
   remarks       : String(500);

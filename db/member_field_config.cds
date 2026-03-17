@@ -2,6 +2,7 @@ namespace com.samanvay;
 
 using { com.samanvay.Mandals } from './mandal';
 using { com.samanvay.ProtectedFields } from './authorization';
+using { com.samanvay.FieldRequirement } from './types';
 using { managed, cuid } from '@sap/cds/common';
 
 // ─── Mandal Member Field Configuration ───
@@ -11,11 +12,7 @@ using { managed, cuid } from '@sap/cds/common';
 entity MandalMemberFieldConfigs : managed, cuid {
   mandal        : Association to Mandals;
   field         : Association to ProtectedFields;  // Which field from Users entity
-  requirement   : String enum {
-    required;    // Must be filled during registration
-    optional;    // Shown but not mandatory
-    hidden;      // Not shown on the joining form
-  } default 'optional';
+  requirement   : FieldRequirement default 'optional';
   sequence      : Integer;   // Display order on the form
   custom_label  : String(100);  // Mandal can override the default field label
 }

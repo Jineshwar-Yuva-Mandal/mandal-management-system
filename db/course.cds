@@ -2,6 +2,7 @@ namespace com.samanvay;
 
 using { com.samanvay.Mandals } from './mandal';
 using { com.samanvay.Users } from './users';
+using { com.samanvay.CourseStatus, com.samanvay.AssignmentStatus, com.samanvay.TopicProgressStatus } from './types';
 using { managed, cuid } from '@sap/cds/common';
 
 // ─── Courses ───
@@ -10,7 +11,7 @@ entity Courses : managed, cuid {
   title         : String(200);
   description   : String(1000);
   mandal        : Association to Mandals;
-  status        : String enum { active; archived; draft; } default 'draft';
+  status        : CourseStatus default 'draft';
   duration_days : Integer;  // Expected duration in days
 
   syllabus      : Composition of many SyllabusTopics on syllabus.course = $self;
@@ -37,12 +38,7 @@ entity CourseAssignments : managed, cuid {
   assigned_by   : Association to Users;           // Admin/member who assigned
   assigned_date : Date;
   due_date      : Date;                           // Expected completion date
-  status        : String enum {
-    assigned;       // Just assigned, not started
-    in_progress;    // Member has started
-    completed;      // All topics done
-    overdue;        // Past due date, not completed
-  } default 'assigned';
+  status        : AssignmentStatus default 'assigned';
   completion_pct : Integer default 0;             // 0-100 percentage
   completed_date : Date;
 
@@ -55,7 +51,7 @@ entity CourseAssignments : managed, cuid {
 entity CourseTopicProgress : managed, cuid {
   assignment    : Association to CourseAssignments;
   topic         : Association to SyllabusTopics;
-  status        : String enum { not_started; in_progress; completed; } default 'not_started';
+  status        : TopicProgressStatus default 'not_started';
   completed_date : Date;
   marked_by     : Association to Users;           // Admin/assigned member who updated progress
   remarks       : String(500);

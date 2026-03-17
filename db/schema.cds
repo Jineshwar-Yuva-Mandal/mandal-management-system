@@ -1,3 +1,4 @@
+using from './types';
 using from './authorization';
 using from './course';
 using from './event';

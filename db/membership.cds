@@ -4,6 +4,9 @@ using { com.samanvay.Mandals } from './mandal';
 using { com.samanvay.Users } from './users';
 using { com.samanvay.Positions } from './authorization';
 using { com.samanvay.LedgerEntries } from './ledger';
+using { com.samanvay.WorkflowType, com.samanvay.WorkflowActionType,
+        com.samanvay.RequestStatus, com.samanvay.PaymentMode,
+        com.samanvay.ApprovalDecision } from './types';
 using { managed, cuid } from '@sap/cds/common';
 
 // ═══════════════════════════════════════════════════
@@ -15,9 +18,7 @@ using { managed, cuid } from '@sap/cds/common';
 // Defines which workflow type (joining, mandal_creation, etc.) and what approvals are needed
 entity ApprovalWorkflows : managed, cuid {
   mandal        : Association to Mandals;
-  workflow_type : String enum {
-    member_joining;       // New member wants to join
-  };
+  workflow_type : WorkflowType;
   min_approvals : Integer default 1;  // At least 1 approval required
   steps         : Composition of many ApprovalWorkflowSteps on steps.workflow = $self;
 }
@@ -28,10 +29,7 @@ entity ApprovalWorkflowSteps : managed, cuid {
   workflow      : Association to ApprovalWorkflows;
   sequence      : Integer;          // Order of approval
   position      : Association to Positions;  // e.g., Koshadhyaksha, Sanchalak
-  action_type   : String enum {
-    approve;    // Must sign off (mandatory approval)
-    notify;     // Just notified, no sign-off needed
-  };
+  action_type   : WorkflowActionType;
 }
 
 // ═══════════════════════════════════════════════════
@@ -48,21 +46,13 @@ entity MembershipRequests : managed, cuid {
   user            : Association to Users;  // Linked after account is created or if already exists
 
   mandal          : Association to Mandals;
-  status          : String enum {
-    submitted;          // Request submitted
-    payment_pending;    // Approved conditionally, awaiting fee
-    payment_done;       // Fee paid, awaiting verification
-    under_review;       // Payment verified, approval workflow started
-    approved;           // All required approvals received
-    rejected;           // Rejected by an approver
-    cancelled;          // Withdrawn by requester
-  } default 'submitted';
+  status          : RequestStatus default 'submitted';
 
   // Joining fee payment
   fee_amount        : Decimal(10,2);        // Copied from mandal's joining_fee at time of request
   paid_amount       : Decimal(10,2);
   paid_date         : Date;
-  payment_mode      : String enum { cash; upi; bank_transfer; other; };
+  payment_mode      : PaymentMode;
   payment_reference : String(255);
   payment_verified  : Boolean default false;
   payment_verified_by : Association to Users;
@@ -81,7 +71,7 @@ entity MembershipApprovals : managed, cuid {
   request       : Association to MembershipRequests;
   approver      : Association to Users;
   position      : Association to Positions;  // In what capacity they are approving
-  decision      : String enum { pending; approved; rejected; } default 'pending';
+  decision      : ApprovalDecision default 'pending';
   decided_at    : Timestamp;
   remarks       : String(500);
 }

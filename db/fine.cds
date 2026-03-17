@@ -4,6 +4,7 @@ using { com.samanvay.Mandals } from './mandal';
 using { com.samanvay.Users } from './users';
 using { com.samanvay.Events } from './event';
 using { com.samanvay.LedgerEntries } from './ledger';
+using { com.samanvay.FineStatus, com.samanvay.PaymentMode } from './types';
 using { managed, cuid } from '@sap/cds/common';
 
 // ─── Fines ───
@@ -14,19 +15,13 @@ entity Fines : managed, cuid {
   event         : Association to Events;         // Event that triggered the fine
   mandal        : Association to Mandals;
   amount        : Decimal(10,2);
-  status        : String enum {
-    pending;      // Fine created, awaiting payment
-    paid;         // Member claims they paid
-    verified;     // Koshadhyaksha verified the payment
-    rejected;     // Payment verification rejected
-    waived;       // Fine waived by admin
-  } default 'pending';
+  status        : FineStatus default 'pending';
   due_date      : Date;
 
   // Payment details — filled when member pays
   paid_amount   : Decimal(10,2);
   paid_date     : Date;
-  payment_mode  : String enum { cash; upi; bank_transfer; other; };
+  payment_mode  : PaymentMode;
   payment_reference : String(255);  // UPI transaction ID, receipt number, etc.
 
   // Verification — filled by Koshadhyaksha
