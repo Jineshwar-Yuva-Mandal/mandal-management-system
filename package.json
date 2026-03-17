@@ -25,7 +25,7 @@
     "deploy:initial": "NODE_ENV=production cds deploy --to postgres",
     "deploy:test": "cds deploy --to postgres",
     "build": "npm install && npm run deploy:test",
-    "build:production": "npm install && npm run deploy",
+    "build:production": "npm install",
     "start": "cds-serve",
     "start:production": "NODE_ENV=production cds-serve",
     "lint": "npx eslint .",
