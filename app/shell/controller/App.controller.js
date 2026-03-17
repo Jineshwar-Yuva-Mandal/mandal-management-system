@@ -470,11 +470,11 @@ sap.ui.define([
                             if (sUrlAfter === sUrlBefore) {
                                 that.onHomePress();
                             }
-                        } catch (e) {
+                        } catch (_e) {
                             that.onHomePress();
                         }
                     }, 300);
-                } catch (e) {
+                } catch (_e) {
                     this.onHomePress();
                 }
             } else {

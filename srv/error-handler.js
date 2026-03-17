@@ -78,7 +78,7 @@ function getFriendlyNotNullMessage(err) {
 /**
  * Parse a Postgres check-constraint violation (23514).
  */
-function getFriendlyCheckMessage(_err) {
+function getFriendlyCheckMessage(/* err */) {
   return 'The provided value is not valid. Please check your input.';
 }
 

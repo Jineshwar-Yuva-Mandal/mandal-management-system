@@ -105,13 +105,13 @@ sap.ui.define([
                     var sUrl = oData.url || oData.value?.url;
                     var sKey = oData.anonKey || oData.value?.anonKey;
                     if (!sUrl || !sKey) {
-                        console.error('Auth config missing — SUPABASE_URL or SUPABASE_ANON_KEY not set on server.');
+                        console.error('Auth config missing — SUPABASE_URL or SUPABASE_ANON_KEY not set on server.'); // eslint-disable-line no-console
                         oModel.setProperty("/authenticated", false);
                         return;
                     }
                     // Create Supabase client (CDN may be blocked by tracking prevention)
                     if (!window.supabase) {
-                        console.warn('Supabase SDK not loaded (CDN blocked?). Auth unavailable.');
+                        console.warn('Supabase SDK not loaded (CDN blocked?). Auth unavailable.'); // eslint-disable-line no-console
                         oModel.setProperty("/authenticated", false);
                         return;
                     }
@@ -119,7 +119,7 @@ sap.ui.define([
                     that._checkSession(oModel);
                 })
                 .catch(function (err) {
-                    console.error('Failed to reach backend for auth config:', err);
+                    console.error('Failed to reach backend for auth config:', err); // eslint-disable-line no-console
                     oModel.setProperty("/authenticated", false);
                 });
         },
