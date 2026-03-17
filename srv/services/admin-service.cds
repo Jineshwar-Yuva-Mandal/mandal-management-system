@@ -59,8 +59,15 @@ service AdminService @(path: '/api/admin') {
   // ─── Membership & Approval Workflows ───
   entity Workflows as projection on ApprovalWorkflows;
   entity WorkflowSteps as projection on ApprovalWorkflowSteps;
+  @cds.redirection.target
   entity JoinRequests as projection on MembershipRequests;
   entity JoinApprovals as projection on MembershipApprovals;
+
+  // ─── Distinct value lists for filter dropdowns ───
+  @readonly entity JoinRequestStatusValues {
+    key code : String;
+    value : String;
+  };
 
   // ─── Member Field Configuration ───
   entity MemberFieldConfig as projection on MandalMemberFieldConfigs;

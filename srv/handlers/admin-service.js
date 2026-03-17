@@ -323,6 +323,47 @@ module.exports = class AdminService extends cds.ApplicationService {
       await UPDATE(Mandals, mandalId).set({ admin_ID: newAdminUserId });
     });
 
+    // ── Criticality computation for JoinRequests & JoinApprovals ──
+    const STATUS_CRITICALITY = {
+      submitted: 2,       // Warning (orange) — needs attention
+      payment_pending: 2, // Warning
+      payment_done: 5,    // Neutral
+      under_review: 5,    // Neutral
+      approved: 3,        // Positive (green)
+      rejected: 1,        // Negative (red)
+      cancelled: 1,       // Neutral
+    };
+    const DECISION_CRITICALITY = {
+      pending: 2,   // Warning
+      approved: 3,  // Positive
+      rejected: 1,  // Negative
+    };
+
+    // ── JoinRequestStatusValues — fixed enum values for filter dropdown ──
+    const REQUEST_STATUSES = [
+      { code: 'submitted', value: 'Submitted' },
+      { code: 'payment_pending', value: 'Payment Pending' },
+      { code: 'payment_done', value: 'Payment Done' },
+      { code: 'under_review', value: 'Under Review' },
+      { code: 'approved', value: 'Approved' },
+      { code: 'rejected', value: 'Rejected' },
+      { code: 'cancelled', value: 'Cancelled' },
+    ];
+    const STATUS_TEXT = Object.fromEntries(REQUEST_STATUSES.map(s => [s.code, s.value]));
+    this.on('READ', 'JoinRequestStatusValues', () => REQUEST_STATUSES);
+
+    this.after('READ', 'JoinRequests', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        row.statusCriticality = STATUS_CRITICALITY[row.status] ?? 0;
+        row.statusText = STATUS_TEXT[row.status] ?? row.status;
+      }
+    });
+    this.after('READ', 'JoinApprovals', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        row.decisionCriticality = DECISION_CRITICALITY[row.decision] ?? 0;
+      }
+    });
+
     await super.init();
   }
 };

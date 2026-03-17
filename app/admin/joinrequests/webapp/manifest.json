@@ -76,7 +76,9 @@
                 "type": "sap.ui.model.resource.ResourceModel",
                 "settings": {
                     "bundleName": "com.samanvay.admin.joinrequests.i18n.i18n",
-                    "supportedLocales": [""],
+                    "supportedLocales": [
+                        ""
+                    ],
                     "fallbackLocale": ""
                 }
             },
@@ -93,13 +95,19 @@
                 "type": "sap.ui.model.resource.ResourceModel",
                 "uri": "i18n/i18n.properties",
                 "settings": {
-                    "supportedLocales": [""],
+                    "supportedLocales": [
+                        ""
+                    ],
                     "fallbackLocale": ""
                 }
             }
         },
         "resources": {
-            "css": []
+            "css": [
+                {
+                    "uri": "css/style.css"
+                }
+            ]
         },
         "routing": {
             "config": {},
@@ -135,9 +143,62 @@
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
                                     "tableSettings": {
                                         "type": "ResponsiveTable"
+                                    },
+                                    "columns": {
+                                        "DataField::requester_name": {
+                                            "availability": "Default",
+                                            "width": "13%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::requester_email": {
+                                            "availability": "Default",
+                                            "width": "17%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::requester_phone": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::status": {
+                                            "availability": "Default",
+                                            "width": "10%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::paid_amount": {
+                                            "availability": "Default",
+                                            "width": "8%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::paid_date": {
+                                            "availability": "Default",
+                                            "width": "9%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::payment_verified_by::full_name": {
+                                            "availability": "Default",
+                                            "width": "13%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::payment_verified": {
+                                            "availability": "Default",
+                                            "width": "8%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::user::profile_picture": {
+                                            "availability": "Default",
+                                            "width": "6%",
+                                            "widthIncludingColumnHeader": true
+                                        },
+                                        "DataField::payment_verified_by::profile_picture": {
+                                            "availability": "Default",
+                                            "width": "6%",
+                                            "widthIncludingColumnHeader": true
+                                        }
                                     }
                                 }
-                            }
+                            },
+                            "initialLoad": "Enabled"
                         }
                     }
                 },
