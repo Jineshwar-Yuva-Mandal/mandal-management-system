@@ -10,7 +10,7 @@ using { com.samanvay.Positions, com.samanvay.UserPositionAssignments } from '../
 
 // ═══════════════════════════════════════════════════
 // MemberService — For Authenticated Mandal Members
-// Scoped to user's mandal(s). If member of multiple, they select active mandal.
+// Scoped to user's active mandal via @restrict + $user.mandalId.
 // ═══════════════════════════════════════════════════
 @(requires: 'authenticated-user')
 @impl: 'srv/handlers/member-service.js'
@@ -19,34 +19,58 @@ service MemberService @(path: '/api/member') {
   // ─── My Profile ───
   @cds.redirection.target
   @odata.draft.enabled
+  @restrict: [{ grant: '*', where: 'ID = $user.userId' }]
   entity MyProfile as projection on Users;
 
   // ─── My Mandals & Memberships ───
-  @readonly entity MyMandals as projection on MandalMemberships;
-  @readonly entity MyMandal as projection on Mandals;  // Active mandal detail
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId' }]
+  entity MyMandals as projection on MandalMemberships;
+
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'ID = $user.mandalId' }]
+  entity MyMandal as projection on Mandals;
+
+  // MemberDirectory needs join through MandalMemberships — scoped in handler
   @readonly entity MemberDirectory as projection on Users {
     ID, full_name, first_name, last_name, email, phone, profile_picture
   };
 
   // ─── My Positions ───
-  @readonly entity MyPositions as projection on UserPositionAssignments;
-  @readonly entity MandalPositions as projection on Positions;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MyPositions as projection on UserPositionAssignments;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MandalPositions as projection on Positions;
 
   // ─── Events ───
-  @readonly entity MandalEvents as projection on Events;
-  @readonly entity MyAttendance as projection on EventAttendance;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MandalEvents as projection on Events;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MyAttendance as projection on EventAttendance;
 
   // ─── Fines ───
-  @readonly entity MyFines as projection on Fines;  // Filtered to current user in handler
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MyFines as projection on Fines;
 
   // ─── Courses ───
-  @readonly entity MandalCourses as projection on Courses;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MandalCourses as projection on Courses;
   @readonly entity Topics as projection on SyllabusTopics;
-  @readonly entity MyCourseAssignments as projection on CourseAssignments;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity MyCourseAssignments as projection on CourseAssignments;
   @readonly entity MyCourseProgress as projection on CourseTopicProgress;
 
   // ─── Ledger (read-only, visibility controlled by dynamic permissions) ───
-  @readonly entity Ledger as projection on LedgerEntries;
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  entity Ledger as projection on LedgerEntries;
 
   // ─── Actions ───
   // Select active mandal context (for members of multiple mandals)

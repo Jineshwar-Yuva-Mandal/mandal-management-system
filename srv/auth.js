@@ -1,10 +1,12 @@
 /**
  * Custom CDS auth strategy for Supabase.
  * Validates Supabase JWT (from Bearer header or session cookie)
- * and creates a proper cds.User with roles.
+ * and creates a proper cds.User with roles + mandal context attributes.
  *
- * With this, CDS annotations like @(requires: 'authenticated-user')
- * actually enforce authentication — no more "dummy" bypass.
+ * Resolves the user's mandal context ONCE per request so that:
+ *   - CDS @restrict annotations can reference $user.userId, $user.mandalId
+ *   - Handlers can use req.user.attr without re-querying the DB
+ *   - Roles like 'admin' are granted based on actual membership data
  */
 module.exports = function supabase_auth() {
   const cds = require('@sap/cds');
@@ -41,11 +43,46 @@ module.exports = function supabase_auth() {
       return next();
     }
 
-    // Create authenticated CDS user with email as ID
+    // ── Resolve mandal context from DB (once per request) ──
+    const { Users, MandalMemberships } = cds.entities('com.samanvay');
+    const { SELECT } = cds.ql;
+    const email = user.email;
+    const dbUser = await SELECT.one.from(Users).where({ email }).columns('ID', 'role');
+
+    let userId = null, mandalId = null, isAdmin = false;
+    const roles = ['authenticated-user'];
+
+    if (dbUser) {
+      userId = dbUser.ID;
+
+      // Platform admin gets a special role
+      if (dbUser.role === 'platform_admin') {
+        roles.push('platform_admin');
+      }
+
+      // Find user's active membership (prefer admin membership first)
+      const membership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: dbUser.ID, membership_status: 'active' })
+        .orderBy('is_admin desc')
+        .columns('mandal_ID', 'is_admin');
+
+      if (membership) {
+        mandalId = membership.mandal_ID;
+        isAdmin = membership.is_admin;
+        if (isAdmin) roles.push('admin');
+      }
+    }
+
+    // Create authenticated CDS user with email as ID + resolved context
     req.user = new cds.User({
-      id: user.email,
-      roles: ['authenticated-user'],
-      attr: { supabaseId: user.id }
+      id: email,
+      roles,
+      attr: {
+        supabaseId: user.id,
+        userId,
+        mandalId,
+        isAdmin
+      }
     });
 
     // Also store full Supabase user data on the Express request for handlers

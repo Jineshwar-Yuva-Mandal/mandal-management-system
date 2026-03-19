@@ -8,92 +8,41 @@ module.exports = class MemberService extends cds.ApplicationService {
       Fines, MembershipRequests, Mandals
     } = cds.entities('com.samanvay');
 
-    /**
-     * Resolve the member's active mandal and user record.
-     * req.user.id is the email, set by our custom Supabase auth strategy.
-     */
-    const getMemberContext = async (req) => {
-      const email = req.user?.id;
-      if (!email) return null;
-
-      const user = await SELECT.one.from(Users).where({ email }).columns('ID');
-      if (!user) return null;
-
-      // Get the member's active membership (pick first active if multiple)
-      const membership = await SELECT.one.from(MandalMemberships)
-        .where({ user_ID: user.ID, membership_status: 'active' })
-        .columns('mandal_ID', 'is_admin');
-
-      if (!membership) return null;
-      return { userId: user.ID, mandalId: membership.mandal_ID, isAdmin: membership.is_admin };
-    };
-
-    // ── Scope: MyProfile — only the authenticated user's own record ──
-    this.before('READ', 'MyProfile', async (req) => {
-      const ctx = await getMemberContext(req);
-      if (!ctx) { req.reject(403, 'No active membership'); return; }
-      req.query.where({ ID: ctx.userId });
-    });
-
+    // ── Scope: MyProfile — ensure member can only update their own profile ──
     this.before(['UPDATE', 'PATCH'], 'MyProfile', async (req) => {
-      const ctx = await getMemberContext(req);
-      if (!ctx) { req.reject(403, 'No active membership'); return; }
-      // Ensure member can only update their own profile
-      if (req.data.ID && req.data.ID !== ctx.userId) {
+      const userId = req.user.attr.userId;
+      if (!userId) { req.reject(403, 'No active membership'); return; }
+      if (req.data.ID && req.data.ID !== userId) {
         req.reject(403, 'Cannot modify another user\'s profile');
       }
     });
 
-    // ── Scope: MyMandals — only the authenticated user's memberships ──
-    this.before('READ', 'MyMandals', async (req) => {
-      const email = req.user?.id;
-      if (!email) { req.reject(403, 'Not authenticated'); return; }
-      const user = await SELECT.one.from(Users).where({ email }).columns('ID');
-      if (!user) { req.reject(403, 'User not found'); return; }
-      req.query.where({ user_ID: user.ID });
-    });
-
     // ── Scope: MemberDirectory — only members of the same mandal ──
+    // No direct mandal_ID on Users — requires join through MandalMemberships
     this.before('READ', 'MemberDirectory', async (req) => {
-      const ctx = await getMemberContext(req);
-      if (!ctx) { req.reject(403, 'No active membership'); return; }
+      const mandalId = req.user.attr.mandalId;
+      if (!mandalId) { req.reject(403, 'No active membership'); return; }
       const memberships = await SELECT.from(MandalMemberships)
-        .where({ mandal_ID: ctx.mandalId, membership_status: 'active' })
+        .where({ mandal_ID: mandalId, membership_status: 'active' })
         .columns('user_ID');
       const userIds = memberships.map(m => m.user_ID);
       if (userIds.length === 0) { req.reject(404, 'No members found'); return; }
       req.query.where({ ID: { in: userIds } });
     });
 
-    // ── Scope: entities with mandal_ID — restrict to member's mandal ──
-    const mandalScopedEntities = [
-      'MandalPositions', 'MyPositions',
-      'MandalEvents', 'MyAttendance', 'MyFines', 'Ledger',
-      'MandalCourses', 'MyCourseAssignments'
-    ];
-
-    for (const entity of mandalScopedEntities) {
-      this.before('READ', entity, async (req) => {
-        const ctx = await getMemberContext(req);
-        if (!ctx) { req.reject(403, 'No active membership'); return; }
-        req.query.where({ mandal_ID: ctx.mandalId });
-      });
-    }
-
-    // ── Scope: MyMandal — single mandal by ID ──
-    this.before('READ', 'MyMandal', async (req) => {
-      const ctx = await getMemberContext(req);
-      if (!ctx) return;
-      req.query.where({ ID: ctx.mandalId });
-    });
-
-    // ── Scope: Topics — no direct mandal_ID, goes through Course ──
-    // Topics are composition of Courses, so CDS handles the filter via navigation
-
-    // ── selectMandal action — for members of multiple mandals ──
+    // ── selectMandal action — switch active mandal context ──
     this.on('selectMandal', async (req) => {
       const { mandalId } = req.data;
       if (!mandalId) return req.reject(400, 'mandalId is required');
+
+      const userId = req.user.attr.userId;
+      // Verify the user has an active membership in the requested mandal
+      const membership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: userId, mandal_ID: mandalId, membership_status: 'active' });
+      if (!membership) return req.reject(403, 'No active membership in this mandal');
+
+      req.user.attr.mandalId = mandalId;
+      req.user.attr.isAdmin = membership.is_admin;
       return { mandalId };
     });
 
@@ -103,11 +52,11 @@ module.exports = class MemberService extends cds.ApplicationService {
       if (!fineId) return req.reject(400, 'fineId is required');
       if (!amount || amount <= 0) return req.reject(400, 'Valid payment amount is required');
 
-      const ctx = await getMemberContext(req);
-      if (!ctx) return req.reject(403, 'No active membership');
+      const { userId, mandalId } = req.user.attr;
+      if (!userId || !mandalId) return req.reject(403, 'No active membership');
 
       const fine = await SELECT.one.from(Fines)
-        .where({ ID: fineId, user_ID: ctx.userId, mandal_ID: ctx.mandalId });
+        .where({ ID: fineId, user_ID: userId, mandal_ID: mandalId });
       if (!fine) return req.reject(404, 'Fine not found');
       if (fine.status !== 'pending') {
         return req.reject(409, `Fine is '${fine.status}', payment only allowed when 'pending'`);
@@ -127,10 +76,10 @@ module.exports = class MemberService extends cds.ApplicationService {
       const { mandalId } = req.data;
       if (!mandalId) return req.reject(400, 'mandalId is required');
 
-      const email = req.user?.id;
-      if (!email) return req.reject(403, 'Not authenticated');
+      const userId = req.user.attr.userId;
+      if (!userId) return req.reject(403, 'Not authenticated');
 
-      const user = await SELECT.one.from(Users).where({ email });
+      const user = await SELECT.one.from(Users).where({ ID: userId });
       if (!user) return req.reject(404, 'User not found');
 
       // Check mandal exists
@@ -139,14 +88,14 @@ module.exports = class MemberService extends cds.ApplicationService {
 
       // Check if already a member
       const existing = await SELECT.one.from(MandalMemberships)
-        .where({ user_ID: user.ID, mandal_ID: mandalId });
+        .where({ user_ID: userId, mandal_ID: mandalId });
       if (existing && existing.membership_status === 'active') {
         return req.reject(409, 'You are already a member of this mandal');
       }
 
       // Check if a pending request already exists
       const pendingRequest = await SELECT.one.from(MembershipRequests)
-        .where({ user_ID: user.ID, mandal_ID: mandalId, status: 'submitted' });
+        .where({ user_ID: userId, mandal_ID: mandalId, status: 'submitted' });
       if (pendingRequest) {
         return req.reject(409, 'You already have a pending request for this mandal');
       }
@@ -156,7 +105,7 @@ module.exports = class MemberService extends cds.ApplicationService {
         requester_name: user.full_name,
         requester_email: user.email,
         requester_phone: user.phone,
-        user_ID: user.ID,
+        user_ID: userId,
         mandal_ID: mandalId,
         status: mandal.has_joining_fee ? 'payment_pending' : 'submitted',
         fee_amount: mandal.has_joining_fee ? mandal.joining_fee : 0
