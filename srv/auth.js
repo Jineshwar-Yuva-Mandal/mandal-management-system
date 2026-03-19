@@ -8,6 +8,7 @@
  */
 module.exports = function supabase_auth() {
   const cds = require('@sap/cds');
+  const { SELECT } = cds.ql;
   const LOG = cds.log('auth');
   const { SUPABASE_URL, SUPABASE_ANON_KEY } = process.env;
 
