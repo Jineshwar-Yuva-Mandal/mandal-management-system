@@ -10,7 +10,6 @@
  */
 module.exports = function supabase_auth() {
   const cds = require('@sap/cds');
-  const { SELECT } = cds.ql;
   const LOG = cds.log('auth');
   const { SUPABASE_URL, SUPABASE_ANON_KEY } = process.env;
 
@@ -45,36 +44,39 @@ module.exports = function supabase_auth() {
     }
 
     // ── Resolve mandal context from DB (once per request) ──
-    const { Users, MandalMemberships } = cds.entities('com.samanvay');
-    const { SELECT } = cds.ql;
-    const email = user.email;
-    const dbUser = await SELECT.one.from(Users).where({ email }).columns('ID', 'role');
-
     let userId = null, mandalId = null, isAdmin = false;
     const roles = ['authenticated-user'];
+    const email = user.email;
 
-    if (dbUser) {
-      userId = dbUser.ID;
+    try {
+      const { Users, MandalMemberships } = cds.entities('com.samanvay');
+      const { SELECT } = cds.ql;
 
-      // Platform admin gets a special role
-      if (dbUser.role === 'platform_admin') {
-        roles.push('platform_admin');
+      const dbUser = await SELECT.one.from(Users).where({ email }).columns('ID', 'role');
+
+      if (dbUser) {
+        userId = dbUser.ID;
+
+        if (dbUser.role === 'platform_admin') {
+          roles.push('platform_admin');
+        }
+
+        const membership = await SELECT.one.from(MandalMemberships)
+          .where({ user_ID: dbUser.ID, membership_status: 'active' })
+          .orderBy('is_admin desc')
+          .columns('mandal_ID', 'is_admin');
+
+        if (membership) {
+          mandalId = membership.mandal_ID;
+          isAdmin = membership.is_admin;
+          if (isAdmin) roles.push('admin');
+        }
       }
-
-      // Find user's active membership (prefer admin membership first)
-      const membership = await SELECT.one.from(MandalMemberships)
-        .where({ user_ID: dbUser.ID, membership_status: 'active' })
-        .orderBy('is_admin desc')
-        .columns('mandal_ID', 'is_admin');
-
-      if (membership) {
-        mandalId = membership.mandal_ID;
-        isAdmin = membership.is_admin;
-        if (isAdmin) roles.push('admin');
-      }
+    } catch (err) {
+      LOG.warn('Failed to resolve mandal context:', err.message);
+      // Continue with authenticated user but without mandal context
     }
 
-    // Create authenticated CDS user with email as ID + resolved context
     req.user = new cds.User({
       id: email,
       roles,
@@ -86,7 +88,6 @@ module.exports = function supabase_auth() {
       }
     });
 
-    // Also store full Supabase user data on the Express request for handlers
     req.supabaseUser = user;
     next();
   };

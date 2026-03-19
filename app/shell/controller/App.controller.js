@@ -156,6 +156,11 @@ sap.ui.define([
                     body: JSON.stringify({ email: sEmail, full_name: sFullName, phone: sPhone })
                 }).then(function (resp) {
                     if (!resp.ok) {
+                        // User may already exist from a prior attempt — continue if we have a session
+                        if (result.data.session) {
+                            that.getOwnerComponent()._onAuthenticated(oModel, result.data.user);
+                            return;
+                        }
                         return resp.json().then(function (body) {
                             var sMsg = (body.error && body.error.message) || "Registration failed.";
                             throw new Error(sMsg);
@@ -165,25 +170,16 @@ sap.ui.define([
                     oModel.setProperty("/auth/password", "");
                     oModel.setProperty("/auth/confirmPassword", "");
 
+                    // Auto-confirmed — proceed directly (no email verification step)
                     if (result.data.session) {
-                        // Auto-confirmed — proceed (busy stays until onAuthenticated finishes)
                         that.getOwnerComponent()._onAuthenticated(oModel, result.data.user);
                     } else {
-                        // Email confirmation required
                         that._hideBusy();
-                        MessageBox.information(
-                            "Your account has been created successfully!\n\nPlease check your email and click the verification link to complete your registration. Once verified, you can sign in.",
-                            {
-                                title: "Verify Your Email",
-                                onClose: function () {
-                                    oModel.setProperty("/auth/isSignup", false);
-                                    oModel.setProperty("/auth/subtitle", "Sign in to your account");
-                                    oModel.setProperty("/auth/submitText", "Sign In");
-                                    oModel.setProperty("/auth/toggleText", "Don't have an account? Sign Up");
-                                    oModel.setProperty("/auth/email", sEmail);
-                                }
-                            }
-                        );
+                        oModel.setProperty("/auth/isSignup", false);
+                        oModel.setProperty("/auth/subtitle", "Sign in to your account");
+                        oModel.setProperty("/auth/submitText", "Sign In");
+                        oModel.setProperty("/auth/toggleText", "Don't have an account? Sign Up");
+                        oModel.setProperty("/auth/email", sEmail);
                     }
                 });
             }).catch(function (err) {
