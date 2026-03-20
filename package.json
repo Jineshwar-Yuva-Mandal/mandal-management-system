@@ -44,7 +44,7 @@
         "kind": "postgres",
         "impl": "@cap-js/postgres",
         "pool": {
-          "acquireTimeoutMillis": 10000
+          "acquireTimeoutMillis": 30000
         },
         "[production]": {
           "schema_evolution": "auto"
