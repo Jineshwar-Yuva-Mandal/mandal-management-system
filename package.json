@@ -21,9 +21,10 @@
     "@sap/cds-dk": "^9"
   },
   "scripts": {
-    "deploy": "mv db/data db/_data_bak && NODE_ENV=production cds deploy --to postgres; mv db/_data_bak db/data",
-    "deploy:initial": "NODE_ENV=production cds deploy --to postgres",
-    "deploy:test": "cds deploy --to postgres",
+    "deploy": "mv db/data db/_data_bak && NODE_ENV=production node scripts/deploy-pg.js; mv db/_data_bak db/data",
+    "deploy:initial": "NODE_ENV=production node scripts/deploy-pg.js",
+    "deploy:test": "node scripts/deploy-pg.js",
+    "deploy:dry": "cds deploy --to postgres --dry",
     "build": "npm install && npm run deploy:test",
     "build:production": "npm install && cds build --production",
     "start": "cds-serve",
