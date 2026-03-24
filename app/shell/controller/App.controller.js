@@ -267,17 +267,21 @@ sap.ui.define([
             })
             .then(function () {
                 oModel.setProperty("/createMandal/busy", false);
-                that._hideBusy();
-                oModel.setProperty("/isAdmin", true);
-                oModel.setProperty("/authenticated", true);
-                MessageToast.show("Mandal created successfully!");
-                that.getOwnerComponent()._navigateTo("mainShellPage");
                 // Reset form
                 oModel.setProperty("/createMandal/name", "");
                 oModel.setProperty("/createMandal/area", "");
                 oModel.setProperty("/createMandal/city", "");
                 oModel.setProperty("/createMandal/state", "");
                 oModel.setProperty("/authView", "login");
+                MessageToast.show("Mandal created successfully!");
+                // Re-run full auth flow to set session cookie + resolve updated membership
+                var oSupabase = that.getOwnerComponent().getSupabase();
+                oSupabase.auth.getSession().then(function (result) {
+                    var oSession = result.data?.session;
+                    if (oSession) {
+                        that.getOwnerComponent()._onAuthenticated(oModel, oSession.user);
+                    }
+                });
             })
             .catch(function (err) {
                 oModel.setProperty("/createMandal/errorMessage", err.message || "Failed to create mandal.");
