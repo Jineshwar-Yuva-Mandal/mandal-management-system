@@ -131,7 +131,9 @@ function transformPgError(errBody) {
   }
   // Fallback: pattern-match on the message text
   const msg = (errBody.message || '') + ' ' + (errBody.detail || '');
-  if (msg.includes('unique constraint') || msg.includes('duplicate key') || msg.includes('already exists')) {
+  // Guard: "does not exist" (e.g. prepared statement errors) is NOT a unique violation
+  if (!msg.includes('does not exist') &&
+      (msg.includes('unique constraint') || msg.includes('duplicate key') || msg.includes('already exists'))) {
     return {
       message: getFriendlyUniqueMessage({ detail: msg, constraint: errBody.constraint || '' }),
       status: 409

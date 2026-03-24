@@ -4,6 +4,20 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 require('dotenv').config({ path: envFile });
 const cds = require('@sap/cds');
 
+// ── Override DB credentials from env vars if set (for Render / cloud hosting) ──
+if (process.env.DB_HOST) {
+  cds.env.requires.db = Object.assign(cds.env.requires.db || {}, {
+    credentials: {
+      host:     process.env.DB_HOST,
+      port:     parseInt(process.env.DB_PORT || '6543', 10),
+      database: process.env.DB_NAME || 'postgres',
+      user:     process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      ssl:      { rejectUnauthorized: false }
+    }
+  });
+}
+
 // Register friendly DB error handler middleware
 require('./error-handler');
 
