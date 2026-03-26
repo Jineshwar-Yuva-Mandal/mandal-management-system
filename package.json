@@ -24,6 +24,7 @@
     "deploy": "mv db/data db/_data_bak && NODE_ENV=production node scripts/deploy-pg.js; mv db/_data_bak db/data",
     "deploy:initial": "NODE_ENV=production node scripts/deploy-pg.js",
     "deploy:test": "node scripts/deploy-pg.js",
+    "deploy:test:seed": "node scripts/deploy-pg.js --seed",
     "deploy:dry": "cds deploy --to postgres --dry",
     "build": "npm install && npm run deploy:test",
     "build:production": "npm install && cds build --production",
@@ -48,6 +49,9 @@
           "acquireTimeoutMillis": 30000
         },
         "[production]": {
+          "schema_evolution": "auto"
+        },
+        "[test]": {
           "schema_evolution": "auto"
         }
       },
