@@ -215,6 +215,7 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
+                            "showFooter": true,
                             "editableHeaderContent": false,
                             "contextPath": "/Members",
                             "sectionLayout": "Page",

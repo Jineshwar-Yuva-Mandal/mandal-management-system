@@ -69,7 +69,11 @@ module.exports = function supabase_auth() {
         if (membership) {
           mandalId = membership.mandal_ID;
           isAdmin = membership.is_admin;
-          if (isAdmin) roles.push('admin');
+        }
+
+        // Grant 'mandal_admin' CDS role based on platform role or membership flag
+        if (dbUser.role === 'platform_admin' || dbUser.role === 'mandal_admin' || isAdmin) {
+          roles.push('mandal_admin');
         }
       }
     } catch (err) {

@@ -73,8 +73,6 @@ service MemberService @(path: '/api/member') {
   entity Ledger as projection on LedgerEntries;
 
   // ─── Actions ───
-  // Select active mandal context (for members of multiple mandals)
-  action selectMandal(mandalId : UUID);
   // Pay a fine — member submits payment details
   action payFine(fineId : UUID, amount : Decimal, payment_mode : String, payment_reference : String);
   // Request to join a different mandal

@@ -12,7 +12,7 @@ type BloodGroup : String enum { A_pos; A_neg; B_pos; B_neg; AB_pos; AB_neg; O_po
 type Education : String enum { below_10th; ssc; hsc; diploma; graduate; post_graduate; doctorate; other; };
 type AnnualIncome : String enum { below_1L; _1L_3L; _3L_5L; _5L_10L; _10L_25L; above_25L; prefer_not_to_say; };
 type DietaryPreference : String enum { vegetarian; vegan; jain; no_preference; };
-type PlatformRole : String enum { platform_admin; member; };
+type PlatformRole : String enum { platform_admin; mandal_admin; member; };
 
 // ─── Mandal Memberships ───
 type MembershipStatus : String enum { active; inactive; pending; suspended; };

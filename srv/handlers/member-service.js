@@ -30,22 +30,6 @@ module.exports = class MemberService extends cds.ApplicationService {
       req.query.where({ ID: { in: userIds } });
     });
 
-    // ── selectMandal action — switch active mandal context ──
-    this.on('selectMandal', async (req) => {
-      const { mandalId } = req.data;
-      if (!mandalId) return req.reject(400, 'mandalId is required');
-
-      const userId = req.user.attr.userId;
-      // Verify the user has an active membership in the requested mandal
-      const membership = await SELECT.one.from(MandalMemberships)
-        .where({ user_ID: userId, mandal_ID: mandalId, membership_status: 'active' });
-      if (!membership) return req.reject(403, 'No active membership in this mandal');
-
-      req.user.attr.mandalId = mandalId;
-      req.user.attr.isAdmin = membership.is_admin;
-      return { mandalId };
-    });
-
     // ── payFine — member records a fine payment ──
     this.on('payFine', async (req) => {
       const { fineId, amount, payment_mode, payment_reference } = req.data;

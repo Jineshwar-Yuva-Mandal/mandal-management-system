@@ -99,6 +99,21 @@ annotate service.Members with @(
         Data : [
             {
                 $Type : 'UI.DataField',
+                Value : first_name,
+                Label : '{i18n>FirstName}',
+            },
+            {
+                $Type : 'UI.DataField',
+                Value : middle_name,
+                Label : '{i18n>MiddleName}',
+            },
+            {
+                $Type : 'UI.DataField',
+                Value : last_name,
+                Label : '{i18n>LastName}',
+            },
+            {
+                $Type : 'UI.DataField',
                 Value : email,
                 Label : '{i18n>Email}',
             },

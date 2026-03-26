@@ -86,7 +86,7 @@
 /* ── Embedded app iframe ── */
 .samanvayIframe {
     width: 100%;
-    height: calc(100vh - 2.75rem);
+    height: 100%;
     border: none;
 }
 

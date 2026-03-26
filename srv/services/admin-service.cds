@@ -15,33 +15,34 @@ using { com.samanvay.MandalMemberFieldConfigs } from '../../db/member_field_conf
 // ═══════════════════════════════════════════════════
 // AdminService — For Mandal Admins / Position Holders
 // All data is SCOPED to the user's mandal via @restrict + $user.mandalId.
-// The 'admin' role is granted in auth.js when the user has is_admin=true membership.
+// The 'mandal_admin' CDS role is granted in auth.js for platform_admin, mandal_admin, or is_admin=true.
 // ═══════════════════════════════════════════════════
-@(requires: 'admin')
+@(requires: 'mandal_admin')
 @impl: 'srv/handlers/admin-service.js'
 service AdminService @(path: '/api/admin') {
 
-  // ─── My Mandals (mandals where I am admin/have positions) ───
-  @readonly
-  @restrict: [{ grant: 'READ', to: 'admin', where: 'user_ID = $user.userId' }]
-  entity MyMandals as projection on MandalMemberships;
-
-  @restrict: [{ grant: '*', to: 'admin', where: 'ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'ID = $user.mandalId' }]
   entity Mandal as projection on Mandals;
+
+  // ─── My Mandals (memberships navigation target for Members detail page) ───
+  @readonly
+  entity MyMandals as projection on MandalMemberships;
 
   // Members require join through MandalMemberships — scoped in handler
   @cds.redirection.target
+  @odata.draft.enabled
+  @restrict: [{ grant: '*', to: 'mandal_admin' }]
   entity Members as projection on Users;
 
   // ─── Memberships ───
   @cds.redirection.target: false
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Memberships as projection on MandalMemberships;
 
   // ─── Position & Permission Management ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalPositions as projection on Positions;
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity PositionAssignments as projection on UserPositionAssignments;
   entity ProtectedEntityList as projection on ProtectedEntities;
   entity ProtectedFieldList as projection on ProtectedFields;
@@ -49,33 +50,33 @@ service AdminService @(path: '/api/admin') {
   entity FieldPermissionRules as projection on FieldPermissions;
 
   // ─── Event Management ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalEvents as projection on Events;
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Attendance as projection on EventAttendance;
 
   // ─── Fine Management ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MemberFines as projection on Fines;
 
   // ─── Ledger ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Ledger as projection on LedgerEntries;
 
   // ─── Course Management ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalCourses as projection on Courses;
   entity Topics as projection on SyllabusTopics;
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Assignments as projection on CourseAssignments;
   entity TopicProgress as projection on CourseTopicProgress;
 
   // ─── Membership & Approval Workflows ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Workflows as projection on ApprovalWorkflows;
   entity WorkflowSteps as projection on ApprovalWorkflowSteps;
   @cds.redirection.target
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity JoinRequests as projection on MembershipRequests;
   entity JoinApprovals as projection on MembershipApprovals;
 
@@ -86,12 +87,10 @@ service AdminService @(path: '/api/admin') {
   };
 
   // ─── Member Field Configuration ───
-  @restrict: [{ grant: '*', to: 'admin', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MemberFieldConfig as projection on MandalMemberFieldConfigs;
 
   // ─── Actions ───
-  // Set active mandal context (for admins of multiple mandals)
-  action selectMandal(mandalId : UUID);
   action verifyFinePayment(fineId : UUID, approved : Boolean, remarks : String) returns MemberFines;
   action markAttendance(eventId : UUID, attendees : array of {
     userId : UUID;

@@ -71,7 +71,7 @@ entity Users : managed, cuid {
   dietary_preference : DietaryPreference default 'no_preference';
 
   // ─── Platform ───
-  role              : PlatformRole default 'member'; // platform_admin = you, the SaaS owner
+  role              : PlatformRole default 'member'; // platform_admin = SaaS owner, mandal_admin = mandal owner, member = regular member
 
   // ─── Mandal Memberships (many-to-many) ───
   memberships       : Association to many MandalMemberships on memberships.user = $self;

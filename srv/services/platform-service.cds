@@ -29,7 +29,7 @@ service PlatformAdminService @(path: '/api/platform') {
 
   // ─── Platform Actions ───
   // Promote/demote a user to platform_admin
-  action setPlatformRole(userId : UUID, role : String enum { platform_admin; member; });
+  action setPlatformRole(userId : UUID, role : String enum { platform_admin; mandal_admin; member; });
   // Suspend a mandal
   action suspendMandal(mandalId : UUID, reason : String);
   // Reactivate a suspended mandal

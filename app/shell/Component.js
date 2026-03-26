@@ -173,6 +173,8 @@ sap.ui.define([
               .then(function (oUser) {
                 var oUserData = oUser.value || oUser;
                 if (oUserData && oUserData.ID) {
+                    // Store user's platform role for admin check
+                    oModel.setProperty("/userRole", oUserData.role || "member");
                     // User exists — check memberships via member service
                     that._supabaseToken = sToken;
                     return fetch("./api/member/MyMandals", {
@@ -187,7 +189,7 @@ sap.ui.define([
                 var aMemberships = oResult.value || [];
                 if (aMemberships.length > 0) {
                     // User has memberships — show dashboard
-                    var bIsAdmin = aMemberships.some(function (m) { return m.is_admin; });
+                    var bIsAdmin = aMemberships.some(function (m) { return m.is_admin; }) || oModel.getProperty("/userRole") === "mandal_admin" || oModel.getProperty("/userRole") === "platform_admin";
                     oModel.setProperty("/isAdmin", bIsAdmin);
                     oModel.setProperty("/authenticated", true);
                     that._hideBusy();

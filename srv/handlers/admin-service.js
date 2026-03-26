@@ -4,16 +4,16 @@ module.exports = class AdminService extends cds.ApplicationService {
 
   async init() {
     const {
-      Users, MandalMemberships, Mandals,
+      MandalMemberships, Mandals,
       Fines, LedgerEntries,
       Events, EventAttendance,
       MembershipRequests, MembershipApprovals
     } = cds.entities('com.samanvay');
 
-    // ── Scope: Members — users who belong to the admin's mandal ──
-    // Members entity has no direct mandal_ID — requires join through MandalMemberships
     this.before('READ', 'Members', async (req) => {
-      const mandalId = req.user.attr.mandalId;
+      if (req.query?.SELECT?.from?.ref?.[0]?.id?.endsWith?.('.drafts')) return;
+
+      const mandalId = req.user.attr?.mandalId;
       if (!mandalId) { req.reject(403, 'No active mandal context'); return; }
 
       const memberships = await SELECT.from(MandalMemberships)
@@ -34,22 +34,6 @@ module.exports = class AdminService extends cds.ApplicationService {
       const posIds = positions.map(p => p.ID);
       if (posIds.length === 0) { req.query.where({ ID: null }); return; }
       req.query.where({ position_ID: { in: posIds } });
-    });
-
-    // ── selectMandal action — switch active mandal context ──
-    this.on('selectMandal', async (req) => {
-      const { mandalId } = req.data;
-      if (!mandalId) return req.reject(400, 'mandalId is required');
-
-      const userId = req.user.attr.userId;
-      // Verify the user is actually an admin of the requested mandal
-      const membership = await SELECT.one.from(MandalMemberships)
-        .where({ user_ID: userId, mandal_ID: mandalId, is_admin: true, membership_status: 'active' });
-      if (!membership) return req.reject(403, 'You are not an admin of this mandal');
-
-      // Update the user's attr for this request context
-      req.user.attr.mandalId = mandalId;
-      return { mandalId };
     });
 
     // ── verifyFinePayment — Koshadhyaksha approves/rejects a fine payment ──

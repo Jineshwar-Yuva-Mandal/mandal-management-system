@@ -9,8 +9,8 @@ module.exports = class PlatformAdminService extends cds.ApplicationService {
     this.on('setPlatformRole', async (req) => {
       const { userId, role } = req.data;
       if (!userId) return req.reject(400, 'userId is required');
-      if (!['platform_admin', 'member'].includes(role)) {
-        return req.reject(400, "role must be 'platform_admin' or 'member'");
+      if (!['platform_admin', 'mandal_admin', 'member'].includes(role)) {
+        return req.reject(400, "role must be 'platform_admin', 'mandal_admin', or 'member'");
       }
 
       const user = await SELECT.one.from(Users).where({ ID: userId });

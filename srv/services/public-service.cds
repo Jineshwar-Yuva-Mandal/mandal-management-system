@@ -37,6 +37,7 @@ service PublicService @(path: '/api/public') {
     email : String;
     full_name : String;
     phone : String;
+    role : String;
   };
 
   // ─── Actions ───

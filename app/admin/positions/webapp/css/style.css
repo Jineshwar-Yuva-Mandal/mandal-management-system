@@ -1,0 +1,4 @@
+/* Hide the DynamicPage title bar only on List Report — not Object Page */
+[id*="fe::ListReport"] .sapFDynamicPageTitle {
+    display: none !important;
+}
