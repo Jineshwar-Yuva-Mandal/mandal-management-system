@@ -77,7 +77,11 @@ service AdminService @(path: '/api/admin') {
   entity WorkflowSteps as projection on ApprovalWorkflowSteps;
   @cds.redirection.target
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
-  entity JoinRequests as projection on MembershipRequests;
+  entity JoinRequests as projection on MembershipRequests
+    actions {
+      action approveMembership(remarks : String);
+      action rejectMembership(remarks : String);
+    };
   entity JoinApprovals as projection on MembershipApprovals;
 
   // ─── Distinct value lists for filter dropdowns ───
@@ -96,7 +100,6 @@ service AdminService @(path: '/api/admin') {
     userId : UUID;
     status : String enum { present; absent; excused; };
   });
-  action decideMembership(requestId : UUID, decision : String enum { approved; rejected; }, remarks : String);
   // Transfer mandal admin ownership
   action transferAdminship(mandalId : UUID, newAdminUserId : UUID);
 }

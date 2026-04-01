@@ -140,13 +140,13 @@ module.exports = class AdminService extends cds.ApplicationService {
       }
     });
 
-    // ── decideMembership — approve/reject a join request ──
-    this.on('decideMembership', async (req) => {
-      const { requestId, decision, remarks } = req.data;
+    // ── approveMembership — approve a join request (bound action on JoinRequests) ──
+    this.on('approveMembership', 'JoinRequests', async (req) => {
+      const keys = req.params[0];
+      const requestId = typeof keys === 'object' ? keys.ID : keys;
+      const { remarks } = req.data;
+      const decision = 'approved';
       if (!requestId) return req.reject(400, 'requestId is required');
-      if (!['approved', 'rejected'].includes(decision)) {
-        return req.reject(400, "decision must be 'approved' or 'rejected'");
-      }
 
       const { mandalId, userId } = req.user.attr;
       if (!mandalId) return req.reject(403, 'No active mandal context');
@@ -174,7 +174,11 @@ module.exports = class AdminService extends cds.ApplicationService {
       });
 
       // If approved, create the mandal membership
-      if (decision === 'approved' && request.user_ID) {
+      if (decision === 'approved') {
+        if (!request.user_ID) {
+          return req.reject(400, 'Cannot approve: no linked user on this request');
+        }
+
         const existingMembership = await SELECT.one.from(MandalMemberships)
           .where({ user_ID: request.user_ID, mandal_ID: mandalId });
 
@@ -210,6 +214,38 @@ module.exports = class AdminService extends cds.ApplicationService {
           });
         }
       }
+    });
+
+    // ── rejectMembership — reject a join request (bound action on JoinRequests) ──
+    this.on('rejectMembership', 'JoinRequests', async (req) => {
+      const keys = req.params[0];
+      const requestId = typeof keys === 'object' ? keys.ID : keys;
+      const { remarks } = req.data;
+      if (!requestId) return req.reject(400, 'requestId is required');
+
+      const { mandalId, userId } = req.user.attr;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+
+      const request = await SELECT.one.from(MembershipRequests)
+        .where({ ID: requestId, mandal_ID: mandalId });
+      if (!request) return req.reject(404, 'Membership request not found in your mandal');
+      if (request.status === 'approved' || request.status === 'rejected') {
+        return req.reject(409, `Request already ${request.status}`);
+      }
+
+      await INSERT.into(MembershipApprovals).entries({
+        ID: cds.utils.uuid(),
+        request_ID: requestId,
+        approver_ID: userId,
+        decision: 'rejected',
+        decided_at: new Date().toISOString(),
+        remarks: remarks || ''
+      });
+
+      await UPDATE(MembershipRequests, requestId).set({
+        status: 'rejected',
+        remarks: remarks || ''
+      });
     });
 
     // ── transferAdminship — transfer mandal admin role to another member ──

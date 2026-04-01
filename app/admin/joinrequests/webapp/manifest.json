@@ -209,7 +209,19 @@
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "contextPath": "/JoinRequests"
+                            "contextPath": "/JoinRequests",
+                            "content": {
+                                "header": {
+                                    "actions": {
+                                        "DataFieldForAction::AdminService.approveMembership": {
+                                            "priority": "High"
+                                        },
+                                        "DataFieldForAction::AdminService.rejectMembership": {
+                                            "priority": "High"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
