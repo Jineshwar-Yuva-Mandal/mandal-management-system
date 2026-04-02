@@ -39,7 +39,7 @@ service MemberService @(path: '/api/member') {
 
   // ─── My Positions ───
   @readonly
-  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
+  @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' }]
   entity MyPositions as projection on UserPositionAssignments;
   @readonly
   @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]

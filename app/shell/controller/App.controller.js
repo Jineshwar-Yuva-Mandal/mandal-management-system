@@ -649,8 +649,16 @@ sap.ui.define([
                     "<p>Coming soon</p></div>"
                 );
             } else {
+                var sUrl = "./" + sKey;
+                // Mandal Settings: skip list, go directly to object page
+                if (sKey.indexOf("admin/mandal/") !== -1) {
+                    var sMandalId = oModel.getProperty("/adminMandalId");
+                    if (sMandalId) {
+                        sUrl += "#/Mandal(ID=" + sMandalId + ",IsActiveEntity=true)";
+                    }
+                }
                 oAppFrame.setContent(
-                    "<iframe class='samanvayIframe' src='./" + sKey + "'></iframe>"
+                    "<iframe class='samanvayIframe' src='" + sUrl + "'></iframe>"
                 );
             }
 

@@ -49,7 +49,8 @@ module.exports = class AdminService extends cds.ApplicationService {
       Fines, LedgerEntries,
       Events, EventAttendance,
       MembershipRequests, MembershipApprovals,
-      AppAccessGrants
+      AppAccessGrants,
+      Positions, UserPositionAssignments
     } = cds.entities('com.samanvay');
 
     // ── Privileged member entity-level authorization ──
@@ -126,6 +127,39 @@ module.exports = class AdminService extends cds.ApplicationService {
       const membership = await SELECT.one.from(MandalMemberships)
         .where({ user_ID: userId, mandal_ID: mandalId, membership_status: 'active' });
       if (!membership) return req.reject(403, 'Cannot modify a user who is not a member of your mandal');
+    });
+
+    // ── Populate virtual positionTitle for Members ──
+    this.after('READ', 'Members', async (results, req) => {
+      const items = Array.isArray(results) ? results : [results];
+      if (items.length === 0) return;
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) return;
+      const userIds = items.map(m => m.ID).filter(Boolean);
+      if (userIds.length === 0) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const assignments = await SELECT.from(UserPositionAssignments)
+        .columns('user_ID', 'position_ID')
+        .where({ user_ID: { in: userIds }, mandal_ID: mandalId })
+        .and(`(valid_to is null or valid_to >= '${today}')`);
+      if (assignments.length === 0) return;
+      const posIds = [...new Set(assignments.map(a => a.position_ID))];
+      const positions = await SELECT.from(Positions).columns('ID', 'name').where({ ID: { in: posIds } });
+      const posMap = {};
+      positions.forEach(p => { posMap[p.ID] = p.name; });
+      const userPosMap = {};
+      assignments.forEach(a => {
+        if (!userPosMap[a.user_ID]) userPosMap[a.user_ID] = [];
+        const name = posMap[a.position_ID];
+        if (name && !userPosMap[a.user_ID].includes(name)) userPosMap[a.user_ID].push(name);
+      });
+      items.forEach(m => {
+        if (m.ID && userPosMap[m.ID]) {
+          m.positionTitle = userPosMap[m.ID].join(', ');
+        } else {
+          m.positionTitle = 'Member';
+        }
+      });
     });
 
     // ── Scope: EntityPermissionRules — no direct mandal_ID, joined via position ──

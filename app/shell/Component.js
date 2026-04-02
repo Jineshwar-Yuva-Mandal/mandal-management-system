@@ -231,6 +231,29 @@ sap.ui.define([
                     var bIsAdmin = aMemberships.some(function (m) { return m.is_admin; }) || oModel.getProperty("/userRole") === "mandal_admin" || oModel.getProperty("/userRole") === "platform_admin";
                     oModel.setProperty("/isAdmin", bIsAdmin);
 
+                    // Store admin mandal ID for direct navigation
+                    var oAdminMembership = aMemberships.find(function (m) { return m.is_admin; });
+                    if (oAdminMembership) {
+                        oModel.setProperty("/adminMandalId", oAdminMembership.mandal_ID);
+                    }
+
+                    // Fetch user's position titles for profile display (scoped to admin's mandal)
+                    var sMandalFilter = oAdminMembership ? " and mandal_ID eq " + oAdminMembership.mandal_ID : "";
+                    fetch("./api/member/MyPositions?$expand=position&$filter=(valid_to eq null or valid_to ge " + new Date().toISOString().slice(0, 10) + ")" + sMandalFilter, {
+                        headers: { "Authorization": "Bearer " + sToken }
+                    }).then(function (r) {
+                        if (!r.ok) return { value: [] };
+                        return r.json();
+                    }).then(function (oPosResult) {
+                        var aPositions = (oPosResult.value || []);
+                        if (aPositions.length > 0) {
+                            var sRoles = aPositions.map(function (p) { return p.position?.name || ""; }).filter(Boolean).join(", ");
+                            if (sRoles) oModel.setProperty("/profile/role", sRoles);
+                        } else if (bIsAdmin) {
+                            oModel.setProperty("/profile/role", "Admin");
+                        }
+                    }).catch(function () { /* keep default */ });
+
                     // Set per-app admin access
                     if (bIsAdmin) {
                         // Full admins see all admin apps

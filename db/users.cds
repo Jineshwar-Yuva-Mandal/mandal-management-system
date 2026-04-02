@@ -1,6 +1,7 @@
 namespace com.samanvay;
 
 using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from './mandal';
+using { com.samanvay.UserPositionAssignments } from './authorization';
 using { com.samanvay.Gender, com.samanvay.MaritalStatus, com.samanvay.BloodGroup,
         com.samanvay.Education, com.samanvay.AnnualIncome, com.samanvay.DietaryPreference,
         com.samanvay.PlatformRole } from './types';
@@ -77,4 +78,7 @@ entity Users : managed, cuid {
 
   // ─── Mandal Memberships (many-to-many) ───
   memberships       : Association to many MandalMemberships on memberships.user = $self;
+
+  // ─── Position Assignments ───
+  positionAssignments : Association to many UserPositionAssignments on positionAssignments.user = $self;
 }

@@ -35,7 +35,10 @@ service AdminService @(path: '/api/admin') {
   @cds.redirection.target
   @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin' }]
-  entity Members as projection on Users;
+  entity Members as projection on Users {
+    *,
+    virtual positionTitle : String
+  };
 
   // ─── Memberships ───
   @cds.redirection.target: false

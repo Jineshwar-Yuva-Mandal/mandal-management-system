@@ -116,6 +116,9 @@
 }
 
 /* ── Profile popover buttons ── */
+#profilePopover .sapMPopoverCont {
+    overflow-x: hidden !important;
+}
 .samanvayProfileBtn {
     justify-content: flex-start !important;
 }

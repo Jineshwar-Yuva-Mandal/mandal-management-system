@@ -93,6 +93,12 @@ annotate service.Members with @(
             ID : 'i18nMemberships',
             Target : 'memberships/@UI.LineItem#i18nMemberships',
         },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Positions',
+            ID : 'Positions',
+            Target : 'positionAssignments/@UI.LineItem#Positions',
+        },
     ],
     UI.FieldGroup #i18nBasicIdentity : {
         $Type : 'UI.FieldGroupType',
@@ -261,7 +267,7 @@ annotate service.Members with @(
         TypeNamePlural : '',
         Description : {
             $Type : 'UI.DataField',
-            Value : role,
+            Value : positionTitle,
         },
         ImageUrl : profile_picture,
         Initials : full_name,
@@ -332,4 +338,34 @@ annotate service.Members with {
   profile_picture_type @UI.Hidden;
   profile_picture_name @UI.Hidden;
 };
+
+// ─── Position Assignments table on Members Object Page ───
+annotate service.PositionAssignments with @(
+    UI.LineItem #Positions : [
+        {
+            $Type : 'UI.DataField',
+            Value : position.name,
+            Label : 'Position',
+            @UI.Importance : #High,
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : mandal.name,
+            Label : 'Mandal',
+            @UI.Importance : #High,
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : valid_from,
+            Label : 'From',
+            @UI.Importance : #High,
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : valid_to,
+            Label : 'To',
+            @UI.Importance : #High,
+        },
+    ]
+);
 
