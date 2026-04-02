@@ -104,13 +104,12 @@ sap.ui.define([
                 },
                 adminApps: [],
                 memberApps: [
-                    { key: "#member-profile",    title: "My Profile",       desc: "View and edit your profile",   icon: "sap-icon://account" },
-                    { key: "#member-mandals",    title: "My Mandals",       desc: "View your mandal memberships", icon: "sap-icon://building" },
-                    { key: "#member-events",     title: "Events",           desc: "View upcoming events",         icon: "sap-icon://appointment" },
-                    { key: "#member-courses",    title: "My Courses",       desc: "Track course progress",        icon: "sap-icon://curriculum" },
-                    { key: "#member-fines",      title: "My Fines",         desc: "View fines and payments",      icon: "sap-icon://money-bills" },
-                    { key: "#member-directory",   title: "Member Directory", desc: "Browse mandal members",        icon: "sap-icon://contacts" },
-                    { key: "#member-ledger",     title: "Ledger",           desc: "View financial records",       icon: "sap-icon://monitor-payments" }
+                    { key: "member/myprofile/webapp/index.html",           title: "My Profile",       desc: "View and edit your profile",     icon: "sap-icon://account" },
+                    { key: "member/mandalevents/webapp/index.html",       title: "Events",           desc: "View upcoming events",           icon: "sap-icon://appointment" },
+                    { key: "member/courseassignments/webapp/index.html",   title: "My Courses",       desc: "Track course progress",          icon: "sap-icon://curriculum" },
+                    { key: "member/myfines/webapp/index.html",            title: "My Fines",         desc: "View fines and payments",        icon: "sap-icon://money-bills" },
+                    { key: "member/memberdirectory/webapp/index.html",    title: "Member Directory", desc: "Browse mandal members",          icon: "sap-icon://contacts" },
+                    { key: "member/ledger/webapp/index.html",             title: "Ledger",           desc: "View financial records",         icon: "sap-icon://monitor-payments" }
                 ]
             });
             this.setModel(oModel);
@@ -212,8 +211,9 @@ sap.ui.define([
               .then(function (oUser) {
                 var oUserData = oUser.value || oUser;
                 if (oUserData && oUserData.ID) {
-                    // Store user's platform role for admin check
+                    // Store user's platform role and ID for profile/admin check
                     oModel.setProperty("/userRole", oUserData.role || "member");
+                    oModel.setProperty("/userId", oUserData.ID);
                     // User exists — check memberships via member service
                     that._supabaseToken = sToken;
                     return fetch("./api/member/MyMandals", {

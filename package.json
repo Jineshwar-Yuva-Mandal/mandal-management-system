@@ -34,12 +34,17 @@
     "watch-members": "cds watch --open admin/members/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-eventsandattendance": "cds watch --open admin/eventsandattendance/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-fines": "cds watch --open admin/fines/webapp/index.html?sap-ui-xx-viewCache=false",
-    "watch-ledger": "cds watch --open admin/ledger/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-ledger": "cds watch --open ledger/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-courses": "cds watch --open admin/courses/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-joinrequests": "cds watch --open admin/joinrequests/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-positions": "cds watch --open admin/positions/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-mandal": "cds watch --open admin/mandal/webapp/index.html?sap-ui-xx-viewCache=false",
-    "watch-appaccess": "cds watch --open admin/appaccess/webapp/index.html?sap-ui-xx-viewCache=false"
+    "watch-appaccess": "cds watch --open admin/appaccess/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-myprofile": "cds watch --open member/myprofile/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-mandalevents": "cds watch --open member/mandalevents/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-courseassignments": "cds watch --open member/courseassignments/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-myfines": "cds watch --open member/myfines/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-memberdirectory": "cds watch --open member/memberdirectory/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "cds": {
     "requires": {
@@ -70,6 +75,12 @@
     "app/admin/joinrequests",
     "app/admin/positions",
     "app/admin/mandal",
-    "app/admin/appaccess"
+    "app/admin/appaccess",
+    "app/member/myprofile",
+    "app/member/mandalevents",
+    "app/member/courseassignments",
+    "app/member/myfines",
+    "app/member/memberdirectory",
+    "app/member/ledger"
   ]
 }

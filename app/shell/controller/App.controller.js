@@ -657,6 +657,13 @@ sap.ui.define([
                         sUrl += "#/Mandal(ID=" + sMandalId + ",IsActiveEntity=true)";
                     }
                 }
+                // My Profile: skip list, go directly to own profile object page
+                if (sKey.indexOf("member/myprofile/") !== -1) {
+                    var sUserId = oModel.getProperty("/userId");
+                    if (sUserId) {
+                        sUrl += "#/MyProfile(ID=" + sUserId + ",IsActiveEntity=true)";
+                    }
+                }
                 oAppFrame.setContent(
                     "<iframe class='samanvayIframe' src='" + sUrl + "'></iframe>"
                 );

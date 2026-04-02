@@ -57,13 +57,12 @@
                         </tnt:NavigationListItem>
                         <!-- Member group -->
                         <tnt:NavigationListItem text="Member" icon="sap-icon://person-placeholder">
-                            <tnt:NavigationListItem text="My Profile" icon="sap-icon://account" key="#member-profile"/>
-                            <tnt:NavigationListItem text="My Mandals" icon="sap-icon://building" key="#member-mandals"/>
-                            <tnt:NavigationListItem text="Events" icon="sap-icon://appointment" key="#member-events"/>
-                            <tnt:NavigationListItem text="My Courses" icon="sap-icon://curriculum" key="#member-courses"/>
-                            <tnt:NavigationListItem text="My Fines" icon="sap-icon://money-bills" key="#member-fines"/>
-                            <tnt:NavigationListItem text="Member Directory" icon="sap-icon://contacts" key="#member-directory"/>
-                            <tnt:NavigationListItem text="Ledger" icon="sap-icon://monitor-payments" key="#member-ledger"/>
+                            <tnt:NavigationListItem text="My Profile" icon="sap-icon://account" key="member/myprofile/webapp/index.html"/>
+                            <tnt:NavigationListItem text="Events" icon="sap-icon://appointment" key="member/mandalevents/webapp/index.html"/>
+                            <tnt:NavigationListItem text="My Courses" icon="sap-icon://curriculum" key="member/courseassignments/webapp/index.html"/>
+                            <tnt:NavigationListItem text="My Fines" icon="sap-icon://money-bills" key="member/myfines/webapp/index.html"/>
+                            <tnt:NavigationListItem text="Member Directory" icon="sap-icon://contacts" key="member/memberdirectory/webapp/index.html"/>
+                            <tnt:NavigationListItem text="Ledger" icon="sap-icon://monitor-payments" key="member/ledger/webapp/index.html"/>
                         </tnt:NavigationListItem>
                     </tnt:NavigationList>
                 </tnt:item>
