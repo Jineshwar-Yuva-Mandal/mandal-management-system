@@ -22,6 +22,9 @@
     <Page id="joinMandalPage" showHeader="false" enableScrolling="true">
         <core:Fragment fragmentName="com.samanvay.shell.view.JoinMandal" type="XML"/>
     </Page>
+    <Page id="joinMandalDetailPage" showHeader="false" enableScrolling="true">
+        <core:Fragment fragmentName="com.samanvay.shell.view.JoinMandalDetail" type="XML"/>
+    </Page>
 
     <!-- ── Main shell (dashboard) ── -->
     <Page id="mainShellPage" showHeader="false" enableScrolling="false" class="sapUiNoContentPadding">

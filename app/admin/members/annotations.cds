@@ -327,3 +327,9 @@ annotate service.MyMandals with @(
     ]
 );
 
+// ─── Hide helper media type fields ───
+annotate service.Members with {
+  profile_picture_type @UI.Hidden;
+  profile_picture_name @UI.Hidden;
+};
+

@@ -12,6 +12,7 @@ using { managed, cuid } from '@sap/cds/common';
 entity MandalMemberFieldConfigs : managed, cuid {
   mandal        : Association to Mandals;
   field         : Association to ProtectedFields;  // Which field from Users entity
+  field_name    : String(100);   // Denormalized for display (auto-set from field)
   requirement   : FieldRequirement default 'optional';
   sequence      : Integer;   // Display order on the form
   custom_label  : String(100);  // Mandal can override the default field label

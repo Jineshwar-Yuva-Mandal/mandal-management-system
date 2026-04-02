@@ -5,7 +5,8 @@ module.exports = class MemberService extends cds.ApplicationService {
   async init() {
     const {
       Users, MandalMemberships,
-      Fines, MembershipRequests, Mandals
+      Fines, MembershipRequests, Mandals,
+      Courses, CourseAssignments
     } = cds.entities('com.samanvay');
 
     // ── Scope: MyProfile — ensure member can only update their own profile ──
@@ -28,6 +29,28 @@ module.exports = class MemberService extends cds.ApplicationService {
       const userIds = memberships.map(m => m.user_ID);
       if (userIds.length === 0) { req.reject(404, 'No members found'); return; }
       req.query.where({ ID: { in: userIds } });
+    });
+
+    // ── Scope: Topics — no mandal_ID, joined via course ──
+    this.before('READ', 'Topics', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active membership'); return; }
+      const courses = await SELECT.from(Courses)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const courseIds = courses.map(c => c.ID);
+      if (courseIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ course_ID: { in: courseIds } });
+    });
+
+    // ── Scope: MyCourseProgress — no mandal_ID, joined via assignment ──
+    this.before('READ', 'MyCourseProgress', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active membership'); return; }
+      const assignments = await SELECT.from(CourseAssignments)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const assignIds = assignments.map(a => a.ID);
+      if (assignIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ assignment_ID: { in: assignIds } });
     });
 
     // ── payFine — member records a fine payment ──
@@ -53,6 +76,8 @@ module.exports = class MemberService extends cds.ApplicationService {
         payment_mode: payment_mode || null,
         payment_reference: payment_reference || null
       });
+
+      return 'Payment recorded successfully';
     });
 
     // ── requestMembership — member requests to join a mandal ──
@@ -94,6 +119,8 @@ module.exports = class MemberService extends cds.ApplicationService {
         status: mandal.has_joining_fee ? 'payment_pending' : 'submitted',
         fee_amount: mandal.has_joining_fee ? mandal.joining_fee : 0
       });
+
+      return 'Membership request submitted successfully';
     });
 
     await super.init();

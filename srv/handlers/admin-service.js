@@ -116,6 +116,18 @@ module.exports = class AdminService extends cds.ApplicationService {
       req.query.where({ ID: { in: userIds } });
     });
 
+    // ── Cross-mandal write guard for Members (Users have no mandal_ID column) ──
+    // Validates the user being saved is an active member of admin's mandal
+    this.before('SAVE', 'Members', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+      const userId = req.data?.ID;
+      if (!userId) return;
+      const membership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: userId, mandal_ID: mandalId, membership_status: 'active' });
+      if (!membership) return req.reject(403, 'Cannot modify a user who is not a member of your mandal');
+    });
+
     // ── Scope: EntityPermissionRules — no direct mandal_ID, joined via position ──
     this.before('READ', 'EntityPermissionRules', async (req) => {
       const mandalId = req.user.attr.mandalId;
@@ -125,6 +137,69 @@ module.exports = class AdminService extends cds.ApplicationService {
       const posIds = positions.map(p => p.ID);
       if (posIds.length === 0) { req.query.where({ ID: null }); return; }
       req.query.where({ position_ID: { in: posIds } });
+    });
+
+    // ── Scope: FieldPermissionRules — no direct mandal_ID, joined via entity_permission → position ──
+    this.before('READ', 'FieldPermissionRules', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active mandal context'); return; }
+      const { Positions: PositionEntity, EntityPermissions } = cds.entities('com.samanvay');
+      const positions = await SELECT.from(PositionEntity)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const posIds = positions.map(p => p.ID);
+      if (posIds.length === 0) { req.query.where({ ID: null }); return; }
+      const perms = await SELECT.from(EntityPermissions)
+        .where({ position_ID: { in: posIds } }).columns('ID');
+      const permIds = perms.map(p => p.ID);
+      if (permIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ entity_permission_ID: { in: permIds } });
+    });
+
+    // ── Scope: Topics (SyllabusTopics) — no mandal_ID, joined via course ──
+    this.before('READ', 'Topics', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active mandal context'); return; }
+      const { Courses } = cds.entities('com.samanvay');
+      const courses = await SELECT.from(Courses)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const courseIds = courses.map(c => c.ID);
+      if (courseIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ course_ID: { in: courseIds } });
+    });
+
+    // ── Scope: TopicProgress (CourseTopicProgress) — no mandal_ID, joined via assignment ──
+    this.before('READ', 'TopicProgress', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active mandal context'); return; }
+      const { CourseAssignments } = cds.entities('com.samanvay');
+      const assignments = await SELECT.from(CourseAssignments)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const assignIds = assignments.map(a => a.ID);
+      if (assignIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ assignment_ID: { in: assignIds } });
+    });
+
+    // ── Scope: WorkflowSteps — no mandal_ID, joined via workflow ──
+    this.before('READ', 'WorkflowSteps', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active mandal context'); return; }
+      const { ApprovalWorkflows } = cds.entities('com.samanvay');
+      const workflows = await SELECT.from(ApprovalWorkflows)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const wfIds = workflows.map(w => w.ID);
+      if (wfIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ workflow_ID: { in: wfIds } });
+    });
+
+    // ── Scope: JoinApprovals — no mandal_ID, joined via request ──
+    this.before('READ', 'JoinApprovals', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) { req.reject(403, 'No active mandal context'); return; }
+      const requests = await SELECT.from(MembershipRequests)
+        .where({ mandal_ID: mandalId }).columns('ID');
+      const reqIds = requests.map(r => r.ID);
+      if (reqIds.length === 0) { req.query.where({ ID: null }); return; }
+      req.query.where({ request_ID: { in: reqIds } });
     });
 
     // ── Fine status criticality ──
@@ -450,6 +525,31 @@ module.exports = class AdminService extends cds.ApplicationService {
     ];
     this.on('READ', 'AvailableApps', () => AVAILABLE_APPS);
 
+    // ── MemberFieldConfig: requirement criticality (required=1/red, optional=2/warning, hidden=0/grey) ──
+    const REQ_CRITICALITY = { required: 1, optional: 2, hidden: 0 };
+    this.after('READ', 'MemberFieldConfig', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) row.requirementCriticality = REQ_CRITICALITY[row.requirement] ?? 0;
+      }
+    });
+
+    // ── MemberFieldConfig: auto-set mandal_ID on new field config rows ──
+    this.before('NEW', 'MemberFieldConfig', (req) => {
+      if (!req.data.mandal_ID) req.data.mandal_ID = req.user.attr.mandalId;
+    });
+
+    // ── MemberFieldConfig: auto-populate field_name from ProtectedField on SAVE ──
+    this.before('SAVE', 'Mandal', async (req) => {
+      if (!req.data.fieldConfigs) return;
+      const { ProtectedFields } = cds.entities('com.samanvay');
+      for (const fc of req.data.fieldConfigs) {
+        if (fc.field_ID && !fc.field_name) {
+          const pf = await SELECT.one.from(ProtectedFields).where({ ID: fc.field_ID }).columns('field_name');
+          if (pf) fc.field_name = pf.field_name;
+        }
+      }
+    });
+
     // ── Restrict AppGrants writes to full admins only ──
     // Prevents privilege escalation: a privileged member with 'appaccess' grant
     // must NOT be able to create/modify/delete grants (including for themselves).
@@ -475,6 +575,7 @@ module.exports = class AdminService extends cds.ApplicationService {
     this.before('CREATE', 'AppGrants', setMandalId);
     this.before('CREATE', 'MandalEvents', setMandalId);
     this.before('CREATE', 'Ledger', setMandalId);
+    this.before('CREATE', 'MandalCourses', setMandalId);
     this.before('SAVE', 'MandalPositions', setMandalId);
     this.before('SAVE', 'AppGrants', setMandalId);
     this.before('SAVE', 'MandalEvents', setMandalId);
@@ -621,6 +722,108 @@ module.exports = class AdminService extends cds.ApplicationService {
       });
 
       return SELECT.one.from(LedgerEntries).where({ ID: entryId });
+    });
+
+    // ── Courses: auto-set mandal_ID on new draft ──
+    this.before('NEW', 'MandalCourses', (req) => {
+      if (!req.data.mandal_ID) req.data.mandal_ID = req.user.attr.mandalId;
+      if (!req.data.status)    req.data.status = 'draft';
+    });
+    this.before('SAVE', 'MandalCourses', setMandalId);
+
+    // ── Course criticality (draft=2, active=3, archived=0) ──
+    const COURSE_STATUS_CRIT = { draft: 2, active: 3, archived: 0 };
+    this.after('READ', 'MandalCourses', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) row.statusCriticality = COURSE_STATUS_CRIT[row.status] ?? 0;
+      }
+    });
+
+    // ── Assignment criticality (assigned=2, in_progress=2, completed=3, overdue=1) ──
+    const ASSIGN_STATUS_CRIT = { assigned: 2, in_progress: 2, completed: 3, overdue: 1 };
+    this.after('READ', 'Assignments', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) row.statusCriticality = ASSIGN_STATUS_CRIT[row.status] ?? 0;
+      }
+    });
+
+    // ── Topic progress criticality (not_started=0, in_progress=2, completed=3) ──
+    const TOPIC_PROGRESS_CRIT = { not_started: 0, in_progress: 2, completed: 3 };
+    this.after('READ', 'TopicProgress', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) row.statusCriticality = TOPIC_PROGRESS_CRIT[row.status] ?? 0;
+      }
+    });
+
+    // ── Assignments: auto-set fields on new assignment ──
+    this.before('NEW', 'Assignments', (req) => {
+      if (!req.data.mandal_ID)      req.data.mandal_ID = req.user.attr.mandalId;
+      if (!req.data.assigned_by_ID) req.data.assigned_by_ID = req.user.attr.userId;
+      if (!req.data.assigned_date)  req.data.assigned_date = new Date().toISOString().slice(0, 10);
+      if (!req.data.status)         req.data.status = 'assigned';
+    });
+
+    // ── On assignment SAVE: auto-populate topic progress from course syllabus ──
+    this.after('SAVE', 'MandalCourses', async (data, req) => {
+      if (!data.ID) return;
+      const { Courses, SyllabusTopics, CourseAssignments, CourseTopicProgress } = cds.entities('com.samanvay');
+
+      // For each assignment in this course, ensure topic progress records exist
+      const assignments = await SELECT.from(CourseAssignments)
+        .where({ course_ID: data.ID })
+        .columns('ID');
+      if (!assignments.length) return;
+
+      const topics = await SELECT.from(SyllabusTopics)
+        .where({ course_ID: data.ID })
+        .columns('ID');
+      if (!topics.length) return;
+
+      for (const assignment of assignments) {
+        const existing = await SELECT.from(CourseTopicProgress)
+          .where({ assignment_ID: assignment.ID })
+          .columns('topic_ID');
+        const existingTopicIds = new Set(existing.map(p => p.topic_ID));
+
+        const newProgress = topics
+          .filter(t => !existingTopicIds.has(t.ID))
+          .map(t => ({
+            ID: cds.utils.uuid(),
+            assignment_ID: assignment.ID,
+            topic_ID: t.ID,
+            status: 'not_started'
+          }));
+
+        if (newProgress.length) {
+          await INSERT.into(CourseTopicProgress).entries(newProgress);
+        }
+      }
+    });
+
+    // ── Auto-compute completion percentage when topic progress is updated ──
+    this.after(['UPDATE', 'PATCH'], 'TopicProgress', async (data, req) => {
+      if (!data.assignment_ID) return;
+      const { CourseTopicProgress, CourseAssignments } = cds.entities('com.samanvay');
+
+      const allProgress = await SELECT.from(CourseTopicProgress)
+        .where({ assignment_ID: data.assignment_ID })
+        .columns('status');
+
+      if (!allProgress.length) return;
+
+      const completedCount = allProgress.filter(p => p.status === 'completed').length;
+      const pct = Math.round((completedCount / allProgress.length) * 100);
+
+      const updateData = { completion_pct: pct };
+      if (pct === 100) {
+        updateData.status = 'completed';
+        updateData.completed_date = new Date().toISOString().slice(0, 10);
+      } else if (pct > 0) {
+        updateData.status = 'in_progress';
+        updateData.completed_date = null;
+      }
+
+      await UPDATE(CourseAssignments, data.assignment_ID).set(updateData);
     });
 
     await super.init();

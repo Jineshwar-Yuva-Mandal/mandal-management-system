@@ -1,10 +1,32 @@
 const cds = require('@sap/cds');
+const { Readable } = require('stream');
 
 module.exports = class PublicService extends cds.ApplicationService {
 
   async init() {
     const { Users, Mandals, MandalMemberships } = cds.entities('com.samanvay');
-    const { NewUser } = this.entities;
+    const { NewUser, BrowseMandals } = this.entities;
+
+    // ── Custom endpoint to serve payment QR images (bypasses OData streaming) ──
+    this.on('getPaymentQr', async (req) => {
+      const { mandalId } = req.data;
+      if (!mandalId) return req.reject(400, 'mandalId is required');
+      const mandal = await SELECT.one(['payment_qr', 'payment_qr_type']).from(Mandals).where({ ID: mandalId });
+      if (!mandal?.payment_qr) return req.reject(404, 'No QR code found');
+      const mimeType = mandal.payment_qr_type || 'image/png';
+      // Handle both Buffer and Readable stream from DB adapter
+      let buf;
+      if (Buffer.isBuffer(mandal.payment_qr)) {
+        buf = mandal.payment_qr;
+      } else if (mandal.payment_qr instanceof Readable || typeof mandal.payment_qr.read === 'function') {
+        const chunks = [];
+        for await (const chunk of mandal.payment_qr) chunks.push(chunk);
+        buf = Buffer.concat(chunks);
+      } else {
+        buf = Buffer.from(mandal.payment_qr);
+      }
+      return `data:${mimeType};base64,${buf.toString('base64')}`;
+    });
 
     // ── Return Supabase config for the frontend ──
     this.on('getAuthConfig', () => ({

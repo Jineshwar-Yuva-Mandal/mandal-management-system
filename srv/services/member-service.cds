@@ -34,7 +34,7 @@ service MemberService @(path: '/api/member') {
 
   // MemberDirectory needs join through MandalMemberships — scoped in handler
   @readonly entity MemberDirectory as projection on Users {
-    ID, full_name, first_name, last_name, email, phone, profile_picture
+    ID, full_name, first_name, last_name, email, phone, profile_picture, profile_picture_type, profile_picture_name
   };
 
   // ─── My Positions ───
@@ -80,7 +80,7 @@ service MemberService @(path: '/api/member') {
 
   // ─── Actions ───
   // Pay a fine — member submits payment details
-  action payFine(fineId : UUID, amount : Decimal, payment_mode : String, payment_reference : String);
+  action payFine(fineId : UUID, amount : Decimal, payment_mode : String, payment_reference : String) returns String;
   // Request to join a different mandal
-  action requestMembership(mandalId : UUID);
+  action requestMembership(mandalId : UUID) returns String;
 }

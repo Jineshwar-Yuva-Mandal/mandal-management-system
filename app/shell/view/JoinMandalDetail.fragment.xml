@@ -1,0 +1,134 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+
+    <VBox class="samanvayAuthPage" alignItems="Center">
+        <VBox class="samanvayJoinCard" width="600px">
+
+            <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                <Button icon="sap-icon://nav-back" type="Transparent" press=".onBackToJoinMandalList"
+                        class="sapUiTinyMarginEnd"/>
+                <Title text="Join {/joinDetail/mandalName}" level="H3" titleStyle="H4"/>
+            </HBox>
+
+            <!-- Step indicator -->
+            <HBox justifyContent="Center" class="sapUiSmallMarginBottom">
+                <ObjectStatus text="Step {/joinDetail/step} of {/joinDetail/totalSteps}"
+                              state="Information" inverted="true"/>
+            </HBox>
+
+            <!-- Success -->
+            <MessageStrip text="{/joinDetail/successMessage}" type="Success" showIcon="true"
+                visible="{= !!${/joinDetail/successMessage} }" class="sapUiSmallMarginBottom"/>
+
+            <!-- Error -->
+            <MessageStrip text="{/joinDetail/errorMessage}" type="Error" showIcon="true"
+                visible="{= !!${/joinDetail/errorMessage} }" class="sapUiSmallMarginBottom"/>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- ═══ PAGE 1: Your Details + Remarks  ═══ -->
+            <!-- ═══════════════════════════════════════ -->
+            <VBox visible="{= ${/joinDetail/step} === 1 }">
+
+                <Text text="Fill in the required details to submit your membership request."
+                      class="sapUiSmallMarginBottom samanvaySubtitle"/>
+
+                <!-- Registration Fields (dynamic from mandal field config) -->
+                <Panel headerText="Your Details" class="sapUiSmallMarginBottom"
+                       visible="{= ${/joinDetail/fields}.length > 0 }">
+                    <VBox id="joinDetailFieldsContainer" items="{/joinDetail/fields}">
+                        <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                            <Label text="{label}" width="180px" required="{= ${requirement} === 'required'}"
+                                   class="sapUiSmallMarginEnd"/>
+                            <Input value="{value}" width="100%" placeholder="Enter {label}"
+                                   required="{= ${requirement} === 'required'}"/>
+                        </HBox>
+                    </VBox>
+                </Panel>
+
+                <!-- Remarks -->
+                <Panel headerText="Additional Information" class="sapUiSmallMarginBottom">
+                    <TextArea value="{/joinDetail/remarks}" width="100%" rows="3"
+                              placeholder="Any additional remarks or message for the admin"/>
+                </Panel>
+
+                <!-- Next / Submit button -->
+                <Button text="{= ${/joinDetail/hasJoiningFee} ? 'Next: Payment Details' : 'Submit Join Request' }"
+                        icon="{= ${/joinDetail/hasJoiningFee} ? 'sap-icon://arrow-right' : '' }"
+                        iconFirst="false"
+                        type="Emphasized" width="100%"
+                        press=".onJoinDetailStep1Next" busy="{/joinDetail/busy}"
+                        class="sapUiSmallMarginTop"
+                        visible="{= !${/joinDetail/successMessage} }"/>
+            </VBox>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- ═══ PAGE 2: Payment Details          ═══ -->
+            <!-- ═══════════════════════════════════════ -->
+            <VBox visible="{= ${/joinDetail/step} === 2 }">
+
+                <Text text="Complete your joining fee payment and provide the details below."
+                      class="sapUiSmallMarginBottom samanvaySubtitle"/>
+
+                <Panel headerText="Joining Fee Payment" class="sapUiSmallMarginBottom">
+                    <VBox class="sapUiSmallMarginBottom">
+                        <ObjectStatus text="Joining Fee: ₹{/joinDetail/joiningFee}" inverted="true" state="Information"
+                                      class="sapUiSmallMarginBottom"/>
+
+                        <!-- QR Code display -->
+                        <VBox id="qrCodeBox" visible="{= !!${/joinDetail/paymentQrUrl} }" alignItems="Center"
+                              class="sapUiSmallMarginBottom">
+                            <Label text="Scan QR Code to Pay" design="Bold" class="sapUiTinyMarginBottom"/>
+                            <Image src="{/joinDetail/paymentQrUrl}" width="200px" height="200px"
+                                   alt="Payment QR Code" class="sapUiSmallMarginBottom"
+                                   error=".onQrImageError"/>
+                        </VBox>
+
+                        <!-- UPI ID display -->
+                        <HBox visible="{= !!${/joinDetail/paymentUpiId} }" class="sapUiSmallMarginBottom"
+                              alignItems="Center">
+                            <Label text="UPI ID:" width="180px" design="Bold" class="sapUiSmallMarginEnd"/>
+                            <Text text="{/joinDetail/paymentUpiId}"/>
+                        </HBox>
+
+                        <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                            <Label text="Payment Mode" width="180px" required="true" class="sapUiSmallMarginEnd"/>
+                            <Select selectedKey="{/joinDetail/paymentMode}" width="100%">
+                                <core:Item key="" text="-- Select --"/>
+                                <core:Item key="upi" text="UPI"/>
+                                <core:Item key="bank_transfer" text="Bank Transfer"/>
+                                <core:Item key="cash" text="Cash"/>
+                                <core:Item key="other" text="Other"/>
+                            </Select>
+                        </HBox>
+
+                        <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                            <Label text="Amount Paid (₹)" width="180px" required="true" class="sapUiSmallMarginEnd"/>
+                            <Input value="{/joinDetail/paidAmount}" type="Number" width="100%"
+                                   placeholder="Enter amount paid"/>
+                        </HBox>
+
+                        <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                            <Label text="Payment Reference" width="180px" class="sapUiSmallMarginEnd"/>
+                            <Input value="{/joinDetail/paymentReference}" width="100%"
+                                   placeholder="UPI transaction ID, receipt number, etc."/>
+                        </HBox>
+                    </VBox>
+                </Panel>
+
+                <!-- Back + Submit buttons -->
+                <HBox class="sapUiSmallMarginTop" width="100%"
+                      visible="{= !${/joinDetail/successMessage} }">
+                    <Button text="Back" icon="sap-icon://arrow-left" type="Default"
+                            press=".onJoinDetailStepBack" class="sapUiTinyMarginEnd"/>
+                    <Button text="Submit Join Request" type="Emphasized"
+                            press=".onSubmitJoinRequest" busy="{/joinDetail/busy}"
+                            width="100%"/>
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </VBox>
+
+</core:FragmentDefinition>

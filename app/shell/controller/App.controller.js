@@ -313,33 +313,183 @@ sap.ui.define([
             var sMandalId = oSource.data("mandalId");
             var sMandalName = oSource.data("mandalName");
             var oModel = this.getView().getModel();
+            var that = this;
 
-            oModel.setProperty("/joinMandal/errorMessage", "");
-            oModel.setProperty("/joinMandal/successMessage", "");
+            // Find the mandal object from loaded list
+            var aMandals = oModel.getProperty("/joinMandal/allMandals") || [];
+            var oMandal = aMandals.find(function (m) { return m.ID === sMandalId; }) || {};
+
+            // Initialize detail model
+            oModel.setProperty("/joinDetail", {
+                mandalId: sMandalId,
+                mandalName: sMandalName,
+                hasJoiningFee: !!oMandal.has_joining_fee,
+                joiningFee: oMandal.joining_fee || 0,
+                paymentQrUrl: "",
+                paymentUpiId: oMandal.payment_upi_id || "",
+                paymentMode: "",
+                paidAmount: "",
+                paymentReference: "",
+                remarks: "",
+                fields: [],
+                step: 1,
+                totalSteps: oMandal.has_joining_fee ? 2 : 1,
+                busy: true,
+                errorMessage: "",
+                successMessage: ""
+            });
+
+            // Navigate to detail page
+            this.getOwnerComponent()._navigateTo("joinMandalDetailPage");
+
+            // Fetch QR code if mandal has joining fee
+            if (oMandal.has_joining_fee) {
+                fetch("./api/public/getPaymentQr(mandalId=" + sMandalId + ")")
+                    .then(function (r) { return r.json(); })
+                    .then(function (oData) {
+                        if (oData.value) {
+                            oModel.setProperty("/joinDetail/paymentQrUrl", oData.value);
+                        }
+                    })
+                    .catch(function () { /* No QR uploaded — leave empty */ });
+            }
+
+            // Fetch field configuration for this mandal
+            fetch("./api/public/FieldConfig?$filter=mandal_ID eq " + sMandalId + "&$expand=field&$orderby=sequence asc")
+                .then(function (r) { return r.json(); })
+                .then(function (oData) {
+                    var aConfigs = (oData.value || []).filter(function (fc) {
+                        return fc.requirement !== "hidden";
+                    });
+                    var aFields = aConfigs.map(function (fc) {
+                        return {
+                            field_name: fc.field_name || (fc.field && fc.field.field_name) || "",
+                            label: fc.custom_label || (fc.field && fc.field.label) || fc.field_name || "",
+                            requirement: fc.requirement,
+                            value: ""
+                        };
+                    });
+                    oModel.setProperty("/joinDetail/fields", aFields);
+                    oModel.setProperty("/joinDetail/busy", false);
+                })
+                .catch(function () {
+                    // No field config — still allow join
+                    oModel.setProperty("/joinDetail/fields", []);
+                    oModel.setProperty("/joinDetail/busy", false);
+                });
+        },
+
+        onBackToJoinMandalList: function () {
+            this.getOwnerComponent()._navigateTo("joinMandalPage");
+        },
+
+        onQrImageError: function () {
+            this.getView().getModel().setProperty("/joinDetail/paymentQrUrl", "");
+        },
+
+        // Step 1 "Next" — validate fields, then either go to step 2 or submit directly
+        onJoinDetailStep1Next: function () {
+            var oModel = this.getView().getModel();
+            var oDetail = oModel.getProperty("/joinDetail") || {};
+            oModel.setProperty("/joinDetail/errorMessage", "");
+
+            // Validate required fields
+            var aFields = oDetail.fields || [];
+            var aMissing = aFields.filter(function (f) { return f.requirement === "required" && !f.value; });
+            if (aMissing.length > 0) {
+                oModel.setProperty("/joinDetail/errorMessage",
+                    "Please fill in: " + aMissing.map(function (f) { return f.label; }).join(", "));
+                return;
+            }
+
+            if (oDetail.hasJoiningFee) {
+                // Go to step 2 (payment)
+                oModel.setProperty("/joinDetail/step", 2);
+            } else {
+                // No payment needed — submit directly
+                this.onSubmitJoinRequest();
+            }
+        },
+
+        onJoinDetailStepBack: function () {
+            this.getView().getModel().setProperty("/joinDetail/step", 1);
+            this.getView().getModel().setProperty("/joinDetail/errorMessage", "");
+        },
+
+        onSubmitJoinRequest: function () {
+            var oModel = this.getView().getModel();
+            var oDetail = oModel.getProperty("/joinDetail") || {};
+            var that = this;
+
+            oModel.setProperty("/joinDetail/errorMessage", "");
+            oModel.setProperty("/joinDetail/successMessage", "");
+
+            // Validate required fields
+            var aFields = oDetail.fields || [];
+            var aMissing = aFields.filter(function (f) { return f.requirement === "required" && !f.value; });
+            if (aMissing.length > 0) {
+                oModel.setProperty("/joinDetail/errorMessage",
+                    "Please fill in: " + aMissing.map(function (f) { return f.label; }).join(", "));
+                return;
+            }
+
+            // Validate payment if joining fee required
+            if (oDetail.hasJoiningFee) {
+                if (!oDetail.paymentMode) {
+                    oModel.setProperty("/joinDetail/errorMessage", "Please select a payment mode.");
+                    return;
+                }
+                if (!oDetail.paidAmount || parseFloat(oDetail.paidAmount) <= 0) {
+                    oModel.setProperty("/joinDetail/errorMessage", "Please enter a valid payment amount.");
+                    return;
+                }
+            }
+
+            oModel.setProperty("/joinDetail/busy", true);
+            this._showBusy("Submitting your join request…");
 
             var sEmail = oModel.getProperty("/profile/email") || "";
             var sName = oModel.getProperty("/profile/name") || "";
+            var sPhone = oModel.getProperty("/profile/phone") || "";
+
+            // Build the join request payload
+            var oPayload = {
+                mandal_ID: oDetail.mandalId,
+                requester_name: sName,
+                requester_email: sEmail,
+                requester_phone: sPhone,
+                status: oDetail.hasJoiningFee ? "payment_done" : "submitted",
+                fee_amount: oDetail.joiningFee || 0,
+                remarks: oDetail.remarks || ""
+            };
+
+            // Add payment details if applicable
+            if (oDetail.hasJoiningFee) {
+                oPayload.paid_amount = parseFloat(oDetail.paidAmount);
+                oPayload.paid_date = new Date().toISOString().slice(0, 10);
+                oPayload.payment_mode = oDetail.paymentMode;
+                oPayload.payment_reference = oDetail.paymentReference || "";
+            }
 
             fetch("./api/public/JoinRequests", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    mandal_ID: sMandalId,
-                    requester_name: sName,
-                    requester_email: sEmail,
-                    status: "submitted"
-                })
+                body: JSON.stringify(oPayload)
             })
             .then(function (r) {
                 if (!r.ok) return r.json().then(function (e) { throw new Error(e.error?.message || "Failed"); });
-                return r.json();
+                return r.text().then(function (t) { return t ? JSON.parse(t) : {}; });
             })
             .then(function () {
-                oModel.setProperty("/joinMandal/successMessage",
-                    "Your request to join \"" + sMandalName + "\" has been submitted! The mandal admin will review it.");
+                oModel.setProperty("/joinDetail/busy", false);
+                oModel.setProperty("/joinDetail/successMessage",
+                    "Your request to join \"" + oDetail.mandalName + "\" has been submitted! The mandal admin will review it.");
+                that._hideBusy();
             })
             .catch(function (err) {
-                oModel.setProperty("/joinMandal/errorMessage", err.message || "Failed to submit join request.");
+                oModel.setProperty("/joinDetail/errorMessage", err.message || "Failed to submit join request.");
+                oModel.setProperty("/joinDetail/busy", false);
+                that._hideBusy();
             });
         },
 

@@ -16,7 +16,9 @@ entity Users : managed, cuid {
   phone             : String(20);
   alternate_phone   : String(20);
   whatsapp_number   : String(20);
-  profile_picture   : LargeBinary @Core.MediaType: 'image/png';
+  profile_picture        : LargeBinary @Core.MediaType: profile_picture_type @Core.ContentDisposition.Type: 'inline' @Core.ContentDisposition.Filename: profile_picture_name;
+  profile_picture_type   : String default 'image/png' @Core.IsMediaType;
+  profile_picture_name   : String default 'profile.png';
 
   // ─── Personal Details ───
   dob               : Date;

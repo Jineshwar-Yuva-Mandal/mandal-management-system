@@ -113,6 +113,21 @@
                     "pattern": "MandalCourses({key}):?query:",
                     "name": "MandalCoursesObjectPage",
                     "target": "MandalCoursesObjectPage"
+                },
+                {
+                    "pattern": "MandalCourses({key})/syllabus({key2}):?query:",
+                    "name": "TopicObjectPage",
+                    "target": "TopicObjectPage"
+                },
+                {
+                    "pattern": "MandalCourses({key})/assignments({key2}):?query:",
+                    "name": "AssignmentObjectPage",
+                    "target": "AssignmentObjectPage"
+                },
+                {
+                    "pattern": "MandalCourses({key})/assignments({key2})/progress({key3}):?query:",
+                    "name": "TopicProgressObjectPage",
+                    "target": "TopicProgressObjectPage"
                 }
             ],
             "targets": {
@@ -137,7 +152,8 @@
                                         "type": "ResponsiveTable"
                                     }
                                 }
-                            }
+                            },
+                            "initialLoad": "Enabled"
                         }
                     }
                 },
@@ -148,7 +164,84 @@
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "contextPath": "/MandalCourses"
+                            "contextPath": "/MandalCourses",
+                            "navigation": {
+                                "syllabus": {
+                                    "detail": {
+                                        "route": "TopicObjectPage"
+                                    }
+                                },
+                                "assignments": {
+                                    "detail": {
+                                        "route": "AssignmentObjectPage"
+                                    }
+                                }
+                            },
+                            "controlConfiguration": {
+                                "syllabus/@com.sap.vocabularies.UI.v1.LineItem#Syllabus": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable",
+                                        "creationMode": {
+                                            "name": "Inline"
+                                        }
+                                    }
+                                },
+                                "assignments/@com.sap.vocabularies.UI.v1.LineItem#Assignments": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable",
+                                        "creationMode": {
+                                            "name": "Inline"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "TopicObjectPage": {
+                    "type": "Component",
+                    "id": "TopicObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/MandalCourses/syllabus"
+                        }
+                    }
+                },
+                "AssignmentObjectPage": {
+                    "type": "Component",
+                    "id": "AssignmentObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/MandalCourses/assignments",
+                            "navigation": {
+                                "progress": {
+                                    "detail": {
+                                        "route": "TopicProgressObjectPage"
+                                    }
+                                }
+                            },
+                            "controlConfiguration": {
+                                "progress/@com.sap.vocabularies.UI.v1.LineItem#TopicProgress": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "TopicProgressObjectPage": {
+                    "type": "Component",
+                    "id": "TopicProgressObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/MandalCourses/assignments/progress"
                         }
                     }
                 }

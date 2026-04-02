@@ -22,11 +22,13 @@ using { com.samanvay.MandalMemberFieldConfigs } from '../../db/member_field_conf
 @impl: 'srv/handlers/admin-service.js'
 service AdminService @(path: '/api/admin') {
 
+  @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'ID = $user.mandalId' }]
   entity Mandal as projection on Mandals;
 
   // ─── My Mandals (memberships navigation target for Members detail page) ───
   @readonly
+  @restrict: [{ grant: 'READ', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MyMandals as projection on MandalMemberships;
 
   // Members require join through MandalMemberships — scoped in handler
@@ -46,8 +48,8 @@ service AdminService @(path: '/api/admin') {
   entity MandalPositions as projection on Positions;
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity PositionAssignments as projection on UserPositionAssignments;
-  entity ProtectedEntityList as projection on ProtectedEntities;
-  entity ProtectedFieldList as projection on ProtectedFields;
+  @readonly entity ProtectedEntityList as projection on ProtectedEntities;
+  @readonly entity ProtectedFieldList as projection on ProtectedFields;
   entity EntityPermissionRules as projection on EntityPermissions;
   entity FieldPermissionRules as projection on FieldPermissions;
 
@@ -75,17 +77,18 @@ service AdminService @(path: '/api/admin') {
     };
 
   // ─── Course Management ───
+  @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalCourses as projection on Courses;
-  entity Topics as projection on SyllabusTopics;
+  @readonly entity Topics as projection on SyllabusTopics;
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Assignments as projection on CourseAssignments;
-  entity TopicProgress as projection on CourseTopicProgress;
+  @readonly entity TopicProgress as projection on CourseTopicProgress;
 
   // ─── Membership & Approval Workflows ───
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Workflows as projection on ApprovalWorkflows;
-  entity WorkflowSteps as projection on ApprovalWorkflowSteps;
+  @readonly entity WorkflowSteps as projection on ApprovalWorkflowSteps;
   @cds.redirection.target
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity JoinRequests as projection on MembershipRequests
@@ -93,7 +96,7 @@ service AdminService @(path: '/api/admin') {
       action approveMembership(remarks : String);
       action rejectMembership(remarks : String);
     };
-  entity JoinApprovals as projection on MembershipApprovals;
+  @readonly entity JoinApprovals as projection on MembershipApprovals;
 
   // ─── Distinct value lists for filter dropdowns ───
   @readonly entity JoinRequestStatusValues {
@@ -103,7 +106,10 @@ service AdminService @(path: '/api/admin') {
 
   // ─── Member Field Configuration ───
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
-  entity MemberFieldConfig as projection on MandalMemberFieldConfigs;
+  entity MemberFieldConfig as projection on MandalMemberFieldConfigs {
+    *,
+    virtual requirementCriticality : Integer
+  };
 
   // ─── App Access Grants ───
   // Admin assigns specific admin app access to regular members

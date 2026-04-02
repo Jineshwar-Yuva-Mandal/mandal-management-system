@@ -14,7 +14,9 @@ service PublicService @(path: '/api/public') {
 
   // ─── Browse Mandals (read-only, limited fields) ───
   @readonly entity BrowseMandals as projection on Mandals {
-    ID, name, area, city, state, logo, has_joining_fee, joining_fee
+    ID, name, area, city, state, logo, logo_type, logo_name,
+    has_joining_fee, joining_fee,
+    payment_qr, payment_qr_type, payment_qr_name, payment_upi_id
   };
 
   // ─── Registration Form Field Config (read-only) ───
@@ -31,6 +33,8 @@ service PublicService @(path: '/api/public') {
 
   // ─── Functions ───
   function getAuthConfig() returns { url : String; anonKey : String; };
+
+  function getPaymentQr(mandalId : UUID) returns String;
 
   function getUserByAuthId(authId : String) returns {
     ID : UUID;
