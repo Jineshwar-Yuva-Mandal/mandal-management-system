@@ -34,7 +34,9 @@ const ENTITY_APP_MAP = {
 
 // ── Map unbound actions to their app_key ──
 const ACTION_APP_MAP = {
-  'verifyFinePayment': 'fines',
+  'approveFine':       'fines',
+  'rejectFine':        'fines',
+  'verifyEntry':       'ledger',
   'markAttendance':    'eventsandattendance',
   'transferAdminship': 'mandal',
 };
@@ -125,11 +127,22 @@ module.exports = class AdminService extends cds.ApplicationService {
       req.query.where({ position_ID: { in: posIds } });
     });
 
-    // ── verifyFinePayment — Koshadhyaksha approves/rejects a fine payment ──
-    this.on('verifyFinePayment', async (req) => {
-      const { fineId, approved, remarks } = req.data;
-      if (!fineId) return req.reject(400, 'fineId is required');
+    // ── Fine status criticality ──
+    const FINE_CRITICALITY = { pending: 2, paid: 2, verified: 3, rejected: 1, waived: 0 };
+    const FINE_STATUS_TEXT = { pending: 'Pending', paid: 'Paid', verified: 'Verified', rejected: 'Rejected', waived: 'Waived' };
+    this.after('READ', 'MemberFines', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) {
+          row.statusCriticality = FINE_CRITICALITY[row.status] ?? 0;
+          row.statusText = FINE_STATUS_TEXT[row.status] ?? row.status;
+        }
+      }
+    });
 
+    // ── approveFine — Verify a fine payment (bound action on MemberFines) ──
+    this.on('approveFine', 'MemberFines', async (req) => {
+      const fineId = req.params[0]?.ID || req.params[0];
+      const { remarks } = req.data;
       const { mandalId, userId } = req.user.attr;
       if (!mandalId) return req.reject(403, 'No active mandal context');
 
@@ -137,39 +150,51 @@ module.exports = class AdminService extends cds.ApplicationService {
       if (!fine) return req.reject(404, 'Fine not found in your mandal');
       if (fine.status !== 'paid') return req.reject(409, `Fine is '${fine.status}', expected 'paid'`);
 
-      if (approved) {
-        // Create ledger entry for the fine income
-        const ledgerEntryId = cds.utils.uuid();
-        await INSERT.into(LedgerEntries).entries({
-          ID: ledgerEntryId,
-          mandal_ID: mandalId,
-          entry_date: new Date().toISOString().slice(0, 10),
-          type: 'fine_income',
-          description: `Fine payment from member`,
-          amount: fine.paid_amount || fine.amount,
-          direction: 'credit',
-          related_user_ID: fine.user_ID,
-          recorded_by_ID: userId,
-          verified_by_ID: userId,
-          verified_at: new Date().toISOString(),
-          status: 'verified'
-        });
+      // Create ledger entry for the fine income
+      const ledgerEntryId = cds.utils.uuid();
+      await INSERT.into(LedgerEntries).entries({
+        ID: ledgerEntryId,
+        mandal_ID: mandalId,
+        entry_date: new Date().toISOString().slice(0, 10),
+        type: 'fine_income',
+        description: `Fine payment from member`,
+        amount: fine.paid_amount || fine.amount,
+        direction: 'credit',
+        related_user_ID: fine.user_ID,
+        recorded_by_ID: userId,
+        verified_by_ID: userId,
+        verified_at: new Date().toISOString(),
+        status: 'verified'
+      });
 
-        await UPDATE(Fines, fineId).set({
-          status: 'verified',
-          verified_by_ID: userId,
-          verified_at: new Date().toISOString(),
-          verification_remarks: remarks || '',
-          ledger_entry_ID: ledgerEntryId
-        });
-      } else {
-        await UPDATE(Fines, fineId).set({
-          status: 'rejected',
-          verified_by_ID: userId,
-          verified_at: new Date().toISOString(),
-          verification_remarks: remarks || 'Payment rejected'
-        });
-      }
+      await UPDATE(Fines, fineId).set({
+        status: 'verified',
+        verified_by_ID: userId,
+        verified_at: new Date().toISOString(),
+        verification_remarks: remarks || '',
+        ledger_entry_ID: ledgerEntryId
+      });
+
+      return SELECT.one.from(Fines).where({ ID: fineId });
+    });
+
+    // ── rejectFine — Reject a fine payment (bound action on MemberFines) ──
+    this.on('rejectFine', 'MemberFines', async (req) => {
+      const fineId = req.params[0]?.ID || req.params[0];
+      const { remarks } = req.data;
+      const { mandalId, userId } = req.user.attr;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+
+      const fine = await SELECT.one.from(Fines).where({ ID: fineId, mandal_ID: mandalId });
+      if (!fine) return req.reject(404, 'Fine not found in your mandal');
+      if (fine.status !== 'paid') return req.reject(409, `Fine is '${fine.status}', expected 'paid'`);
+
+      await UPDATE(Fines, fineId).set({
+        status: 'rejected',
+        verified_by_ID: userId,
+        verified_at: new Date().toISOString(),
+        verification_remarks: remarks || 'Payment rejected'
+      });
 
       return SELECT.one.from(Fines).where({ ID: fineId });
     });
@@ -448,8 +473,155 @@ module.exports = class AdminService extends cds.ApplicationService {
     this.before('NEW', 'AppGrants', setMandalId);
     this.before('CREATE', 'MandalPositions', setMandalId);
     this.before('CREATE', 'AppGrants', setMandalId);
+    this.before('CREATE', 'MandalEvents', setMandalId);
+    this.before('CREATE', 'Ledger', setMandalId);
     this.before('SAVE', 'MandalPositions', setMandalId);
     this.before('SAVE', 'AppGrants', setMandalId);
+    this.before('SAVE', 'MandalEvents', setMandalId);
+    this.before('SAVE', 'Ledger', setMandalId);
+
+    // ── Pre-populate attendance for all active mandal members when creating a new event draft ──
+    this.before('NEW', 'MandalEvents', async (req) => {
+      if (!req.data.mandal_ID) {
+        req.data.mandal_ID = req.user.attr.mandalId;
+      }
+      const mandalId = req.data.mandal_ID;
+      if (!mandalId) return;
+
+      const members = await SELECT.from(MandalMemberships)
+        .where({ mandal_ID: mandalId, membership_status: 'active' })
+        .columns('user_ID');
+
+      if (members.length) {
+        req.data.attendance = members.map(m => ({
+          user_ID: m.user_ID,
+          mandal_ID: mandalId,
+          status: 'absent'
+        }));
+      }
+    });
+
+    // ── On event SAVE (draft activation): auto-create attendance for all active mandal members ──
+    this.after('SAVE', 'MandalEvents', async (data, req) => {
+      const eventId = data.ID;
+      const mandalId = data.mandal_ID || req.user.attr.mandalId;
+      if (!eventId || !mandalId) return;
+
+      // Get all active members of this mandal
+      const members = await SELECT.from(MandalMemberships)
+        .where({ mandal_ID: mandalId, membership_status: 'active' })
+        .columns('user_ID');
+      if (!members.length) return;
+
+      // Get existing attendance records for this event
+      const existing = await SELECT.from(EventAttendance)
+        .where({ event_ID: eventId })
+        .columns('user_ID');
+      const existingUserIds = new Set(existing.map(a => a.user_ID));
+
+      // Create attendance records for members who don't have one yet (default: absent)
+      const newRecords = members
+        .filter(m => !existingUserIds.has(m.user_ID))
+        .map(m => ({
+          ID: cds.utils.uuid(),
+          event_ID: eventId,
+          user_ID: m.user_ID,
+          mandal_ID: mandalId,
+          status: 'absent',
+          marked_by_ID: req.user.attr.userId,
+          marked_at: new Date().toISOString()
+        }));
+
+      if (newRecords.length) {
+        await INSERT.into(EventAttendance).entries(newRecords);
+      }
+    });
+
+    // ── Attendance criticality (present=3/green, absent=1/red, excused=2/warning) ──
+    const ATTENDANCE_CRITICALITY = { present: 3, absent: 1, excused: 2 };
+    this.after('READ', 'Attendance', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) row.statusCriticality = ATTENDANCE_CRITICALITY[row.status] ?? 0;
+      }
+    });
+
+    // ── After attendance is updated, auto-create/remove fines based on status ──
+    this.after(['UPDATE', 'PATCH'], 'Attendance', async (data, req) => {
+      if (!data.status || !data.event_ID) return;
+
+      // Load the parent event
+      const event = await SELECT.one.from(Events)
+        .where({ ID: data.event_ID });
+      if (!event) return;
+
+      const userId = data.user_ID;
+      const mandalId = event.mandal_ID;
+
+      if (data.status === 'absent' && event.has_fine && event.fine_amount > 0) {
+        // Create fine if doesn't exist
+        const existingFine = await SELECT.one.from(Fines)
+          .where({ event_ID: event.ID, user_ID: userId });
+        if (!existingFine) {
+          await INSERT.into(Fines).entries({
+            ID: cds.utils.uuid(),
+            user_ID: userId,
+            event_ID: event.ID,
+            mandal_ID: mandalId,
+            amount: event.fine_amount,
+            status: 'pending',
+            due_date: event.fine_deadline || event.event_date
+          });
+        }
+      } else if (data.status === 'present' || data.status === 'excused') {
+        // If member is marked present/excused, remove any pending fine for this event
+        const existingFine = await SELECT.one.from(Fines)
+          .where({ event_ID: data.event_ID, user_ID: userId, status: 'pending' });
+        if (existingFine) {
+          await DELETE.from(Fines).where({ ID: existingFine.ID });
+        }
+      }
+    });
+
+    // ── Ledger: auto-set mandal_ID + recorded_by on new drafts ──
+    this.before('NEW', 'Ledger', (req) => {
+      if (!req.data.mandal_ID)      req.data.mandal_ID = req.user.attr.mandalId;
+      if (!req.data.recorded_by_ID) req.data.recorded_by_ID = req.user.attr.userId;
+      if (!req.data.status)         req.data.status = 'draft';
+      if (!req.data.entry_date)     req.data.entry_date = new Date().toISOString().slice(0, 10);
+    });
+
+    // ── Ledger criticality (draft=2/orange, verified=3/green, disputed=1/red) ──
+    const LEDGER_STATUS_CRIT = { draft: 2, verified: 3, disputed: 1 };
+    const DIRECTION_CRIT = { credit: 3, debit: 1 };
+    this.after('READ', 'Ledger', (data) => {
+      for (const row of Array.isArray(data) ? data : [data]) {
+        if (row) {
+          row.statusCriticality = LEDGER_STATUS_CRIT[row.status] ?? 0;
+          row.directionCriticality = DIRECTION_CRIT[row.direction] ?? 0;
+        }
+      }
+    });
+
+    // ── verifyEntry — mark a draft ledger entry as verified ──
+    this.on('verifyEntry', 'Ledger', async (req) => {
+      const entryId = req.params[0]?.ID || req.params[0];
+      const { remarks } = req.data;
+      const { mandalId, userId } = req.user.attr;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+
+      const entry = await SELECT.one.from(LedgerEntries).where({ ID: entryId, mandal_ID: mandalId });
+      if (!entry) return req.reject(404, 'Ledger entry not found in your mandal');
+      if (entry.status === 'verified') return req.reject(409, 'Entry already verified');
+
+      await UPDATE(LedgerEntries, entryId).set({
+        status: 'verified',
+        verified_by_ID: userId,
+        verified_at: new Date().toISOString(),
+        remarks: remarks || entry.remarks || ''
+      });
+
+      return SELECT.one.from(LedgerEntries).where({ ID: entryId });
+    });
 
     await super.init();
   }

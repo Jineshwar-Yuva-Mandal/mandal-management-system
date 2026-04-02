@@ -38,7 +38,8 @@
     "watch-courses": "cds watch --open admin/courses/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-joinrequests": "cds watch --open admin/joinrequests/webapp/index.html?sap-ui-xx-viewCache=false",
     "watch-positions": "cds watch --open admin/positions/webapp/index.html?sap-ui-xx-viewCache=false",
-    "watch-mandal": "cds watch --open admin/mandal/webapp/index.html?sap-ui-xx-viewCache=false"
+    "watch-mandal": "cds watch --open admin/mandal/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-appaccess": "cds watch --open admin/appaccess/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "cds": {
     "requires": {
@@ -68,6 +69,7 @@
     "app/admin/courses",
     "app/admin/joinrequests",
     "app/admin/positions",
-    "app/admin/mandal"
+    "app/admin/mandal",
+    "app/admin/appaccess"
   ]
 }

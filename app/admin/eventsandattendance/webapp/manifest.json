@@ -113,6 +113,11 @@
                     "pattern": "MandalEvents({key}):?query:",
                     "name": "MandalEventsObjectPage",
                     "target": "MandalEventsObjectPage"
+                },
+                {
+                    "pattern": "MandalEvents({key})/attendance({key2}):?query:",
+                    "name": "AttendanceObjectPage",
+                    "target": "AttendanceObjectPage"
                 }
             ],
             "targets": {
@@ -137,7 +142,8 @@
                                         "type": "ResponsiveTable"
                                     }
                                 }
-                            }
+                            },
+                            "initialLoad": "Enabled"
                         }
                     }
                 },
@@ -148,7 +154,32 @@
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "contextPath": "/MandalEvents"
+                            "contextPath": "/MandalEvents",
+                            "navigation": {
+                                "attendance": {
+                                    "detail": {
+                                        "route": "AttendanceObjectPage"
+                                    }
+                                }
+                            },
+                            "controlConfiguration": {
+                                "attendance/@com.sap.vocabularies.UI.v1.LineItem#AttendanceList": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "AttendanceObjectPage": {
+                    "type": "Component",
+                    "id": "AttendanceObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/MandalEvents/attendance"
                         }
                     }
                 }

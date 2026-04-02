@@ -52,6 +52,7 @@ service AdminService @(path: '/api/admin') {
   entity FieldPermissionRules as projection on FieldPermissions;
 
   // ─── Event Management ───
+  @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalEvents as projection on Events;
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
@@ -59,11 +60,19 @@ service AdminService @(path: '/api/admin') {
 
   // ─── Fine Management ───
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
-  entity MemberFines as projection on Fines;
+  entity MemberFines as projection on Fines
+    actions {
+      action approveFine(remarks : String);
+      action rejectFine(remarks : String);
+    };
 
   // ─── Ledger ───
+  @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
-  entity Ledger as projection on LedgerEntries;
+  entity Ledger as projection on LedgerEntries
+    actions {
+      action verifyEntry(remarks : String);
+    };
 
   // ─── Course Management ───
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
@@ -109,7 +118,6 @@ service AdminService @(path: '/api/admin') {
   };
 
   // ─── Actions ───
-  action verifyFinePayment(fineId : UUID, approved : Boolean, remarks : String) returns MemberFines;
   action markAttendance(eventId : UUID, attendees : array of {
     userId : UUID;
     status : String enum { present; absent; excused; };
