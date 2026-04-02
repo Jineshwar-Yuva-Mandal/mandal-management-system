@@ -6,7 +6,8 @@ using { com.samanvay.LedgerEntries } from '../../db/ledger';
 using { com.samanvay.Courses, com.samanvay.SyllabusTopics,
         com.samanvay.CourseAssignments, com.samanvay.CourseTopicProgress } from '../../db/course';
 using { com.samanvay.MembershipRequests } from '../../db/membership';
-using { com.samanvay.Positions, com.samanvay.UserPositionAssignments } from '../../db/authorization';
+using { com.samanvay.Positions, com.samanvay.UserPositionAssignments,
+        com.samanvay.AppAccessGrants } from '../../db/authorization';
 
 // ═══════════════════════════════════════════════════
 // MemberService — For Authenticated Mandal Members
@@ -71,6 +72,11 @@ service MemberService @(path: '/api/member') {
   @readonly
   @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
   entity Ledger as projection on LedgerEntries;
+
+  // ─── App Access Grants (read-only — see which admin apps I can access) ───
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' }]
+  entity MyAppGrants as projection on AppAccessGrants;
 
   // ─── Actions ───
   // Pay a fine — member submits payment details

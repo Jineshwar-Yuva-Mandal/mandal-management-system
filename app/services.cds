@@ -14,3 +14,5 @@ using from './admin/joinrequests/annotations';
 using from './admin/positions/annotations';
 
 using from './admin/mandal/annotations';
+
+using from './admin/appaccess/annotations';

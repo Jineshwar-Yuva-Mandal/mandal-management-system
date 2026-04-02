@@ -2,7 +2,8 @@ using { com.samanvay.Mandals, com.samanvay.MandalMemberships } from '../../db/ma
 using { com.samanvay.Users } from '../../db/users';
 using { com.samanvay.Positions, com.samanvay.UserPositionAssignments,
         com.samanvay.ProtectedEntities, com.samanvay.ProtectedFields,
-        com.samanvay.EntityPermissions, com.samanvay.FieldPermissions } from '../../db/authorization';
+        com.samanvay.EntityPermissions, com.samanvay.FieldPermissions,
+        com.samanvay.AppAccessGrants } from '../../db/authorization';
 using { com.samanvay.Events, com.samanvay.EventAttendance } from '../../db/event';
 using { com.samanvay.Fines } from '../../db/fine';
 using { com.samanvay.LedgerEntries } from '../../db/ledger';
@@ -40,6 +41,7 @@ service AdminService @(path: '/api/admin') {
   entity Memberships as projection on MandalMemberships;
 
   // ─── Position & Permission Management ───
+  @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalPositions as projection on Positions;
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
@@ -93,6 +95,18 @@ service AdminService @(path: '/api/admin') {
   // ─── Member Field Configuration ───
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MemberFieldConfig as projection on MandalMemberFieldConfigs;
+
+  // ─── App Access Grants ───
+  // Admin assigns specific admin app access to regular members
+  @odata.draft.enabled
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
+  entity AppGrants as projection on AppAccessGrants;
+
+  // ─── Available Apps (for dropdown in app grant creation) ───
+  @readonly entity AvailableApps {
+    key ![key]   : String;
+        label : String;
+  };
 
   // ─── Actions ───
   action verifyFinePayment(fineId : UUID, approved : Boolean, remarks : String) returns MemberFines;

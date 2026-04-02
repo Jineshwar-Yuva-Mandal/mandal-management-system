@@ -1,5 +1,44 @@
 const cds = require('@sap/cds');
 
+// ── Map each AdminService entity to its app_key ──
+// Privileged members can only access entities belonging to their granted apps.
+const ENTITY_APP_MAP = {
+  'AdminService.Members':              'members',
+  'AdminService.Memberships':          'members',
+  'AdminService.MyMandals':            'members',
+  'AdminService.MemberFieldConfig':    'members',
+  'AdminService.JoinRequests':         'joinrequests',
+  'AdminService.JoinApprovals':        'joinrequests',
+  'AdminService.JoinRequestStatusValues': 'joinrequests',
+  'AdminService.MandalPositions':      'positions',
+  'AdminService.PositionAssignments':  'positions',
+  'AdminService.ProtectedEntityList':  'positions',
+  'AdminService.ProtectedFieldList':   'positions',
+  'AdminService.EntityPermissionRules':'positions',
+  'AdminService.FieldPermissionRules': 'positions',
+  'AdminService.MandalEvents':         'eventsandattendance',
+  'AdminService.Attendance':           'eventsandattendance',
+  'AdminService.MandalCourses':        'courses',
+  'AdminService.Topics':               'courses',
+  'AdminService.Assignments':          'courses',
+  'AdminService.TopicProgress':        'courses',
+  'AdminService.MemberFieldConfig':    'members',
+  'AdminService.MemberFines':          'fines',
+  'AdminService.Ledger':               'ledger',
+  'AdminService.Mandal':               'mandal',
+  'AdminService.Workflows':            'mandal',
+  'AdminService.WorkflowSteps':        'mandal',
+  'AdminService.AppGrants':            'appaccess',
+  'AdminService.AvailableApps':        'appaccess',
+};
+
+// ── Map unbound actions to their app_key ──
+const ACTION_APP_MAP = {
+  'verifyFinePayment': 'fines',
+  'markAttendance':    'eventsandattendance',
+  'transferAdminship': 'mandal',
+};
+
 module.exports = class AdminService extends cds.ApplicationService {
 
   async init() {
@@ -7,8 +46,58 @@ module.exports = class AdminService extends cds.ApplicationService {
       MandalMemberships, Mandals,
       Fines, LedgerEntries,
       Events, EventAttendance,
-      MembershipRequests, MembershipApprovals
+      MembershipRequests, MembershipApprovals,
+      AppAccessGrants
     } = cds.entities('com.samanvay');
+
+    // ── Privileged member entity-level authorization ──
+    // Full admins (platform_admin, mandal_admin role, is_admin) pass through.
+    // Privileged members can ONLY access entities mapped to their granted apps.
+    this.before('*', async (req) => {
+      // Skip if no target
+      if (!req.target) return;
+
+      const entityName = req.target?.name || '';
+
+      // Skip CDS-internal / draft-infrastructure entities
+      if (entityName.includes('.drafts') ||
+          entityName === 'DRAFT.DraftAdministrativeData' ||
+          entityName.endsWith('.DraftAdministrativeData') ||
+          entityName.startsWith('DraftAdministrativeData') ||
+          !entityName.startsWith('AdminService.')) return;
+
+      const { userId, mandalId, isAdmin } = req.user.attr || {};
+
+      // Full admins — unrestricted
+      if (isAdmin || req.user.is('platform_admin')) return;
+
+      // Check the user's platform role stored in DB
+      const { Users } = cds.entities('com.samanvay');
+      const dbUser = await SELECT.one.from(Users).where({ ID: userId }).columns('role');
+      if (dbUser?.role === 'platform_admin' || dbUser?.role === 'mandal_admin') return;
+
+      // Privileged member — check entity against their grants
+      let requiredApp = ENTITY_APP_MAP[entityName];
+
+      // For unbound actions, check the action name
+      if (!requiredApp && req.event) {
+        requiredApp = ACTION_APP_MAP[req.event];
+      }
+
+      // If entity/action isn't mapped, block by default for safety
+      if (!requiredApp) {
+        console.warn('[AUTH] Blocked unmapped entity:', entityName, 'event:', req.event, 'user:', userId);
+        return req.reject(403, 'Access denied');
+      }
+
+      // Check if user has a grant for this app
+      const grant = await SELECT.one.from(AppAccessGrants)
+        .where({ user_ID: userId, mandal_ID: mandalId, app_key: requiredApp });
+
+      if (!grant) {
+        return req.reject(403, 'You do not have access to this application');
+      }
+    });
 
     this.before('READ', 'Members', async (req) => {
       if (req.query?.SELECT?.from?.ref?.[0]?.id?.endsWith?.('.drafts')) return;
@@ -321,6 +410,46 @@ module.exports = class AdminService extends cds.ApplicationService {
         row.decisionCriticality = DECISION_CRITICALITY[row.decision] ?? 0;
       }
     });
+
+    // ── AvailableApps — fixed list of admin apps for app access grant dropdown ──
+    const AVAILABLE_APPS = [
+      { key: 'members',              label: 'Members Management' },
+      { key: 'joinrequests',         label: 'Join Requests' },
+      { key: 'positions',            label: 'Positions & Access' },
+      { key: 'eventsandattendance',  label: 'Events & Attendance' },
+      { key: 'courses',              label: 'Courses' },
+      { key: 'fines',                label: 'Fines' },
+      { key: 'ledger',               label: 'Financial Ledger' },
+      { key: 'mandal',               label: 'Mandal Settings' },
+      { key: 'appaccess',            label: 'App Access' },
+    ];
+    this.on('READ', 'AvailableApps', () => AVAILABLE_APPS);
+
+    // ── Restrict AppGrants writes to full admins only ──
+    // Prevents privilege escalation: a privileged member with 'appaccess' grant
+    // must NOT be able to create/modify/delete grants (including for themselves).
+    // Only mandal_admin, platform_admin, or is_admin users can manage access.
+    this.before(['NEW', 'CREATE', 'SAVE', 'UPDATE', 'DELETE'], 'AppGrants', async (req) => {
+      const { isAdmin } = req.user.attr || {};
+      if (isAdmin || req.user.is('platform_admin')) return;
+      const { Users } = cds.entities('com.samanvay');
+      const dbUser = await SELECT.one.from(Users).where({ ID: req.user.attr?.userId }).columns('role');
+      if (dbUser?.role === 'platform_admin' || dbUser?.role === 'mandal_admin') return;
+      return req.reject(403, 'Only mandal administrators can manage app access grants');
+    });
+
+    // ── Auto-set mandal_ID on new drafts for mandal-scoped entities ──
+    const setMandalId = req => {
+      if (!req.data.mandal_ID) {
+        req.data.mandal_ID = req.user.attr.mandalId;
+      }
+    };
+    this.before('NEW', 'MandalPositions', setMandalId);
+    this.before('NEW', 'AppGrants', setMandalId);
+    this.before('CREATE', 'MandalPositions', setMandalId);
+    this.before('CREATE', 'AppGrants', setMandalId);
+    this.before('SAVE', 'MandalPositions', setMandalId);
+    this.before('SAVE', 'AppGrants', setMandalId);
 
     await super.init();
   }

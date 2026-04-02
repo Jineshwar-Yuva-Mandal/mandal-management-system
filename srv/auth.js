@@ -74,6 +74,14 @@ module.exports = function supabase_auth() {
         // Grant 'mandal_admin' CDS role based on platform role or membership flag
         if (dbUser.role === 'platform_admin' || dbUser.role === 'mandal_admin' || isAdmin) {
           roles.push('mandal_admin');
+        } else if (mandalId) {
+          // Check if member has any app access grants (privileged member)
+          const { AppAccessGrants } = cds.entities('com.samanvay');
+          const grant = await SELECT.one.from(AppAccessGrants)
+            .where({ user_ID: dbUser.ID, mandal_ID: mandalId });
+          if (grant) {
+            roles.push('mandal_admin');
+          }
         }
       }
     } catch (err) {

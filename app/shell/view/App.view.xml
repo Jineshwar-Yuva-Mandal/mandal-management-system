@@ -48,17 +48,9 @@
             <tnt:SideNavigation id="sideNav" expanded="false" itemSelect=".onNavItemSelect">
                 <tnt:item>
                     <tnt:NavigationList>
-                        <!-- Admin group -->
-                        <tnt:NavigationListItem text="Admin" icon="sap-icon://shield" expanded="true"
+                        <!-- Admin group — items populated dynamically by Component.js -->
+                        <tnt:NavigationListItem id="adminNavGroup" text="Admin" icon="sap-icon://shield" expanded="true"
                                                 visible="{/isAdmin}">
-                            <tnt:NavigationListItem text="Members" icon="sap-icon://group" key="admin/members/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Join Requests" icon="sap-icon://add-employee" key="admin/joinrequests/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Positions" icon="sap-icon://org-chart" key="admin/positions/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Events &amp; Attendance" icon="sap-icon://calendar" key="admin/eventsandattendance/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Courses" icon="sap-icon://education" key="admin/courses/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Fines" icon="sap-icon://money-bills" key="admin/fines/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Financial Ledger" icon="sap-icon://accounting-document-verification" key="admin/ledger/webapp/index.html"/>
-                            <tnt:NavigationListItem text="Mandal Settings" icon="sap-icon://action-settings" key="admin/mandal/webapp/index.html"/>
                         </tnt:NavigationListItem>
                         <!-- Member group -->
                         <tnt:NavigationListItem text="Member" icon="sap-icon://person-placeholder">

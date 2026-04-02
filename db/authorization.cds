@@ -60,3 +60,12 @@ entity FieldPermissions : managed, cuid {
   visible           : Boolean default true;
   editable          : Boolean default false;
 }
+
+// ─── App Access Grants ───
+// Mandal admin can grant regular members access to specific admin apps.
+// A member with a grant sees and operates that admin app like the admin would.
+entity AppAccessGrants : managed, cuid {
+  user    : Association to Users;
+  mandal  : Association to Mandals;
+  app_key : String(100);  // e.g., "joinrequests", "fines", "ledger", "eventsandattendance", "courses", "members", "positions", "mandal"
+}

@@ -1,8 +1,9 @@
 sap.ui.define([
     "sap/ui/core/UIComponent",
     "sap/ui/model/json/JSONModel",
-    "sap/m/BusyDialog"
-], function (UIComponent, JSONModel, BusyDialog) {
+    "sap/m/BusyDialog",
+    "sap/tnt/NavigationListItem"
+], function (UIComponent, JSONModel, BusyDialog, NavigationListItem) {
     "use strict";
 
     return UIComponent.extend("com.samanvay.shell.Component", {
@@ -19,7 +20,34 @@ sap.ui.define([
             "admin/courses/webapp",
             "admin/fines/webapp",
             "admin/ledger/webapp",
-            "admin/mandal/webapp"
+            "admin/mandal/webapp",
+            "admin/appaccess/webapp"
+        ],
+
+        /** Map admin app webapp paths to app_key values used in AppAccessGrants */
+        _appPathToKey: {
+            "admin/members/webapp":            "members",
+            "admin/joinrequests/webapp":        "joinrequests",
+            "admin/positions/webapp":           "positions",
+            "admin/eventsandattendance/webapp": "eventsandattendance",
+            "admin/courses/webapp":             "courses",
+            "admin/fines/webapp":               "fines",
+            "admin/ledger/webapp":              "ledger",
+            "admin/mandal/webapp":              "mandal",
+            "admin/appaccess/webapp":           "appaccess"
+        },
+
+        /** All admin nav items in sidebar order */
+        _adminNavItems: [
+            { appKey: "members",            text: "Members",              icon: "sap-icon://group",                                 key: "admin/members/webapp/index.html" },
+            { appKey: "joinrequests",       text: "Join Requests",        icon: "sap-icon://add-employee",                          key: "admin/joinrequests/webapp/index.html" },
+            { appKey: "positions",          text: "Positions",            icon: "sap-icon://org-chart",                             key: "admin/positions/webapp/index.html" },
+            { appKey: "eventsandattendance",text: "Events & Attendance",  icon: "sap-icon://calendar",                              key: "admin/eventsandattendance/webapp/index.html" },
+            { appKey: "courses",            text: "Courses",              icon: "sap-icon://education",                             key: "admin/courses/webapp/index.html" },
+            { appKey: "fines",              text: "Fines",                icon: "sap-icon://money-bills",                           key: "admin/fines/webapp/index.html" },
+            { appKey: "ledger",             text: "Financial Ledger",     icon: "sap-icon://accounting-document-verification",      key: "admin/ledger/webapp/index.html" },
+            { appKey: "mandal",             text: "Mandal Settings",      icon: "sap-icon://action-settings",                       key: "admin/mandal/webapp/index.html" },
+            { appKey: "appaccess",          text: "App Access",           icon: "sap-icon://key-user-settings",                     key: "admin/appaccess/webapp/index.html" }
         ],
 
         init: function () {
@@ -29,6 +57,17 @@ sap.ui.define([
                 authenticated: false,
                 authView: "login",
                 isAdmin: false,
+                adminAppAccess: {
+                    members: false,
+                    joinrequests: false,
+                    positions: false,
+                    eventsandattendance: false,
+                    courses: false,
+                    fines: false,
+                    ledger: false,
+                    mandal: false,
+                    appaccess: false
+                },
                 profile: {
                     name: "",
                     initials: "",
@@ -191,9 +230,43 @@ sap.ui.define([
                     // User has memberships — show dashboard
                     var bIsAdmin = aMemberships.some(function (m) { return m.is_admin; }) || oModel.getProperty("/userRole") === "mandal_admin" || oModel.getProperty("/userRole") === "platform_admin";
                     oModel.setProperty("/isAdmin", bIsAdmin);
-                    oModel.setProperty("/authenticated", true);
-                    that._hideBusy();
-                    that._navigateTo("mainShellPage");
+
+                    // Set per-app admin access
+                    if (bIsAdmin) {
+                        // Full admins see all admin apps
+                        var oAccess = {};
+                        Object.values(that._appPathToKey).forEach(function (k) { oAccess[k] = true; });
+                        oModel.setProperty("/adminAppAccess", oAccess);
+                        that._populateAdminNav(oAccess);
+                        oModel.setProperty("/authenticated", true);
+                        that._hideBusy();
+                        that._navigateTo("mainShellPage");
+                    } else {
+                        // Regular member — check for app access grants
+                        fetch("./api/member/MyAppGrants", {
+                            headers: { "Authorization": "Bearer " + that._supabaseToken }
+                        }).then(function (r) {
+                            if (!r.ok) return { value: [] };
+                            return r.json();
+                        }).then(function (oGrants) {
+                            var aGrants = oGrants.value || [];
+                            var oAccess = {};
+                            Object.values(that._appPathToKey).forEach(function (k) { oAccess[k] = false; });
+                            aGrants.forEach(function (g) { oAccess[g.app_key] = true; });
+                            var bHasAnyGrant = aGrants.length > 0;
+                            oModel.setProperty("/adminAppAccess", oAccess);
+                            that._populateAdminNav(oAccess);
+                            oModel.setProperty("/isAdmin", bHasAnyGrant);
+                            oModel.setProperty("/authenticated", true);
+                            that._hideBusy();
+                            that._navigateTo("mainShellPage");
+                        }).catch(function () {
+                            oModel.setProperty("/adminAppAccess", {});
+                            oModel.setProperty("/authenticated", true);
+                            that._hideBusy();
+                            that._navigateTo("mainShellPage");
+                        });
+                    }
                 } else {
                     // User exists but no memberships — show onboarding
                     oModel.setProperty("/authenticated", false);
@@ -286,6 +359,44 @@ sap.ui.define([
          */
         getAccessToken: function () {
             return this._supabaseToken;
+        },
+
+        /**
+         * Dynamically populate admin sidebar nav items based on access map.
+         * Only adds NavigationListItems for apps the user has access to.
+         * Also filters the /adminApps tiles on the welcome page.
+         */
+        _populateAdminNav: function (oAccess) {
+            var oView = this.getRootControl();
+            if (!oView) return;
+            var oAdminGroup = oView.byId("adminNavGroup");
+            if (!oAdminGroup) return;
+
+            // Clear existing items
+            oAdminGroup.removeAllItems();
+
+            // Add only accessible apps
+            this._adminNavItems.forEach(function (oItem) {
+                if (oAccess[oItem.appKey]) {
+                    oAdminGroup.addItem(new NavigationListItem({
+                        text: oItem.text,
+                        icon: oItem.icon,
+                        key: oItem.key
+                    }));
+                }
+            });
+
+            // Filter welcome page admin tiles to only show accessible apps
+            var aAllApps = this.getModel().getProperty("/adminApps") || [];
+            var that = this;
+            var aFiltered = aAllApps.filter(function (oApp) {
+                // oApp.key is like "admin/members/webapp/index.html"
+                // Extract path without /index.html to look up in _appPathToKey
+                var sPath = oApp.key.replace("/index.html", "");
+                var sAppKey = that._appPathToKey[sPath];
+                return sAppKey && oAccess[sAppKey];
+            });
+            this.getModel().setProperty("/adminApps", aFiltered);
         }
     });
 });
