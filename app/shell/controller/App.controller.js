@@ -3,7 +3,7 @@ sap.ui.define([
     "sap/ui/core/Fragment",
     "sap/m/MessageToast",
     "sap/m/MessageBox"
-], function (Controller, Fragment, MessageToast, MessageBox) {
+], function (Controller, Fragment, MessageToast /*, MessageBox */) {
     "use strict";
 
     return Controller.extend("com.samanvay.shell.controller.App", {
@@ -313,7 +313,6 @@ sap.ui.define([
             var sMandalId = oSource.data("mandalId");
             var sMandalName = oSource.data("mandalName");
             var oModel = this.getView().getModel();
-            var that = this;
 
             // Find the mandal object from loaded list
             var aMandals = oModel.getProperty("/joinMandal/allMandals") || [];

@@ -4,8 +4,8 @@ module.exports = class MemberService extends cds.ApplicationService {
 
   async init() {
     const {
-      Users, MandalMemberships,
-      Fines, MembershipRequests, Mandals,
+      MandalMemberships,
+      Fines,
       Courses, CourseAssignments
     } = cds.entities('com.samanvay');
 
@@ -78,49 +78,6 @@ module.exports = class MemberService extends cds.ApplicationService {
       });
 
       return 'Payment recorded successfully';
-    });
-
-    // ── requestMembership — member requests to join a mandal ──
-    this.on('requestMembership', async (req) => {
-      const { mandalId } = req.data;
-      if (!mandalId) return req.reject(400, 'mandalId is required');
-
-      const userId = req.user.attr.userId;
-      if (!userId) return req.reject(403, 'Not authenticated');
-
-      const user = await SELECT.one.from(Users).where({ ID: userId });
-      if (!user) return req.reject(404, 'User not found');
-
-      // Check mandal exists
-      const mandal = await SELECT.one.from(Mandals).where({ ID: mandalId }).columns('ID', 'has_joining_fee', 'joining_fee');
-      if (!mandal) return req.reject(404, 'Mandal not found');
-
-      // Check if already a member
-      const existing = await SELECT.one.from(MandalMemberships)
-        .where({ user_ID: userId, mandal_ID: mandalId });
-      if (existing && existing.membership_status === 'active') {
-        return req.reject(409, 'You are already a member of this mandal');
-      }
-
-      // Check if a pending request already exists
-      const pendingRequest = await SELECT.one.from(MembershipRequests)
-        .where({ user_ID: userId, mandal_ID: mandalId, status: 'submitted' });
-      if (pendingRequest) {
-        return req.reject(409, 'You already have a pending request for this mandal');
-      }
-
-      await INSERT.into(MembershipRequests).entries({
-        ID: cds.utils.uuid(),
-        requester_name: user.full_name,
-        requester_email: user.email,
-        requester_phone: user.phone,
-        user_ID: userId,
-        mandal_ID: mandalId,
-        status: mandal.has_joining_fee ? 'payment_pending' : 'submitted',
-        fee_amount: mandal.has_joining_fee ? mandal.joining_fee : 0
-      });
-
-      return 'Membership request submitted successfully';
     });
 
     await super.init();

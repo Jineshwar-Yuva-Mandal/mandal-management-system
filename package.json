@@ -18,7 +18,8 @@
   },
   "devDependencies": {
     "@cap-js/cds-types": "^0.13.0",
-    "@sap/cds-dk": "^9"
+    "@sap/cds-dk": "^9",
+    "eslint": "^10.1.0"
   },
   "scripts": {
     "deploy": "mv db/data db/_data_bak && NODE_ENV=production node scripts/deploy-pg.js; mv db/_data_bak db/data",

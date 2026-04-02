@@ -5,7 +5,7 @@ module.exports = class PublicService extends cds.ApplicationService {
 
   async init() {
     const { Users, Mandals, MandalMemberships } = cds.entities('com.samanvay');
-    const { NewUser, BrowseMandals } = this.entities;
+    const { NewUser } = this.entities;
 
     // ── Custom endpoint to serve payment QR images (bypasses OData streaming) ──
     this.on('getPaymentQr', async (req) => {

@@ -5,8 +5,7 @@ using { com.samanvay.Fines } from '../../db/fine';
 using { com.samanvay.LedgerEntries } from '../../db/ledger';
 using { com.samanvay.Courses, com.samanvay.SyllabusTopics,
         com.samanvay.CourseAssignments, com.samanvay.CourseTopicProgress } from '../../db/course';
-using { com.samanvay.MembershipRequests } from '../../db/membership';
-using { com.samanvay.Positions, com.samanvay.UserPositionAssignments,
+using { com.samanvay.UserPositionAssignments,
         com.samanvay.AppAccessGrants } from '../../db/authorization';
 
 // ═══════════════════════════════════════════════════
@@ -23,14 +22,10 @@ service MemberService @(path: '/api/member') {
   @restrict: [{ grant: '*', where: 'ID = $user.userId' }]
   entity MyProfile as projection on Users;
 
-  // ─── My Mandals & Memberships ───
+  // ─── My Mandals (memberships) ───
   @readonly
   @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId' }]
   entity MyMandals as projection on MandalMemberships;
-
-  @readonly
-  @restrict: [{ grant: 'READ', where: 'ID = $user.mandalId' }]
-  entity MyMandal as projection on Mandals;
 
   // MemberDirectory needs join through MandalMemberships — scoped in handler
   @readonly entity MemberDirectory as projection on Users {
@@ -41,9 +36,6 @@ service MemberService @(path: '/api/member') {
   @readonly
   @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' }]
   entity MyPositions as projection on UserPositionAssignments;
-  @readonly
-  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
-  entity MandalPositions as projection on Positions;
 
   // ─── Events ───
   @readonly
@@ -81,6 +73,4 @@ service MemberService @(path: '/api/member') {
   // ─── Actions ───
   // Pay a fine — member submits payment details
   action payFine(fineId : UUID, amount : Decimal, payment_mode : String, payment_reference : String) returns String;
-  // Request to join a different mandal
-  action requestMembership(mandalId : UUID) returns String;
 }

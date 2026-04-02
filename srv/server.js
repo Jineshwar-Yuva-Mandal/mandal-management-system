@@ -34,7 +34,8 @@ Object.defineProperty(PostgresService.prototype, 'factory', {
       const _origQuery = dbc.query.bind(dbc);
       dbc.query = function (config, ...rest) {
         if (config && typeof config === 'object' && config.name) {
-          const { name, ...unnamed } = config;
+          // eslint-disable-next-line no-unused-vars
+          const { name: _name, ...unnamed } = config;
           return _origQuery(unnamed, ...rest);
         }
         return _origQuery(config, ...rest);

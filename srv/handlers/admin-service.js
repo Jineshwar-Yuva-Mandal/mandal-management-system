@@ -22,7 +22,6 @@ const ENTITY_APP_MAP = {
   'AdminService.Topics':               'courses',
   'AdminService.Assignments':          'courses',
   'AdminService.TopicProgress':        'courses',
-  'AdminService.MemberFieldConfig':    'members',
   'AdminService.MemberFines':          'fines',
   'AdminService.Ledger':               'ledger',
   'AdminService.Mandal':               'mandal',
@@ -89,7 +88,6 @@ module.exports = class AdminService extends cds.ApplicationService {
 
       // If entity/action isn't mapped, block by default for safety
       if (!requiredApp) {
-        console.warn('[AUTH] Blocked unmapped entity:', entityName, 'event:', req.event, 'user:', userId);
         return req.reject(403, 'Access denied');
       }
 
@@ -681,7 +679,7 @@ module.exports = class AdminService extends cds.ApplicationService {
     });
 
     // ── After attendance is updated, auto-create/remove fines based on status ──
-    this.after(['UPDATE', 'PATCH'], 'Attendance', async (data, req) => {
+    this.after(['UPDATE', 'PATCH'], 'Attendance', async (data, _req) => {
       if (!data.status || !data.event_ID) return;
 
       // Load the parent event
@@ -798,9 +796,9 @@ module.exports = class AdminService extends cds.ApplicationService {
     });
 
     // ── On assignment SAVE: auto-populate topic progress from course syllabus ──
-    this.after('SAVE', 'MandalCourses', async (data, req) => {
+    this.after('SAVE', 'MandalCourses', async (data, _req) => {
       if (!data.ID) return;
-      const { Courses, SyllabusTopics, CourseAssignments, CourseTopicProgress } = cds.entities('com.samanvay');
+      const { SyllabusTopics, CourseAssignments, CourseTopicProgress } = cds.entities('com.samanvay');
 
       // For each assignment in this course, ensure topic progress records exist
       const assignments = await SELECT.from(CourseAssignments)
@@ -835,7 +833,7 @@ module.exports = class AdminService extends cds.ApplicationService {
     });
 
     // ── Auto-compute completion percentage when topic progress is updated ──
-    this.after(['UPDATE', 'PATCH'], 'TopicProgress', async (data, req) => {
+    this.after(['UPDATE', 'PATCH'], 'TopicProgress', async (data, _req) => {
       if (!data.assignment_ID) return;
       const { CourseTopicProgress, CourseAssignments } = cds.entities('com.samanvay');
 
