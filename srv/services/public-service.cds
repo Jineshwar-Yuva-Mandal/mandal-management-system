@@ -1,5 +1,4 @@
-using { com.samanvay.Mandals } from '../../db/membership';
-using { com.samanvay.MandalMemberships } from '../../db/mandal';
+using { com.samanvay.Mandals } from '../../db/mandal';
 using { com.samanvay.Users } from '../../db/users';
 using { com.samanvay.MembershipRequests } from '../../db/membership';
 using { com.samanvay.MandalMemberFieldConfigs } from '../../db/member_field_config';

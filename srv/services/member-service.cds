@@ -5,7 +5,7 @@ using { com.samanvay.Fines } from '../../db/fine';
 using { com.samanvay.LedgerEntries } from '../../db/ledger';
 using { com.samanvay.Courses, com.samanvay.SyllabusTopics,
         com.samanvay.CourseAssignments, com.samanvay.CourseTopicProgress } from '../../db/course';
-using { com.samanvay.UserPositionAssignments,
+using { com.samanvay.Positions, com.samanvay.UserPositionAssignments,
         com.samanvay.AppAccessGrants } from '../../db/authorization';
 
 // ═══════════════════════════════════════════════════
@@ -26,6 +26,16 @@ service MemberService @(path: '/api/member') {
   @readonly
   @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId' }]
   entity MyMandals as projection on MandalMemberships;
+
+  // ─── Mandal details (navigation target for MyMandals/MyPositions expand) ───
+  @readonly entity MemberMandals as projection on Mandals {
+    ID, name, area, city, state, logo, logo_type, logo_name
+  };
+
+  // ─── Position details (navigation target for MyPositions expand) ───
+  @readonly entity MemberPositions as projection on Positions {
+    ID, name, description
+  };
 
   // MemberDirectory needs join through MandalMemberships — scoped in handler
   @readonly entity MemberDirectory as projection on Users {

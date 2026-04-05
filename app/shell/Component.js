@@ -216,7 +216,7 @@ sap.ui.define([
                     oModel.setProperty("/userId", oUserData.ID);
                     // User exists — check memberships via member service
                     that._supabaseToken = sToken;
-                    return fetch("./api/member/MyMandals", {
+                    return fetch("./api/member/MyMandals?$expand=mandal", {
                         headers: { "Authorization": "Bearer " + sToken }
                     }).then(function (r) {
                         if (!r.ok) return { value: [] };
