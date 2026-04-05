@@ -58,6 +58,15 @@ module.exports = class PublicService extends cds.ApplicationService {
       }
     });
 
+    // ── Auto-link user_ID on join requests by requester email ──
+    this.before('CREATE', 'JoinRequests', async (req) => {
+      if (!req.data.user_ID && req.data.requester_email) {
+        const email = req.data.requester_email.toLowerCase().trim();
+        const user = await SELECT.one.from(Users).columns('ID').where({ email });
+        if (user) req.data.user_ID = user.ID;
+      }
+    });
+
     // ── Create a new mandal — creator becomes superadmin ──
     // This is a multi-entity transaction so it stays as a custom action
     this.on('createMandal', async (req) => {

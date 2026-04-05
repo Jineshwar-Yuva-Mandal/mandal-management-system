@@ -44,7 +44,7 @@ module.exports = class AdminService extends cds.ApplicationService {
 
   async init() {
     const {
-      MandalMemberships, Mandals,
+      MandalMemberships, Mandals, Users,
       Fines, LedgerEntries,
       Events, EventAttendance,
       MembershipRequests, MembershipApprovals,
@@ -74,7 +74,6 @@ module.exports = class AdminService extends cds.ApplicationService {
       if (isAdmin || req.user.is('platform_admin')) return;
 
       // Check the user's platform role stored in DB
-      const { Users } = cds.entities('com.samanvay');
       const dbUser = await SELECT.one.from(Users).where({ ID: userId }).columns('role');
       if (dbUser?.role === 'platform_admin' || dbUser?.role === 'mandal_admin') return;
 
@@ -396,8 +395,17 @@ module.exports = class AdminService extends cds.ApplicationService {
 
       // If approved, create the mandal membership
       if (decision === 'approved') {
+        // Auto-link user by email if not already linked
+        if (!request.user_ID && request.requester_email) {
+          const linkedUser = await SELECT.one.from(Users).columns('ID')
+            .where({ email: request.requester_email.toLowerCase().trim() });
+          if (linkedUser) {
+            request.user_ID = linkedUser.ID;
+            await UPDATE(MembershipRequests, requestId).set({ user_ID: linkedUser.ID });
+          }
+        }
         if (!request.user_ID) {
-          return req.reject(400, 'Cannot approve: no linked user on this request');
+          return req.reject(400, 'Cannot approve: no linked user on this request. The requester must create an account first.');
         }
 
         const existingMembership = await SELECT.one.from(MandalMemberships)
@@ -589,7 +597,6 @@ module.exports = class AdminService extends cds.ApplicationService {
     this.before(['NEW', 'CREATE', 'SAVE', 'UPDATE', 'DELETE'], 'AppGrants', async (req) => {
       const { isAdmin } = req.user.attr || {};
       if (isAdmin || req.user.is('platform_admin')) return;
-      const { Users } = cds.entities('com.samanvay');
       const dbUser = await SELECT.one.from(Users).where({ ID: req.user.attr?.userId }).columns('role');
       if (dbUser?.role === 'platform_admin' || dbUser?.role === 'mandal_admin') return;
       return req.reject(403, 'Only mandal administrators can manage app access grants');
