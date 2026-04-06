@@ -6,5 +6,15 @@ export default [
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }]
     }
+  },
+  {
+    files: ['app/sw.js'],
+    languageOptions: {
+      globals: { caches: 'readonly', CacheStorage: 'readonly', Cache: 'readonly' }
+    }
+  },
+  {
+    files: ['scripts/**/*.js'],
+    rules: { 'no-console': 'off' }
   }
 ]
