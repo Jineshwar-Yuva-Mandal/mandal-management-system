@@ -7,25 +7,25 @@ const PRECACHE_URLS = [
 ];
 
 /* Install — precache shell assets */
-self.addEventListener('install', (event) => {
+globalThis.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
   );
-  self.skipWaiting();
+  globalThis.skipWaiting();
 });
 
 /* Activate — purge old caches */
-self.addEventListener('activate', (event) => {
+globalThis.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
-  self.clients.claim();
+  globalThis.clients.claim();
 });
 
 /* Fetch — network-first for API/OData, cache-first for static assets */
-self.addEventListener('fetch', (event) => {
+globalThis.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Always go to network for API / OData / auth requests
@@ -43,7 +43,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cached) => {
       if (cached) {
         // Return cache hit but also update cache in background
-        const fetchPromise = fetch(event.request).then((response) => {
+        fetch(event.request).then((response) => {
           if (response.ok) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
       }
       // No cache hit — fetch from network and cache the response
       return fetch(event.request).then((response) => {
-        if (response.ok && url.origin === self.location.origin) {
+        if (response.ok && url.origin === globalThis.location.origin) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }

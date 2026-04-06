@@ -389,7 +389,7 @@ module.exports = class AdminService extends cds.ApplicationService {
         return req.reject(409, `Request already ${request.status}`);
       }
 
-      // Record the approval/rejection
+      // Record the approval
       await INSERT.into(MembershipApprovals).entries({
         ID: cds.utils.uuid(),
         request_ID: requestId,
@@ -404,60 +404,61 @@ module.exports = class AdminService extends cds.ApplicationService {
         remarks: remarks || ''
       });
 
-      // If approved, create the mandal membership
-      if (decision === 'approved') {
-        // Auto-link user by email if not already linked
-        if (!request.user_ID && request.requester_email) {
-          const linkedUser = await SELECT.one.from(Users).columns('ID')
-            .where({ email: request.requester_email.toLowerCase().trim() });
-          if (linkedUser) {
-            request.user_ID = linkedUser.ID;
-            await UPDATE(MembershipRequests, requestId).set({ user_ID: linkedUser.ID });
-          }
-        }
-        if (!request.user_ID) {
-          return req.reject(400, 'Cannot approve: no linked user on this request. The requester must create an account first.');
-        }
+      await _activateMembership(request, requestId, mandalId, userId);
+    });
 
-        const existingMembership = await SELECT.one.from(MandalMemberships)
-          .where({ user_ID: request.user_ID, mandal_ID: mandalId });
-
-        if (!existingMembership) {
-          await INSERT.into(MandalMemberships).entries({
-            ID: cds.utils.uuid(),
-            user_ID: request.user_ID,
-            mandal_ID: mandalId,
-            membership_status: 'active',
-            is_admin: false,
-            joined_date: new Date().toISOString().slice(0, 10)
-          });
-        } else if (existingMembership.membership_status !== 'active') {
-          await UPDATE(MandalMemberships, existingMembership.ID).set({
-            membership_status: 'active',
-            joined_date: new Date().toISOString().slice(0, 10)
-          });
-        }
-
-        // Create ledger entry if joining fee was paid
-        if (request.paid_amount > 0 && request.payment_verified) {
-          await INSERT.into(LedgerEntries).entries({
-            ID: cds.utils.uuid(),
-            mandal_ID: mandalId,
-            entry_date: new Date().toISOString().slice(0, 10),
-            type: 'joining_fee',
-            description: `Joining fee from ${request.requester_name || 'new member'} (${request.requester_email || ''})`,
-            amount: request.paid_amount,
-            direction: 'credit',
-            related_user_ID: request.user_ID,
-            recorded_by_ID: userId,
-            verified_by_ID: userId,
-            verified_at: new Date().toISOString(),
-            status: 'verified',
-            remarks: `Membership approved. Payment: ₹${request.paid_amount} via ${request.payment_mode || 'N/A'}, Ref: ${request.payment_reference || 'N/A'}, Paid on: ${request.paid_date || 'N/A'}`,
-          });
+    async function _activateMembership(request, requestId, mandalId, userId) {
+      // Auto-link user by email if not already linked
+      if (!request.user_ID && request.requester_email) {
+        const linkedUser = await SELECT.one.from(Users).columns('ID')
+          .where({ email: request.requester_email.toLowerCase().trim() });
+        if (linkedUser) {
+          request.user_ID = linkedUser.ID;
+          await UPDATE(MembershipRequests, requestId).set({ user_ID: linkedUser.ID });
         }
       }
-    });
+      if (!request.user_ID) {
+        throw new Error('Cannot approve: no linked user on this request. The requester must create an account first.');
+      }
+
+      const existingMembership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: request.user_ID, mandal_ID: mandalId });
+
+      if (!existingMembership) {
+        await INSERT.into(MandalMemberships).entries({
+          ID: cds.utils.uuid(),
+          user_ID: request.user_ID,
+          mandal_ID: mandalId,
+          membership_status: 'active',
+          is_admin: false,
+          joined_date: new Date().toISOString().slice(0, 10)
+        });
+      } else if (existingMembership.membership_status !== 'active') {
+        await UPDATE(MandalMemberships, existingMembership.ID).set({
+          membership_status: 'active',
+          joined_date: new Date().toISOString().slice(0, 10)
+        });
+      }
+
+      // Create ledger entry if joining fee was paid
+      if (request.paid_amount > 0 && request.payment_verified) {
+        await INSERT.into(LedgerEntries).entries({
+          ID: cds.utils.uuid(),
+          mandal_ID: mandalId,
+          entry_date: new Date().toISOString().slice(0, 10),
+          type: 'joining_fee',
+          description: `Joining fee from ${request.requester_name || 'new member'} (${request.requester_email || ''})`,
+          amount: request.paid_amount,
+          direction: 'credit',
+          related_user_ID: request.user_ID,
+          recorded_by_ID: userId,
+          verified_by_ID: userId,
+          verified_at: new Date().toISOString(),
+          status: 'verified',
+          remarks: `Membership approved. Payment: ₹${request.paid_amount} via ${request.payment_mode || 'N/A'}, Ref: ${request.payment_reference || 'N/A'}, Paid on: ${request.paid_date || 'N/A'}`,
+        });
+      }
+    }
 
     // ── rejectMembership — reject a join request (bound action on JoinRequests) ──
     this.on('rejectMembership', 'JoinRequests', async (req) => {

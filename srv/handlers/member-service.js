@@ -1,5 +1,5 @@
 const cds = require('@sap/cds');
-const { Readable } = require('stream');
+const { Readable } = require('node:stream');
 
 module.exports = class MemberService extends cds.ApplicationService {
 
@@ -161,7 +161,7 @@ module.exports = class MemberService extends cds.ApplicationService {
           payment_mode: 'upi',
           payment_reference: payment_reference,
         });
-        totalAmount += parseFloat(fine.amount);
+        totalAmount += Number.parseFloat(fine.amount);
       }
 
       return `${pendingFines.length} fines totalling ₹${totalAmount.toFixed(2)} paid. Awaiting verification.`;
@@ -177,7 +177,7 @@ module.exports = class MemberService extends cds.ApplicationService {
 
       let totalAmount = 0;
       for (const fine of pendingFines) {
-        totalAmount += parseFloat(fine.amount);
+        totalAmount += Number.parseFloat(fine.amount);
       }
 
       const qrCode = await getPaymentQrBase64(mandalId);
