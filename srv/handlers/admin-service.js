@@ -256,21 +256,32 @@ module.exports = class AdminService extends cds.ApplicationService {
       if (!fine) return req.reject(404, 'Fine not found in your mandal');
       if (fine.status !== 'paid') return req.reject(409, `Fine is '${fine.status}', expected 'paid'`);
 
-      // Create ledger entry for the fine income
+      // Look up member name and event title for the ledger description
+      const member = await SELECT.one.from(Users).columns('full_name').where({ ID: fine.user_ID });
+      const event = fine.event_ID
+        ? await SELECT.one.from(Events).columns('title').where({ ID: fine.event_ID })
+        : null;
+
+      const memberName = member?.full_name || 'Unknown member';
+      const eventTitle = event?.title || 'N/A';
+      const paidAmount = fine.paid_amount || fine.amount;
+
+      // Create verified ledger entry for the fine income
       const ledgerEntryId = cds.utils.uuid();
       await INSERT.into(LedgerEntries).entries({
         ID: ledgerEntryId,
         mandal_ID: mandalId,
         entry_date: new Date().toISOString().slice(0, 10),
         type: 'fine_income',
-        description: `Fine payment from member`,
-        amount: fine.paid_amount || fine.amount,
+        description: `Fine payment from ${memberName} for event: ${eventTitle}`,
+        amount: paidAmount,
         direction: 'credit',
         related_user_ID: fine.user_ID,
         recorded_by_ID: userId,
         verified_by_ID: userId,
         verified_at: new Date().toISOString(),
-        status: 'verified'
+        status: 'verified',
+        remarks: `Fine: ₹${paidAmount}, Paid on: ${fine.paid_date || 'N/A'}, Mode: ${fine.payment_mode || 'N/A'}, Ref: ${fine.payment_reference || 'N/A'}`,
       });
 
       await UPDATE(Fines, fineId).set({
@@ -434,12 +445,15 @@ module.exports = class AdminService extends cds.ApplicationService {
             mandal_ID: mandalId,
             entry_date: new Date().toISOString().slice(0, 10),
             type: 'joining_fee',
-            description: `Joining fee from ${request.requester_name || 'new member'}`,
+            description: `Joining fee from ${request.requester_name || 'new member'} (${request.requester_email || ''})`,
             amount: request.paid_amount,
             direction: 'credit',
             related_user_ID: request.user_ID,
             recorded_by_ID: userId,
-            status: 'verified'
+            verified_by_ID: userId,
+            verified_at: new Date().toISOString(),
+            status: 'verified',
+            remarks: `Membership approved. Payment: ₹${request.paid_amount} via ${request.payment_mode || 'N/A'}, Ref: ${request.payment_reference || 'N/A'}, Paid on: ${request.paid_date || 'N/A'}`,
           });
         }
       }

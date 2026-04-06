@@ -114,6 +114,43 @@
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable"
+                  },
+                  "columns": {
+                    "DataField::course::title": {
+                      "availability": "Default",
+                      "width": "30%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::status": {
+                      "availability": "Default",
+                      "width": "15%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::completion_pct": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::assigned_date": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::due_date": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::completed_date": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::assigned_by::full_name": {
+                      "availability": "Default",
+                      "width": "15%",
+                      "widthIncludingColumnHeader": true
+                    }
                   }
                 }
               },
@@ -128,7 +165,38 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/MyCourseAssignments"
+              "contextPath": "/MyCourseAssignments",
+              "controlConfiguration": {
+                "progress/@com.sap.vocabularies.UI.v1.LineItem#TopicProgress": {
+                  "columns": {
+                    "DataField::topic::title": {
+                      "availability": "Default",
+                      "width": "30%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::remarks": {
+                      "width": "35%",
+                      "availability": "Default",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::topic::sequence": {
+                      "availability": "Default",
+                      "width": "5%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::status": {
+                      "availability": "Default",
+                      "width": "15%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::completed_date": {
+                      "availability": "Default",
+                      "width": "15%",
+                      "widthIncludingColumnHeader": true
+                    }
+                  }
+                }
+              }
             }
           }
         }

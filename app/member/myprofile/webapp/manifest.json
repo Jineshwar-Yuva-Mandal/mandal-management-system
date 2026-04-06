@@ -128,7 +128,68 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/MyProfile"
+              "contextPath": "/MyProfile",
+              "controlConfiguration": {
+                "memberships/@com.sap.vocabularies.UI.v1.LineItem#MyMemberships": {
+                  "columns": {
+                    "DataField::joined_date": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::membership_status": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::mandal::area": {
+                      "availability": "Default",
+                      "width": "35%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::mandal::name": {
+                      "availability": "Default",
+                      "width": "45%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::mandal::logo": {
+                      "availability": "Default",
+                      "width": "5%",
+                      "widthIncludingColumnHeader": true
+                    }
+                  }
+                },
+                "positionAssignments/@com.sap.vocabularies.UI.v1.LineItem#MyPositions": {
+                  "columns": {
+                    "DataField::position::name": {
+                      "width": "35%",
+                      "widthIncludingColumnHeader": true,
+                      "availability": "Default"
+                    },
+                    "DataField::mandal::name": {
+                      "availability": "Default",
+                      "width": "45%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::valid_from": {
+                      "availability": "Default",
+                      "width": "20%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::valid_to": {
+                      "availability": "Default",
+                      "width": "20%",
+                      "widthIncludingColumnHeader": true
+                    }
+                  }
+                }
+              },
+              "content": {
+                "header": {
+                  "visible": true
+                }
+              },
+              "enableLazyLoading": true
             }
           }
         }

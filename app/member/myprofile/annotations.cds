@@ -1,4 +1,6 @@
 using MemberService as service from '../../../srv/services/member-service';
+using from '@sap/cds/common';
+
 
 // ═══════════════════════════════════════════════════
 // My Profile — Editable personal details
@@ -9,7 +11,7 @@ annotate service.MyProfile with @(
         TypeName       : 'Profile',
         TypeNamePlural : 'Profiles',
         Description    : { $Type: 'UI.DataField', Value: email },
-        ImageUrl       : profile_picture,
+        ImageUrl       : profile_picture_url,
         Initials       : full_name,
     },
 
@@ -17,20 +19,32 @@ annotate service.MyProfile with @(
         {
             $Type  : 'UI.ReferenceFacet',
             Target : '@UI.FieldGroup#ContactInfo',
-            Label  : 'Contact',
         },
     ],
 
     UI.FieldGroup #ContactInfo : {
         Data : [
-            { $Type: 'UI.DataField', Value: phone,           Label: 'Phone' },
-            { $Type: 'UI.DataField', Value: whatsapp_number, Label: 'WhatsApp' },
-            { $Type: 'UI.DataField', Value: city,            Label: 'City' },
+            { $Type: 'UI.DataField', Value: phone,           Label: '{i18n>Phone}' },
+            { $Type: 'UI.DataField', Value: whatsapp_number, Label: '{i18n>Whatsapp1}' },
+            { $Type: 'UI.DataField', Value: city,            Label: '{i18n>City}' },
+        ]
+    },
+
+    UI.FieldGroup #ProfilePicUpload : {
+        Data : [
+            { $Type: 'UI.DataField', Value: profile_picture, Label: 'Upload Picture' },
         ]
     },
 
     // ─── Object Page Facets ───
     UI.Facets : [
+        {
+            $Type  : 'UI.ReferenceFacet',
+            ID     : 'ProfilePictureFacet',
+            Label  : 'Profile Picture',
+            Target : '@UI.FieldGroup#ProfilePicUpload',
+            ![@UI.Hidden] : IsActiveEntity,
+        },
         {
             $Type  : 'UI.CollectionFacet',
             ID     : 'PersonalInfo',
@@ -110,20 +124,20 @@ annotate service.MyProfile with @(
     // ─── Field Groups ───
     UI.FieldGroup #BasicIdentity : {
         Data : [
-            { $Type: 'UI.DataField', Value: first_name,      Label: 'First Name' },
-            { $Type: 'UI.DataField', Value: middle_name,     Label: 'Middle Name' },
-            { $Type: 'UI.DataField', Value: last_name,       Label: 'Last Name' },
-            { $Type: 'UI.DataField', Value: email,           Label: 'Email' },
-            { $Type: 'UI.DataField', Value: phone,           Label: 'Phone' },
-            { $Type: 'UI.DataField', Value: alternate_phone, Label: 'Alternate Phone' },
-            { $Type: 'UI.DataField', Value: whatsapp_number, Label: 'WhatsApp' },
+            { $Type: 'UI.DataField', Value: first_name,      Label: '{i18n>FirstName}' },
+            { $Type: 'UI.DataField', Value: middle_name,     Label: '{i18n>MiddleName}' },
+            { $Type: 'UI.DataField', Value: last_name,       Label: '{i18n>LastName}' },
+            { $Type: 'UI.DataField', Value: email,           Label: '{i18n>Email}' },
+            { $Type: 'UI.DataField', Value: phone,           Label: '{i18n>Phone}' },
+            { $Type: 'UI.DataField', Value: alternate_phone, Label: '{i18n>AlternatePhone}' },
+            { $Type: 'UI.DataField', Value: whatsapp_number, Label: '{i18n>Whatsapp1}' },
         ],
     },
 
     UI.FieldGroup #Personal : {
         Data : [
-            { $Type: 'UI.DataField', Value: dob,            Label: 'Date of Birth' },
-            { $Type: 'UI.DataField', Value: gender,          Label: 'Gender' },
+            { $Type: 'UI.DataField', Value: dob,            Label: '{i18n>DateOfBirth}' },
+            { $Type: 'UI.DataField', Value: gender,          Label: '{i18n>Gender}' },
             { $Type: 'UI.DataField', Value: marital_status,  Label: 'Marital Status' },
             { $Type: 'UI.DataField', Value: blood_group,     Label: 'Blood Group' },
             { $Type: 'UI.DataField', Value: nationality,     Label: 'Nationality' },
@@ -198,6 +212,7 @@ annotate service.MyProfile with @(
 annotate service.MyProfile with {
     profile_picture_type @UI.Hidden;
     profile_picture_name @UI.Hidden;
+    profile_picture_url  @UI.Hidden;
     role                 @UI.Hidden;
     ID                   @UI.Hidden;
 };
@@ -208,25 +223,25 @@ annotate service.MyMandals with @(
         {
             $Type : 'UI.DataField',
             Value : mandal.name,
-            Label : 'Mandal',
+            Label : '{i18n>Mandal}',
             @UI.Importance : #High,
         },
         {
             $Type : 'UI.DataField',
             Value : mandal.area,
-            Label : 'Area',
-            @UI.Importance : #High,
+            Label : '{i18n>Area}',
+            @UI.Importance : #Medium,
         },
         {
             $Type : 'UI.DataField',
             Value : membership_status,
-            Label : 'Status',
+            Label : '{i18n>Status}',
             @UI.Importance : #High,
         },
         {
             $Type : 'UI.DataField',
             Value : joined_date,
-            Label : 'Joined',
+            Label : '{i18n>Joined}',
             @UI.Importance : #High,
         },
     ]
@@ -238,7 +253,7 @@ annotate service.MyPositions with @(
         {
             $Type : 'UI.DataField',
             Value : position.name,
-            Label : 'Position',
+            Label : '{i18n>Position}',
             @UI.Importance : #High,
         },
         {
@@ -261,3 +276,164 @@ annotate service.MyPositions with @(
         },
     ]
 );
+annotate service.MyProfile with {
+    gender @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'GenderValues',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : gender,
+                    ValueListProperty : 'code',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'value',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    );
+    marital_status @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'MaritalStatusValues',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : marital_status,
+                    ValueListProperty : 'code',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'value',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    );
+    blood_group @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'BloodGroupValues',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : blood_group,
+                    ValueListProperty : 'code',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'value',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    );
+    education @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'EducationValues',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : education,
+                    ValueListProperty : 'code',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'value',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    );
+    annual_income @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'AnnualIncomeValues',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : annual_income,
+                    ValueListProperty : 'code',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'value',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    );
+    dietary_preference @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'DietaryPrefValues',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : dietary_preference,
+                    ValueListProperty : 'code',
+                },
+                {
+                    $Type : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'value',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+    );
+};
+
+annotate service.GenderValues with {
+    code @(
+        Common.Text : value,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+
+annotate service.MaritalStatusValues with {
+    code @(
+        Common.Text : value,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+
+annotate service.BloodGroupValues with {
+    code @(
+        Common.Text : value,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+
+annotate service.MyProfile with {
+    country @(
+        Common.Text : country.name,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+        Common.ValueListWithFixedValues : true,
+        Common.ExternalID : country.descr,
+)};
+
+annotate service.EducationValues with {
+    code @(
+        Common.Text : value,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+
+annotate service.AnnualIncomeValues with {
+    code @(
+        Common.Text : value,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+
+annotate service.DietaryPrefValues with {
+    code @(
+        Common.Text : value,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+
+annotate service.Countries with {
+    name @(
+        Common.Text : descr,
+        Common.Text.@UI.TextArrangement : #TextOnly,
+)};
+

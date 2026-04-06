@@ -4,12 +4,23 @@ using MemberService as service from '../../../srv/services/member-service';
 // My Fines — Read-only list + detail
 // ═══════════════════════════════════════════════════
 annotate service.MyFines with @(
+    Capabilities.DeleteRestrictions : { Deletable: false },
+    Capabilities.UpdateRestrictions : { Updatable: false },
     UI.HeaderInfo : {
         TypeName       : 'Fine',
         TypeNamePlural : 'Fines',
         Title          : { $Type: 'UI.DataField', Value: event.title },
         Description    : { $Type: 'UI.DataField', Value: status },
     },
+
+    UI.Identification : [
+        {
+            $Type  : 'UI.DataFieldForAction',
+            Action : 'MemberService.payFine',
+            Label  : 'Pay Fine',
+            Inline : false,
+        },
+    ],
 
     UI.LineItem : [
         {
@@ -59,6 +70,11 @@ annotate service.MyFines with @(
             Target : '@UI.DataPoint#FineStatus',
             Label  : 'Status',
         },
+        {
+            $Type  : 'UI.ReferenceFacet',
+            Target : '@UI.FieldGroup#PaymentQR',
+            Label  : 'Scan to Pay',
+        },
     ],
 
     UI.DataPoint #FineAmount : {
@@ -92,6 +108,16 @@ annotate service.MyFines with @(
         },
     ],
 
+    UI.FieldGroup #PaymentQR : {
+        Data : [
+            {
+                $Type : 'UI.DataField',
+                Value : payment_qr_url,
+                Label : 'Scan to Pay',
+            },
+        ],
+    },
+
     UI.FieldGroup #FineDetails : {
         Data : [
             { $Type: 'UI.DataField', Value: event.title,     Label: 'Event' },
@@ -118,3 +144,17 @@ annotate service.MyFines with @(
         ],
     },
 );
+
+// ─── Hide internal fields / image annotation ───
+annotate service.MyFines with {
+    payment_qr_url @UI.Hidden @UI.IsImageURL;
+};
+
+// ─── Side effects: refresh fine details after payment ───
+annotate service.MyFines with actions {
+    payFine @(
+        Common.SideEffects : {
+            TargetProperties : ['status', 'paid_amount', 'paid_date', 'payment_mode', 'payment_reference'],
+        }
+    );
+};

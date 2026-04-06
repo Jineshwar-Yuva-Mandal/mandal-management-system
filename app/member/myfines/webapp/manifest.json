@@ -114,6 +114,14 @@
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable"
+                  },
+                  "actions": {
+                    "payAllFines": {
+                      "press": "com.samanvay.member.myfines.ext.PayAllFines.onPayAllFines",
+                      "text": "Pay All Fines",
+                      "requiresSelection": false,
+                      "enabled": true
+                    }
                   }
                 }
               },
@@ -128,7 +136,19 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/MyFines"
+              "contextPath": "/MyFines",
+              "content": {
+                "header": {
+                  "actions": {
+                    "DataFieldForAction::MemberService.payFine": {
+                      "priority": "High",
+                      "afterExecution": {
+                        "navigateToInstance": false
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }

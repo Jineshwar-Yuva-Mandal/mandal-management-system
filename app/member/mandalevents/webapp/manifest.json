@@ -114,6 +114,46 @@
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable"
+                  },
+                  "columns": {
+                    "DataField::title": {
+                      "availability": "Default",
+                      "width": "40%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::event_date": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::start_time": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::end_time": {
+                      "availability": "Default",
+                      "width": "10%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::location": {
+                      "availability": "Default",
+                      "width": "20%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::has_fine": {
+                      "availability": "Default",
+                      "width": "10%"
+                    },
+                    "DataField::attendance::rsvp_status": {
+                      "availability": "Default",
+                      "width": "5%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::attendance::status": {
+                      "width": "5%",
+                      "widthIncludingColumnHeader": true
+                    }
                   }
                 }
               },
@@ -128,7 +168,51 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/MandalEvents"
+              "contextPath": "/MandalEvents",
+              "controlConfiguration": {
+                "attendance/@com.sap.vocabularies.UI.v1.LineItem#EventAttendance": {
+                  "columns": {
+                    "DataField::user::full_name": {
+                      "availability": "Default",
+                      "width": "30%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::rsvp_status": {
+                      "availability": "Default",
+                      "width": "15%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::status": {
+                      "availability": "Default",
+                      "width": "20%",
+                      "widthIncludingColumnHeader": true
+                    },
+                    "DataField::remarks": {
+                      "availability": "Default",
+                      "width": "40%",
+                      "widthIncludingColumnHeader": true
+                    }
+                  }
+                }
+              },
+              "content": {
+                "header": {
+                  "actions": {
+                    "DataFieldForAction::MemberService.rsvpYes": {
+                      "priority": "High",
+                      "afterExecution": {
+                        "navigateToInstance": false
+                      }
+                    },
+                    "DataFieldForAction::MemberService.rsvpNo": {
+                      "priority": "High",
+                      "afterExecution": {
+                        "navigateToInstance": false
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }

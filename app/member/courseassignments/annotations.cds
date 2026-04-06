@@ -15,32 +15,43 @@ annotate service.MyCourseAssignments with @(
         {
             $Type : 'UI.DataField',
             Value : course.title,
-            Label : 'Course',
+            Label : '{i18n>Course}',
             @UI.Importance : #High,
         },
         {
             $Type : 'UI.DataField',
             Value : status,
-            Label : 'Status',
+            Label : '{i18n>Status}',
             @UI.Importance : #High,
         },
         {
             $Type : 'UI.DataField',
             Value : completion_pct,
-            Label : 'Progress %',
+            Label : '{i18n>Progress}',
             @UI.Importance : #High,
         },
         {
             $Type : 'UI.DataField',
             Value : assigned_date,
-            Label : 'Assigned',
+            Label : '{i18n>Assigned}',
             @UI.Importance : #Medium,
         },
         {
             $Type : 'UI.DataField',
             Value : due_date,
-            Label : 'Due Date',
+            Label : '{i18n>DueDate}',
             @UI.Importance : #Medium,
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : completed_date,
+            Label : '{i18n>Completed}',
+            @UI.Importance : #Medium,
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : assigned_by.full_name,
+            Label : '{i18n>AssignedBy}',
         },
     ],
 
@@ -49,11 +60,7 @@ annotate service.MyCourseAssignments with @(
     ],
 
     UI.HeaderFacets : [
-        {
-            $Type  : 'UI.ReferenceFacet',
-            Target : '@UI.DataPoint#Progress',
-            Label  : 'Progress',
-        },
+        
     ],
 
     UI.DataPoint #Progress : {
@@ -89,6 +96,13 @@ annotate service.MyCourseAssignments with @(
             { $Type: 'UI.DataField', Value: completed_date,      Label: 'Completed Date' },
             { $Type: 'UI.DataField', Value: assigned_by.full_name, Label: 'Assigned By' },
         ],
+    },
+    UI.DataPoint #progress : {
+        $Type : 'UI.DataPointType',
+        Value : completion_pct,
+        Title : ' ',
+        TargetValue : 100,
+        Visualization : #Progress,
     },
 );
 

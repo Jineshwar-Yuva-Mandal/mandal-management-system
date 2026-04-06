@@ -38,6 +38,7 @@ type LedgerStatus : String enum { draft; verified; disputed; };
 
 // ─── Events ───
 type AttendanceStatus : String enum { present; absent; excused; };
+type RsvpStatus : String enum { attending; not_attending; maybe; };
 
 // ─── Courses ───
 type CourseStatus : String enum { active; archived; draft; };

@@ -157,9 +157,15 @@ annotate service.Attendance with @(
         },
         {
             $Type : 'UI.DataField',
+            Value : rsvp_status,
+            Label : 'RSVP',
+            @UI.Importance : #High,
+        },
+        {
+            $Type : 'UI.DataField',
             Value : status,
             Criticality : statusCriticality,
-            Label : 'Status',
+            Label : 'Attendance',
             @UI.Importance : #High,
         },
         {

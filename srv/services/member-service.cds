@@ -20,7 +20,10 @@ service MemberService @(path: '/api/member') {
   @cds.redirection.target
   @odata.draft.enabled
   @restrict: [{ grant: '*', where: 'ID = $user.userId' }]
-  entity MyProfile as projection on Users;
+  entity MyProfile as projection on Users {
+    *,
+    virtual profile_picture_url : String,
+  };
 
   // ─── My Mandals (memberships) ───
   @readonly
@@ -48,17 +51,30 @@ service MemberService @(path: '/api/member') {
   entity MyPositions as projection on UserPositionAssignments;
 
   // ─── Events ───
-  @readonly
-  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
-  entity MandalEvents as projection on Events;
+  @restrict: [
+    { grant: 'READ', where: 'mandal_ID = $user.mandalId' },
+    { grant: 'rsvpYes', where: 'mandal_ID = $user.mandalId' },
+    { grant: 'rsvpNo', where: 'mandal_ID = $user.mandalId' },
+  ]
+  entity MandalEvents as projection on Events actions {
+    action rsvpYes() returns String;
+    action rsvpNo() returns String;
+  };
   @readonly
   @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
   entity MyAttendance as projection on EventAttendance;
 
   // ─── Fines ───
-  @readonly
-  @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
-  entity MyFines as projection on Fines;
+  @restrict: [
+    { grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' },
+    { grant: 'payFine', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' },
+  ]
+  entity MyFines as projection on Fines {
+    *,
+    virtual payment_qr_url : String,
+  } actions {
+    action payFine(payment_reference : String) returns String;
+  };
 
   // ─── Courses ───
   @readonly
@@ -80,7 +96,20 @@ service MemberService @(path: '/api/member') {
   @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' }]
   entity MyAppGrants as projection on AppAccessGrants;
 
-  // ─── Actions ───
-  // Pay a fine — member submits payment details
-  action payFine(fineId : UUID, amount : Decimal, payment_mode : String, payment_reference : String) returns String;
+  // ─── Enum value lists for dropdowns ───
+  @readonly entity GenderValues           { key code : String; value : String; };
+  @readonly entity MaritalStatusValues    { key code : String; value : String; };
+  @readonly entity BloodGroupValues       { key code : String; value : String; };
+  @readonly entity EducationValues        { key code : String; value : String; };
+  @readonly entity AnnualIncomeValues     { key code : String; value : String; };
+  @readonly entity DietaryPrefValues      { key code : String; value : String; };
+
+  // ─── Actions & Functions ───
+  action payAllFines(payment_reference : String) returns String;
+  function getPendingFinesSummary() returns {
+    totalAmount : Decimal(10,2);
+    fineCount   : Integer;
+    qrCode      : String;
+    upiId       : String;
+  };
 }
