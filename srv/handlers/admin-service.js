@@ -48,6 +48,7 @@ module.exports = class AdminService extends cds.ApplicationService {
       MandalMemberships, Mandals, Users,
       Fines, LedgerEntries,
       Events, EventAttendance,
+      Courses, SyllabusTopics, CourseAssignments,
       MembershipRequests, MembershipApprovals,
       AppAccessGrants,
       Positions, UserPositionAssignments
@@ -958,6 +959,118 @@ module.exports = class AdminService extends cds.ApplicationService {
     });
 
     // ── Courses: auto-set mandal_ID on new draft ──
+    const getCourseById = async (courseId) => {
+      if (!courseId) return null;
+      return SELECT.one.from(Courses)
+        .where({ ID: courseId })
+        .columns('ID', 'mandal_ID', 'status');
+    };
+
+    const getCourseIdFromTopicRequest = async (req) => {
+      const fromData = req.data?.course_ID;
+      if (fromData) return fromData;
+
+      const topicId = req.data?.ID || req.params?.[0]?.ID || req.params?.[0];
+      if (!topicId) return null;
+
+      const topic = await SELECT.one.from(SyllabusTopics)
+        .where({ ID: topicId })
+        .columns('course_ID');
+      return topic?.course_ID || null;
+    };
+
+    const getCourseIdFromAssignmentRequest = async (req) => {
+      const fromData = req.data?.course_ID;
+      if (fromData) return fromData;
+
+      const assignmentId = req.data?.ID || req.params?.[0]?.ID || req.params?.[0];
+      if (!assignmentId) return null;
+
+      const assignment = await SELECT.one.from(CourseAssignments)
+        .where({ ID: assignmentId })
+        .columns('course_ID');
+      return assignment?.course_ID || null;
+    };
+
+    const assertCourseInMandal = (course, mandalId, req) => {
+      if (!course || course.mandal_ID !== mandalId) {
+        req.reject(403, 'Course not found in your mandal');
+        return false;
+      }
+      return true;
+    };
+
+    const assertArchivedCourseReadOnly = (course, req) => {
+      if (course?.status === 'archived') {
+        req.reject(409, 'Archived courses are read-only');
+        return false;
+      }
+      return true;
+    };
+
+    const assertValidCourseStatusTransition = (fromStatus, toStatus, req) => {
+      if (!toStatus || fromStatus === toStatus) return true;
+
+      const allowedTransitions = {
+        draft: ['active'],
+        active: ['archived'],
+        archived: [],
+      };
+
+      const allowed = allowedTransitions[fromStatus] || [];
+      if (!allowed.includes(toStatus)) {
+        req.reject(409, `Invalid course status transition: ${fromStatus} -> ${toStatus}`);
+        return false;
+      }
+      return true;
+    };
+
+    this.before(['UPDATE', 'PATCH', 'SAVE', 'DELETE'], 'MandalCourses', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+
+      const courseId = req.data?.ID || req.params?.[0]?.ID || req.params?.[0];
+      if (!courseId) return;
+
+      const existing = await getCourseById(courseId);
+      if (!assertCourseInMandal(existing, mandalId, req)) return;
+      if (!assertArchivedCourseReadOnly(existing, req)) return;
+
+      if (req.event !== 'DELETE') {
+        assertValidCourseStatusTransition(existing.status, req.data?.status, req);
+      }
+    });
+
+    this.before(['CREATE', 'SAVE', 'UPDATE', 'PATCH', 'DELETE'], 'Topics', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+
+      const courseId = await getCourseIdFromTopicRequest(req);
+      if (!courseId) return;
+
+      const course = await getCourseById(courseId);
+      if (!assertCourseInMandal(course, mandalId, req)) return;
+      assertArchivedCourseReadOnly(course, req);
+    });
+
+    this.before(['CREATE', 'SAVE', 'UPDATE', 'PATCH', 'DELETE'], 'Assignments', async (req) => {
+      const mandalId = req.user.attr?.mandalId;
+      if (!mandalId) return req.reject(403, 'No active mandal context');
+
+      const courseId = await getCourseIdFromAssignmentRequest(req);
+      if (!courseId) return;
+
+      const course = await getCourseById(courseId);
+      if (!assertCourseInMandal(course, mandalId, req)) return;
+      if (!assertArchivedCourseReadOnly(course, req)) return;
+
+      if (req.event === 'CREATE' || req.event === 'SAVE') {
+        if (course.status !== 'active') {
+          return req.reject(409, 'Assignments can only be created for active courses');
+        }
+      }
+    });
+
     this.before('NEW', 'MandalCourses', (req) => {
       if (!req.data.mandal_ID) req.data.mandal_ID = req.user.attr.mandalId;
       if (!req.data.status)    req.data.status = 'draft';

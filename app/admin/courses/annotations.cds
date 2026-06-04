@@ -97,7 +97,8 @@ annotate service.MandalCourses with @(
         Data : [
             { $Type: 'UI.DataField', Value: title,          Label: 'Title' },
             { $Type: 'UI.DataField', Value: description,    Label: 'Description' },
-            { $Type: 'UI.DataField', Value: status,         Label: 'Status' },
+            { $Type: 'UI.DataField', Value: status,         Label: 'Status',
+                Criticality : statusCriticality, },
             { $Type: 'UI.DataField', Value: duration_days,  Label: 'Duration (days)' },
         ]
     },
@@ -262,7 +263,8 @@ annotate service.Assignments with @(
             { $Type: 'UI.DataField', Value: assigned_by.full_name,  Label: 'Assigned By' },
             { $Type: 'UI.DataField', Value: assigned_date,          Label: 'Assigned Date' },
             { $Type: 'UI.DataField', Value: due_date,               Label: 'Due Date' },
-            { $Type: 'UI.DataField', Value: status,                 Label: 'Status' },
+            { $Type: 'UI.DataField', Value: status,                 Label: 'Status',
+                Criticality : statusCriticality, },
             { $Type: 'UI.DataField', Value: completion_pct,         Label: 'Completion (%)' },
             { $Type: 'UI.DataField', Value: completed_date,         Label: 'Completed Date' },
         ]
@@ -351,3 +353,51 @@ annotate service.TopicProgress with @(
 annotate service.TopicProgress with {
     statusCriticality @UI.Hidden;
 };
+annotate service.Members with {
+    full_name @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'Members',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : full_name,
+                    ValueListProperty : 'full_name',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+)};
+
+annotate service.Assignments with {
+    status @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'Assignments',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : status,
+                    ValueListProperty : 'status',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+)};
+
+annotate service.MandalCourses with {
+    status @(
+        Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'MandalCourses',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : status,
+                    ValueListProperty : 'status',
+                },
+            ],
+        },
+        Common.ValueListWithFixedValues : true,
+)};
+

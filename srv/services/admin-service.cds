@@ -94,7 +94,8 @@ service AdminService @(path: '/api/admin') {
   @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MandalCourses as projection on Courses;
-  @readonly entity Topics as projection on SyllabusTopics;
+  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'course.mandal_ID = $user.mandalId' }]
+  entity Topics as projection on SyllabusTopics;
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity Assignments as projection on CourseAssignments;
   @readonly entity TopicProgress as projection on CourseTopicProgress;
