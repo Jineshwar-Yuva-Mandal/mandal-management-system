@@ -11,7 +11,6 @@ using { com.samanvay.Courses, com.samanvay.SyllabusTopics,
         com.samanvay.CourseAssignments, com.samanvay.CourseTopicProgress } from '../../db/course';
 using { com.samanvay.ApprovalWorkflows, com.samanvay.ApprovalWorkflowSteps,
         com.samanvay.MembershipRequests, com.samanvay.MembershipApprovals } from '../../db/membership';
-using { com.samanvay.MandalMemberFieldConfigs } from '../../db/member_field_config';
 
 // ═══════════════════════════════════════════════════
 // AdminService — For Mandal Admins / Position Holders
@@ -24,7 +23,19 @@ service AdminService @(path: '/api/admin') {
 
   @odata.draft.enabled
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'ID = $user.mandalId' }]
-  entity Mandal as projection on Mandals;
+  entity Mandal as projection on Mandals {
+    *,
+    virtual canChangeAdhyaksh : Boolean,
+    virtual canChangeMantri : Boolean,
+    virtual currentAdhyakshName : String,
+    virtual currentAdhyakshEmail : String,
+    virtual currentMantriName : String,
+    virtual currentMantriEmail : String
+  }
+    actions {
+      action changeAdhyaksh(newAdhyakshUserId : UUID);
+      action changeMantri(newMantriUserId : UUID);
+    };
 
   // ─── My Mandals (memberships navigation target for Members detail page) ───
   @readonly
@@ -67,8 +78,8 @@ service AdminService @(path: '/api/admin') {
   @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
   entity MemberFines as projection on Fines
     actions {
-      action approveFine(remarks : String);
-      action rejectFine(remarks : String);
+      action markFinePaid(payment_mode : String, payment_reference : String, remarks : String);
+      action waiveFine(remarks : String);
     };
 
   // ─── Ledger ───
@@ -105,13 +116,6 @@ service AdminService @(path: '/api/admin') {
   @readonly entity JoinRequestStatusValues {
     key code : String;
     value : String;
-  };
-
-  // ─── Member Field Configuration ───
-  @restrict: [{ grant: '*', to: 'mandal_admin', where: 'mandal_ID = $user.mandalId' }]
-  entity MemberFieldConfig as projection on MandalMemberFieldConfigs {
-    *,
-    virtual requirementCriticality : Integer
   };
 
   // ─── App Access Grants ───

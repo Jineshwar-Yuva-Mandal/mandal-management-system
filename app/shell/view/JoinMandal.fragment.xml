@@ -44,8 +44,6 @@
                         <VBox class="sapUiSmallMarginEnd">
                             <Title text="{name}" level="H5"/>
                             <Label text="{area}, {city}, {state}" design="Standard"/>
-                            <Label text="{= ${has_joining_fee} ? 'Joining Fee: ₹' + ${joining_fee} : 'No Joining Fee'}"
-                                   design="Standard" class="sapUiTinyMarginTop"/>
                         </VBox>
                         <Button text="Request to Join" type="Emphasized"
                                 press=".onJoinMandalRequest"

@@ -76,7 +76,9 @@
                 "type": "sap.ui.model.resource.ResourceModel",
                 "settings": {
                     "bundleName": "com.samanvay.admin.mandal.i18n.i18n",
-                    "supportedLocales": [""],
+                    "supportedLocales": [
+                        ""
+                    ],
                     "fallbackLocale": ""
                 }
             },
@@ -93,7 +95,9 @@
                 "type": "sap.ui.model.resource.ResourceModel",
                 "uri": "i18n/i18n.properties",
                 "settings": {
-                    "supportedLocales": [""],
+                    "supportedLocales": [
+                        ""
+                    ],
                     "fallbackLocale": ""
                 }
             }
@@ -113,11 +117,6 @@
                     "pattern": "Mandal({key}):?query:",
                     "name": "MandalObjectPage",
                     "target": "MandalObjectPage"
-                },
-                {
-                    "pattern": "Mandal({key})/fieldConfigs({key2}):?query:",
-                    "name": "FieldConfigObjectPage",
-                    "target": "FieldConfigObjectPage"
                 }
             ],
             "targets": {
@@ -154,34 +153,11 @@
                         "settings": {
                             "editableHeaderContent": false,
                             "contextPath": "/Mandal",
-                            "navigation": {
-                                "fieldConfigs": {
-                                    "detail": {
-                                        "route": "FieldConfigObjectPage"
-                                    }
-                                }
-                            },
-                            "controlConfiguration": {
-                                "fieldConfigs/@com.sap.vocabularies.UI.v1.LineItem#FieldConfig": {
-                                    "tableSettings": {
-                                        "type": "ResponsiveTable",
-                                        "creationMode": {
-                                            "name": "Inline"
-                                        }
-                                    }
+                            "content": {
+                                "header": {
+                                    "visible": true
                                 }
                             }
-                        }
-                    }
-                },
-                "FieldConfigObjectPage": {
-                    "type": "Component",
-                    "id": "FieldConfigObjectPage",
-                    "name": "sap.fe.templates.ObjectPage",
-                    "options": {
-                        "settings": {
-                            "editableHeaderContent": false,
-                            "contextPath": "/Mandal/fieldConfigs"
                         }
                     }
                 }

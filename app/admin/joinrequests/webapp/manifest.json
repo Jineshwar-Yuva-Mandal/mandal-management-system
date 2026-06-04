@@ -165,32 +165,7 @@
                                             "width": "10%",
                                             "widthIncludingColumnHeader": true
                                         },
-                                        "DataField::paid_amount": {
-                                            "availability": "Default",
-                                            "width": "8%",
-                                            "widthIncludingColumnHeader": true
-                                        },
-                                        "DataField::paid_date": {
-                                            "availability": "Default",
-                                            "width": "9%",
-                                            "widthIncludingColumnHeader": true
-                                        },
-                                        "DataField::payment_verified_by::full_name": {
-                                            "availability": "Default",
-                                            "width": "13%",
-                                            "widthIncludingColumnHeader": true
-                                        },
-                                        "DataField::payment_verified": {
-                                            "availability": "Default",
-                                            "width": "8%",
-                                            "widthIncludingColumnHeader": true
-                                        },
                                         "DataField::user::profile_picture": {
-                                            "availability": "Default",
-                                            "width": "6%",
-                                            "widthIncludingColumnHeader": true
-                                        },
-                                        "DataField::payment_verified_by::profile_picture": {
                                             "availability": "Default",
                                             "width": "6%",
                                             "widthIncludingColumnHeader": true

@@ -99,12 +99,6 @@ annotate service.MemberFines with @(
             Target : '@UI.FieldGroup#PaymentDetails',
             Label  : 'Payment Details',
         },
-        {
-            $Type  : 'UI.ReferenceFacet',
-            ID     : 'VerificationFacet',
-            Target : '@UI.FieldGroup#VerificationDetails',
-            Label  : 'Verification',
-        },
     ],
 
     UI.FieldGroup #FineDetails : {
@@ -124,15 +118,9 @@ annotate service.MemberFines with @(
             { $Type: 'UI.DataField', Value: paid_date,         Label: 'Payment Date' },
             { $Type: 'UI.DataField', Value: payment_mode,      Label: 'Payment Mode' },
             { $Type: 'UI.DataField', Value: payment_reference, Label: 'Transaction Reference' },
-        ]
-    },
-
-    UI.FieldGroup #VerificationDetails : {
-        Data : [
-            { $Type: 'UI.DataField', Value: verified_by.full_name, Label: 'Verified By' },
-            { $Type: 'UI.DataField', Value: verified_at,           Label: 'Verified At' },
-            { $Type: 'UI.DataField', Value: verification_remarks,  Label: 'Remarks' },
-            { $Type: 'UI.DataField', Value: ledger_entry_ID,       Label: 'Ledger Entry' },
+            { $Type: 'UI.DataField', Value: recorded_by.full_name, Label: 'Recorded By' },
+            { $Type: 'UI.DataField', Value: recorded_at,       Label: 'Recorded At' },
+            { $Type: 'UI.DataField', Value: remarks,           Label: 'Remarks' },
         ]
     },
 
@@ -140,14 +128,14 @@ annotate service.MemberFines with @(
     UI.Identification : [
         {
             $Type : 'UI.DataFieldForAction',
-            Action : 'AdminService.approveFine',
-            Label : 'Verify Payment',
+            Action : 'AdminService.markFinePaid',
+            Label : 'Mark as Paid',
             Criticality : #Positive,
         },
         {
             $Type : 'UI.DataFieldForAction',
-            Action : 'AdminService.rejectFine',
-            Label : 'Reject Payment',
+            Action : 'AdminService.waiveFine',
+            Label : 'Waive Fine',
             Criticality : #Negative,
         },
     ],
@@ -155,10 +143,12 @@ annotate service.MemberFines with @(
 
 // ─── Action parameter labels ───
 annotate service.MemberFines actions {
-    approveFine(
+    markFinePaid(
+        payment_mode @Common.Label: 'Payment Mode',
+        payment_reference @Common.Label: 'Transaction Reference',
         remarks @UI.MultiLineText @Common.Label: 'Remarks'
     );
-    rejectFine(
+    waiveFine(
         remarks @UI.MultiLineText @Common.Label: 'Remarks'
     );
 };

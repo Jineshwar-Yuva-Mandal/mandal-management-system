@@ -11,8 +11,38 @@ module.exports = class MemberService extends cds.ApplicationService {
       Events,
       Fines,
       Mandals,
-      Courses, CourseAssignments
+      Courses, CourseAssignments,
+      AppAccessGrants,
+      Positions,
+      UserPositionAssignments
     } = cds.entities('com.samanvay');
+
+    const ADMIN_APP_KEYS = [
+      'members',
+      'joinrequests',
+      'positions',
+      'eventsandattendance',
+      'courses',
+      'fines',
+      'ledger',
+      'mandal',
+      'appaccess',
+    ];
+
+    const getActivePositionNames = async (userId, mandalId) => {
+      if (!userId || !mandalId) return [];
+      const today = new Date().toISOString().slice(0, 10);
+      const assignments = await SELECT.from(UserPositionAssignments)
+        .where({ user_ID: userId, mandal_ID: mandalId })
+        .and(`(valid_to is null or valid_to >= '${today}')`)
+        .columns('position_ID');
+      if (!assignments.length) return [];
+      const posIds = [...new Set(assignments.map(a => a.position_ID))];
+      const positions = await SELECT.from(Positions)
+        .where({ ID: { in: posIds } })
+        .columns('name');
+      return positions.map(p => p.name);
+    };
 
     // ── Scope: MyProfile — resolve profile_picture to base64 data URI ──
     this.after('READ', 'MyProfile', async (data) => {
@@ -80,115 +110,25 @@ module.exports = class MemberService extends cds.ApplicationService {
       req.query.where({ assignment_ID: { in: assignIds } });
     });
 
-    // ── Helper: resolve payment QR for MyFines ──
-    async function getPaymentQrBase64(mandalId) {
-      const mandal = await SELECT.one(['payment_qr', 'payment_qr_type']).from(Mandals).where({ ID: mandalId });
-      if (!mandal?.payment_qr) return null;
-      const mimeType = mandal.payment_qr_type || 'image/png';
-      let buf;
-      if (Buffer.isBuffer(mandal.payment_qr)) {
-        buf = mandal.payment_qr;
-      } else if (mandal.payment_qr instanceof Readable || typeof mandal.payment_qr?.read === 'function') {
-        const chunks = [];
-        for await (const chunk of mandal.payment_qr) chunks.push(chunk);
-        buf = Buffer.concat(chunks);
-      } else {
-        buf = Buffer.from(mandal.payment_qr);
-      }
-      return `data:${mimeType};base64,${buf.toString('base64')}`;
-    }
+    this.on('READ', 'MyAppGrants', async (req) => {
+      const { userId, mandalId } = req.user.attr || {};
+      if (!userId || !mandalId) return [];
 
-    // ── Resolve payment QR URL on MyFines ──
-    this.after('READ', 'MyFines', async (data, req) => {
-      const mandalId = req.user.attr?.mandalId;
-      if (!mandalId) return;
-      let qrUrl = null;
-      for (const row of Array.isArray(data) ? data : [data]) {
-        if (!row) continue;
-        if (!qrUrl) qrUrl = await getPaymentQrBase64(mandalId);
-        row.payment_qr_url = qrUrl;
-      }
-    });
+      const explicitGrants = await SELECT.from(AppAccessGrants)
+        .where({ user_ID: userId, mandal_ID: mandalId });
+      if (explicitGrants.length) return explicitGrants;
 
-    // ── payFine — bound action on MyFines (single fine) ──
-    this.on('payFine', 'MyFines', async (req) => {
-      const { payment_reference } = req.data;
-      if (!payment_reference) return req.reject(400, 'Payment reference is required');
-
-      const fineId = req.params[0]?.ID || req.params[0];
-      const { userId, mandalId } = req.user.attr;
-      if (!userId || !mandalId) return req.reject(403, 'No active membership');
-
-      const fine = await SELECT.one.from(Fines)
-        .where({ ID: fineId, user_ID: userId, mandal_ID: mandalId });
-      if (!fine) return req.reject(404, 'Fine not found');
-      if (fine.status !== 'pending') {
-        return req.reject(409, `Fine is '${fine.status}', payment only allowed when 'pending'`);
+      const positionNames = await getActivePositionNames(userId, mandalId);
+      if (!positionNames.includes('Adhyaksh') && !positionNames.includes('Mantri')) {
+        return [];
       }
 
-      const today = new Date().toISOString().slice(0, 10);
-      await UPDATE(Fines, fineId).set({
-        status: 'paid',
-        paid_amount: fine.amount,
-        paid_date: today,
-        payment_mode: 'upi',
-        payment_reference: payment_reference,
-      });
-
-      return `Fine of ₹${fine.amount} paid. Awaiting verification.`;
-    });
-
-    // ── payAllFines — unbound action (all pending fines) ──
-    this.on('payAllFines', async (req) => {
-      const { payment_reference } = req.data;
-      if (!payment_reference) return req.reject(400, 'Payment reference is required');
-
-      const { userId, mandalId } = req.user.attr;
-      if (!userId || !mandalId) return req.reject(403, 'No active membership');
-
-      const pendingFines = await SELECT.from(Fines)
-        .where({ user_ID: userId, mandal_ID: mandalId, status: 'pending' });
-      if (pendingFines.length === 0) return req.reject(404, 'No pending fines found');
-
-      const today = new Date().toISOString().slice(0, 10);
-      let totalAmount = 0;
-
-      for (const fine of pendingFines) {
-        await UPDATE(Fines, fine.ID).set({
-          status: 'paid',
-          paid_amount: fine.amount,
-          paid_date: today,
-          payment_mode: 'upi',
-          payment_reference: payment_reference,
-        });
-        totalAmount += Number.parseFloat(fine.amount);
-      }
-
-      return `${pendingFines.length} fines totalling ₹${totalAmount.toFixed(2)} paid. Awaiting verification.`;
-    });
-
-    // ── getPendingFinesSummary — returns total, count, QR code, UPI ID ──
-    this.on('getPendingFinesSummary', async (req) => {
-      const { userId, mandalId } = req.user.attr;
-      if (!userId || !mandalId) return req.reject(403, 'No active membership');
-
-      const pendingFines = await SELECT.from(Fines)
-        .where({ user_ID: userId, mandal_ID: mandalId, status: 'pending' });
-
-      let totalAmount = 0;
-      for (const fine of pendingFines) {
-        totalAmount += Number.parseFloat(fine.amount);
-      }
-
-      const qrCode = await getPaymentQrBase64(mandalId);
-      const mandal = await SELECT.one(['payment_upi_id']).from(Mandals).where({ ID: mandalId });
-
-      return {
-        totalAmount: totalAmount,
-        fineCount: pendingFines.length,
-        qrCode: qrCode || '',
-        upiId: mandal?.payment_upi_id || '',
-      };
+      return ADMIN_APP_KEYS.map(appKey => ({
+        ID: `default-${userId}-${appKey}`,
+        user_ID: userId,
+        mandal_ID: mandalId,
+        app_key: appKey,
+      }));
     });
 
     // ── RSVP helper ──

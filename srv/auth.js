@@ -44,12 +44,12 @@ module.exports = function supabase_auth() {
     }
 
     // ── Resolve mandal context from DB (once per request) ──
-    let userId = null, mandalId = null, isAdmin = false;
+    let userId = null, mandalId = null, isAdmin = false, isAdhyaksh = false, isMantri = false;
     const roles = ['authenticated-user'];
     const email = user.email;
 
     try {
-      const { Users, MandalMemberships } = cds.entities('com.samanvay');
+      const { Users, MandalMemberships, Positions, UserPositionAssignments } = cds.entities('com.samanvay');
       const { SELECT } = cds.ql;
 
       const dbUser = await SELECT.one.from(Users).where({ email }).columns('ID', 'role');
@@ -69,10 +69,26 @@ module.exports = function supabase_auth() {
         if (membership) {
           mandalId = membership.mandal_ID;
           isAdmin = membership.is_admin;
+
+          const today = new Date().toISOString().slice(0, 10);
+          const assignments = await SELECT.from(UserPositionAssignments)
+            .where({ user_ID: dbUser.ID, mandal_ID: mandalId })
+            .and(`(valid_to is null or valid_to >= '${today}')`)
+            .columns('position_ID');
+
+          if (assignments.length) {
+            const posIds = [...new Set(assignments.map(a => a.position_ID))];
+            const positions = await SELECT.from(Positions)
+              .where({ ID: { in: posIds } })
+              .columns('name');
+            const names = positions.map(p => p.name);
+            isAdhyaksh = names.includes('Adhyaksh');
+            isMantri = names.includes('Mantri');
+          }
         }
 
         // Grant 'mandal_admin' CDS role based on platform role or membership flag
-        if (dbUser.role === 'platform_admin' || dbUser.role === 'mandal_admin' || isAdmin) {
+        if (dbUser.role === 'platform_admin' || dbUser.role === 'mandal_admin' || isAdmin || isAdhyaksh || isMantri) {
           roles.push('mandal_admin');
         } else if (mandalId) {
           // Check if member has any app access grants (privileged member)
@@ -96,7 +112,9 @@ module.exports = function supabase_auth() {
         supabaseId: user.id,
         userId,
         mandalId,
-        isAdmin
+        isAdmin,
+        isAdhyaksh,
+        isMantri
       }
     });
 

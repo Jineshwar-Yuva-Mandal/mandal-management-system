@@ -1,7 +1,6 @@
 using { com.samanvay.Mandals } from '../../db/mandal';
 using { com.samanvay.Users } from '../../db/users';
 using { com.samanvay.MembershipRequests } from '../../db/membership';
-using { com.samanvay.MandalMemberFieldConfigs } from '../../db/member_field_config';
 
 // ═══════════════════════════════════════════════════
 // PublicService — For Unauthenticated / New Users
@@ -14,12 +13,8 @@ service PublicService @(path: '/api/public') {
   // ─── Browse Mandals (read-only, limited fields) ───
   @readonly entity BrowseMandals as projection on Mandals {
     ID, name, area, city, state, logo, logo_type, logo_name,
-    has_joining_fee, joining_fee,
-    payment_qr, payment_qr_type, payment_qr_name, payment_upi_id
+    has_joining_fee, joining_fee
   };
-
-  // ─── Registration Form Field Config (read-only) ───
-  @readonly entity FieldConfig as projection on MandalMemberFieldConfigs;
 
   // ─── New User Registration (insert-only, limited fields) ───
   // CAP enforces @assert.unique on email automatically via generic handlers
@@ -32,8 +27,6 @@ service PublicService @(path: '/api/public') {
 
   // ─── Functions ───
   function getAuthConfig() returns { url : String; anonKey : String; };
-
-  function getPaymentQr(mandalId : UUID) returns String;
 
   function getUserByAuthId(authId : String) returns {
     ID : UUID;

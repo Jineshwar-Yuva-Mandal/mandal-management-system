@@ -9,7 +9,7 @@ using { managed, cuid } from '@sap/cds/common';
 
 // ─── Fines ───
 // Auto-generated when a member is marked absent for a fine-applicable event
-// Tracks full lifecycle: pending → paid → verified → settled (added to ledger)
+// Lifecycle: pending → paid (admin marks after receiving payment) → ledger entry created
 entity Fines : managed, cuid {
   user          : Association to Users;          // Member who owes the fine
   event         : Association to Events;         // Event that triggered the fine
@@ -18,17 +18,17 @@ entity Fines : managed, cuid {
   status        : FineStatus default 'pending';
   due_date      : Date;
 
-  // Payment details — filled when member pays
+  // Payment details — filled by admin when payment is received
   paid_amount   : Decimal(10,2);
   paid_date     : Date;
   payment_mode  : PaymentMode;
   payment_reference : String(255);  // UPI transaction ID, receipt number, etc.
 
-  // Verification — filled by Koshadhyaksha
-  verified_by   : Association to Users;
-  verified_at   : Timestamp;
-  verification_remarks : String(500);
+  // Admin who recorded the payment
+  recorded_by   : Association to Users;
+  recorded_at   : Timestamp;
+  remarks       : String(500);
 
-  // Link to ledger entry once verified and settled
+  // Link to ledger entry once settled
   ledger_entry  : Association to LedgerEntries;
 }

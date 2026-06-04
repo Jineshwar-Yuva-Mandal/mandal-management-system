@@ -3,9 +3,8 @@ namespace com.samanvay;
 using { com.samanvay.Mandals } from './mandal';
 using { com.samanvay.Users } from './users';
 using { com.samanvay.Positions } from './authorization';
-using { com.samanvay.LedgerEntries } from './ledger';
 using { com.samanvay.WorkflowType, com.samanvay.WorkflowActionType,
-        com.samanvay.RequestStatus, com.samanvay.PaymentMode,
+        com.samanvay.RequestStatus,
         com.samanvay.ApprovalDecision } from './types';
 using { managed, cuid } from '@sap/cds/common';
 
@@ -37,7 +36,7 @@ entity ApprovalWorkflowSteps : managed, cuid {
 // ═══════════════════════════════════════════════════
 
 // ─── Membership Request ───
-// A user requests to join a mandal; tracks payment + approval lifecycle
+// A user requests to join a mandal; tracks approval lifecycle
 entity MembershipRequests : managed, cuid {
   // Who is requesting
   requester_name  : String(100);
@@ -47,18 +46,6 @@ entity MembershipRequests : managed, cuid {
 
   mandal          : Association to Mandals;
   status          : RequestStatus default 'submitted';
-
-  // Joining fee payment
-  fee_amount        : Decimal(10,2);        // Copied from mandal's joining_fee at time of request
-  paid_amount       : Decimal(10,2);
-  paid_date         : Date;
-  payment_mode      : PaymentMode;
-  payment_reference : String(255);
-  payment_verified  : Boolean default false;
-  payment_verified_by : Association to Users;
-
-  // Ledger link once approved and fee settled
-  ledger_entry    : Association to LedgerEntries;
 
   // Approvals
   approvals       : Composition of many MembershipApprovals on approvals.request = $self;

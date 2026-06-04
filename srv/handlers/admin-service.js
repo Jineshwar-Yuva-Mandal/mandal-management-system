@@ -6,7 +6,6 @@ const ENTITY_APP_MAP = {
   'AdminService.Members':              'members',
   'AdminService.Memberships':          'members',
   'AdminService.MyMandals':            'members',
-  'AdminService.MemberFieldConfig':    'members',
   'AdminService.JoinRequests':         'joinrequests',
   'AdminService.JoinApprovals':        'joinrequests',
   'AdminService.JoinRequestStatusValues': 'joinrequests',
@@ -33,10 +32,12 @@ const ENTITY_APP_MAP = {
 
 // ── Map unbound actions to their app_key ──
 const ACTION_APP_MAP = {
-  'approveFine':       'fines',
-  'rejectFine':        'fines',
+  'markFinePaid':      'fines',
+  'waiveFine':         'fines',
   'verifyEntry':       'ledger',
   'markAttendance':    'eventsandattendance',
+  'changeAdhyaksh':    'mandal',
+  'changeMantri':      'mandal',
   'transferAdminship': 'mandal',
 };
 
@@ -51,6 +52,124 @@ module.exports = class AdminService extends cds.ApplicationService {
       AppAccessGrants,
       Positions, UserPositionAssignments
     } = cds.entities('com.samanvay');
+
+    const getActivePositionNames = async (userId, mandalId) => {
+      if (!userId || !mandalId) return [];
+      const today = new Date().toISOString().slice(0, 10);
+      const assignments = await SELECT.from(UserPositionAssignments)
+        .where({ user_ID: userId, mandal_ID: mandalId })
+        .and(`(valid_to is null or valid_to >= '${today}')`)
+        .columns('position_ID');
+      if (!assignments.length) return [];
+      const posIds = [...new Set(assignments.map(a => a.position_ID))];
+      const positions = await SELECT.from(Positions)
+        .where({ ID: { in: posIds } })
+        .columns('name');
+      return positions.map(p => p.name);
+    };
+
+    this.after('READ', 'Mandal', async (data, req) => {
+      const rows = Array.isArray(data) ? data : [data];
+      const { userId, mandalId } = req.user.attr || {};
+      const positionNames = await getActivePositionNames(userId, mandalId);
+      const canChangeAdhyaksh = positionNames.includes('Adhyaksh');
+      const canChangeMantri = positionNames.includes('Mantri');
+      for (const row of rows) {
+        if (!row) continue;
+        const rowMandalId = row.ID || mandalId;
+        const [adhyakshHolder, mantriHolder] = await Promise.all([
+          getPositionHolderDetails(rowMandalId, 'Adhyaksh'),
+          getPositionHolderDetails(rowMandalId, 'Mantri'),
+        ]);
+        row.canChangeAdhyaksh = canChangeAdhyaksh;
+        row.canChangeMantri = canChangeMantri;
+        row.currentAdhyakshName = adhyakshHolder?.full_name || null;
+        row.currentAdhyakshEmail = adhyakshHolder?.email || null;
+        row.currentMantriName = mantriHolder?.full_name || null;
+        row.currentMantriEmail = mantriHolder?.email || null;
+      }
+    });
+
+    const getPositionByName = async (mandalId, name) => {
+      return SELECT.one.from(Positions).where({ mandal_ID: mandalId, name });
+    };
+
+    const getActivePositionAssignments = async (positionId) => {
+      const today = new Date().toISOString().slice(0, 10);
+      return SELECT.from(UserPositionAssignments)
+        .where({ position_ID: positionId })
+        .and(`(valid_to is null or valid_to >= '${today}')`);
+    };
+
+    const getPositionHolderDetails = async (mandalId, positionName) => {
+      const position = await getPositionByName(mandalId, positionName);
+      if (!position) return null;
+
+      const assignments = await getActivePositionAssignments(position.ID);
+      const currentHolder = assignments[0];
+      if (!currentHolder?.user_ID) return null;
+
+      return SELECT.one.from(Users)
+        .where({ ID: currentHolder.user_ID })
+        .columns('full_name', 'email');
+    };
+
+    const yesterday = () => {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      return date.toISOString().slice(0, 10);
+    };
+
+    const assignPositionToUser = async ({ mandalId, userId, positionName }) => {
+      const position = await getPositionByName(mandalId, positionName);
+      if (!position) throw Object.assign(new Error(`${positionName} position not found for this mandal`), { statusCode: 404 });
+
+      const currentAssignments = await getActivePositionAssignments(position.ID);
+      const currentHolderIds = currentAssignments.map(a => a.user_ID);
+      if (currentHolderIds.includes(userId)) {
+        for (const assignment of currentAssignments) {
+          if (assignment.user_ID !== userId) {
+            await UPDATE(UserPositionAssignments, assignment.ID).set({ valid_to: yesterday() });
+          }
+        }
+        return position;
+      }
+
+      for (const assignment of currentAssignments) {
+        await UPDATE(UserPositionAssignments, assignment.ID).set({ valid_to: yesterday() });
+      }
+
+      await INSERT.into(UserPositionAssignments).entries({
+        ID: cds.utils.uuid(),
+        user_ID: userId,
+        position_ID: position.ID,
+        mandal_ID: mandalId,
+        valid_from: new Date().toISOString().slice(0, 10),
+      });
+
+      return position;
+    };
+
+    const transferPrimaryAdmin = async ({ mandalId, currentUserId, newUserId }) => {
+      const newAdminMembership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: newUserId, mandal_ID: mandalId, membership_status: 'active' });
+      if (!newAdminMembership) {
+        throw Object.assign(new Error('Target user is not an active member of this mandal'), { statusCode: 404 });
+      }
+
+      const currentAdminMembership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: currentUserId, mandal_ID: mandalId });
+      if (currentAdminMembership) {
+        await UPDATE(MandalMemberships, currentAdminMembership.ID).set({ is_admin: false });
+      }
+
+      await UPDATE(MandalMemberships, newAdminMembership.ID).set({ is_admin: true });
+      await UPDATE(Mandals, mandalId).set({ admin_ID: newUserId });
+    };
+
+    const clearAppGrantsForUser = async ({ mandalId, userId }) => {
+      await DELETE.from(AppAccessGrants).where({ mandal_ID: mandalId, user_ID: userId });
+    };
 
     // ── Privileged member entity-level authorization ──
     // Full admins (platform_admin, mandal_admin role, is_admin) pass through.
@@ -68,10 +187,10 @@ module.exports = class AdminService extends cds.ApplicationService {
           entityName.startsWith('DraftAdministrativeData') ||
           !entityName.startsWith('AdminService.')) return;
 
-      const { userId, mandalId, isAdmin } = req.user.attr || {};
+      const { userId, mandalId, isAdmin, isAdhyaksh, isMantri } = req.user.attr || {};
 
       // Full admins — unrestricted
-      if (isAdmin || req.user.is('platform_admin')) return;
+      if (isAdmin || isAdhyaksh || req.user.is('platform_admin')) return;
 
       // Check the user's platform role stored in DB
       const dbUser = await SELECT.one.from(Users).where({ ID: userId }).columns('role');
@@ -88,6 +207,20 @@ module.exports = class AdminService extends cds.ApplicationService {
       // If entity/action isn't mapped, block by default for safety
       if (!requiredApp) {
         return req.reject(403, 'Access denied');
+      }
+
+      // Mantri gets all apps by default unless Adhyaksh has explicitly configured grant rows.
+      if (isMantri) {
+        const explicitGrant = await SELECT.one.from(AppAccessGrants)
+          .where({ user_ID: userId, mandal_ID: mandalId, app_key: requiredApp });
+        if (explicitGrant) return;
+
+        const hasAnyExplicitGrant = await SELECT.one.from(AppAccessGrants)
+          .where({ user_ID: userId, mandal_ID: mandalId })
+          .columns('ID');
+        if (!hasAnyExplicitGrant) return;
+
+        return req.reject(403, 'You do not have access to this application');
       }
 
       // Check if user has a grant for this app
@@ -234,8 +367,8 @@ module.exports = class AdminService extends cds.ApplicationService {
     });
 
     // ── Fine status criticality ──
-    const FINE_CRITICALITY = { pending: 2, paid: 2, verified: 3, rejected: 1, waived: 0 };
-    const FINE_STATUS_TEXT = { pending: 'Pending', paid: 'Paid', verified: 'Verified', rejected: 'Rejected', waived: 'Waived' };
+    const FINE_CRITICALITY = { pending: 2, paid: 3, waived: 0 };
+    const FINE_STATUS_TEXT = { pending: 'Pending', paid: 'Paid', waived: 'Waived' };
     this.after('READ', 'MemberFines', (data) => {
       for (const row of Array.isArray(data) ? data : [data]) {
         if (row) {
@@ -245,16 +378,16 @@ module.exports = class AdminService extends cds.ApplicationService {
       }
     });
 
-    // ── approveFine — Verify a fine payment (bound action on MemberFines) ──
-    this.on('approveFine', 'MemberFines', async (req) => {
+    // ── markFinePaid — Admin records that a fine has been paid (bound action on MemberFines) ──
+    this.on('markFinePaid', 'MemberFines', async (req) => {
       const fineId = req.params[0]?.ID || req.params[0];
-      const { remarks } = req.data;
+      const { payment_mode, payment_reference, remarks } = req.data;
       const { mandalId, userId } = req.user.attr;
       if (!mandalId) return req.reject(403, 'No active mandal context');
 
       const fine = await SELECT.one.from(Fines).where({ ID: fineId, mandal_ID: mandalId });
       if (!fine) return req.reject(404, 'Fine not found in your mandal');
-      if (fine.status !== 'paid') return req.reject(409, `Fine is '${fine.status}', expected 'paid'`);
+      if (fine.status !== 'pending') return req.reject(409, `Fine is '${fine.status}', expected 'pending'`);
 
       // Look up member name and event title for the ledger description
       const member = await SELECT.one.from(Users).columns('full_name').where({ ID: fine.user_ID });
@@ -264,39 +397,43 @@ module.exports = class AdminService extends cds.ApplicationService {
 
       const memberName = member?.full_name || 'Unknown member';
       const eventTitle = event?.title || 'N/A';
-      const paidAmount = fine.paid_amount || fine.amount;
+      const today = new Date().toISOString().slice(0, 10);
 
-      // Create verified ledger entry for the fine income
+      // Create ledger entry for the fine income
       const ledgerEntryId = cds.utils.uuid();
       await INSERT.into(LedgerEntries).entries({
         ID: ledgerEntryId,
         mandal_ID: mandalId,
-        entry_date: new Date().toISOString().slice(0, 10),
+        entry_date: today,
         type: 'fine_income',
         description: `Fine payment from ${memberName} for event: ${eventTitle}`,
-        amount: paidAmount,
+        amount: fine.amount,
         direction: 'credit',
         related_user_ID: fine.user_ID,
         recorded_by_ID: userId,
         verified_by_ID: userId,
         verified_at: new Date().toISOString(),
         status: 'verified',
-        remarks: `Fine: ₹${paidAmount}, Paid on: ${fine.paid_date || 'N/A'}, Mode: ${fine.payment_mode || 'N/A'}, Ref: ${fine.payment_reference || 'N/A'}`,
+        remarks: remarks || `Mode: ${payment_mode || 'N/A'}, Ref: ${payment_reference || 'N/A'}`,
       });
 
       await UPDATE(Fines, fineId).set({
-        status: 'verified',
-        verified_by_ID: userId,
-        verified_at: new Date().toISOString(),
-        verification_remarks: remarks || '',
+        status: 'paid',
+        paid_amount: fine.amount,
+        paid_date: today,
+        payment_mode: payment_mode || 'cash',
+        payment_reference: payment_reference || '',
+        recorded_by_ID: userId,
+        recorded_at: new Date().toISOString(),
+        remarks: remarks || '',
         ledger_entry_ID: ledgerEntryId
       });
 
       return SELECT.one.from(Fines).where({ ID: fineId });
     });
 
-    // ── rejectFine — Reject a fine payment (bound action on MemberFines) ──
-    this.on('rejectFine', 'MemberFines', async (req) => {
+    // ── waiveFine — Admin waives a fine (bound action on MemberFines) ──
+    this.on('waiveFine', 'MemberFines', async (req) => {
       const fineId = req.params[0]?.ID || req.params[0];
       const { remarks } = req.data;
       const { mandalId, userId } = req.user.attr;
@@ -304,13 +441,13 @@ module.exports = class AdminService extends cds.ApplicationService {
 
       const fine = await SELECT.one.from(Fines).where({ ID: fineId, mandal_ID: mandalId });
       if (!fine) return req.reject(404, 'Fine not found in your mandal');
-      if (fine.status !== 'paid') return req.reject(409, `Fine is '${fine.status}', expected 'paid'`);
+      if (fine.status !== 'pending') return req.reject(409, `Fine is '${fine.status}', expected 'pending'`);
 
       await UPDATE(Fines, fineId).set({
-        status: 'rejected',
-        verified_by_ID: userId,
-        verified_at: new Date().toISOString(),
-        verification_remarks: remarks || 'Payment rejected'
+        status: 'waived',
+        recorded_by_ID: userId,
+        recorded_at: new Date().toISOString(),
+        remarks: remarks || 'Fine waived'
       });
 
       return SELECT.one.from(Fines).where({ ID: fineId });
@@ -439,25 +576,6 @@ module.exports = class AdminService extends cds.ApplicationService {
           joined_date: new Date().toISOString().slice(0, 10)
         });
       }
-
-      // Create ledger entry if joining fee was paid
-      if (request.paid_amount > 0 && request.payment_verified) {
-        await INSERT.into(LedgerEntries).entries({
-          ID: cds.utils.uuid(),
-          mandal_ID: mandalId,
-          entry_date: new Date().toISOString().slice(0, 10),
-          type: 'joining_fee',
-          description: `Joining fee from ${request.requester_name || 'new member'} (${request.requester_email || ''})`,
-          amount: request.paid_amount,
-          direction: 'credit',
-          related_user_ID: request.user_ID,
-          recorded_by_ID: userId,
-          verified_by_ID: userId,
-          verified_at: new Date().toISOString(),
-          status: 'verified',
-          remarks: `Membership approved. Payment: ₹${request.paid_amount} via ${request.payment_mode || 'N/A'}, Ref: ${request.payment_reference || 'N/A'}, Paid on: ${request.paid_date || 'N/A'}`,
-        });
-      }
     }
 
     // ── rejectMembership — reject a join request (bound action on JoinRequests) ──
@@ -525,11 +643,76 @@ module.exports = class AdminService extends cds.ApplicationService {
       await UPDATE(Mandals, mandalId).set({ admin_ID: newAdminUserId });
     });
 
+    this.on('changeAdhyaksh', 'Mandal', async (req) => {
+      const mandalId = req.params?.[0]?.ID || req.params?.[0];
+      const { newAdhyakshUserId } = req.data;
+      const { mandalId: activeMandalId, isAdhyaksh } = req.user.attr || {};
+
+      if (!mandalId || !newAdhyakshUserId) return req.reject(400, 'Mandal and new Adhyaksh are required');
+      if (mandalId !== activeMandalId) return req.reject(403, 'You can only update your own mandal');
+      if (!isAdhyaksh) return req.reject(403, 'Only the current Adhyaksh can change Adhyaksh');
+
+      const targetMembership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: newAdhyakshUserId, mandal_ID: mandalId, membership_status: 'active' });
+      if (!targetMembership) return req.reject(404, 'Selected member is not active in this mandal');
+
+      try {
+        const adhyakshPosition = await getPositionByName(mandalId, 'Adhyaksh');
+        if (!adhyakshPosition) return req.reject(404, 'Adhyaksh position not found for this mandal');
+        const currentAssignments = await getActivePositionAssignments(adhyakshPosition.ID);
+        const previousHolderIds = [...new Set(currentAssignments.map(a => a.user_ID))];
+        const mandal = await SELECT.one.from(Mandals).where({ ID: mandalId }).columns('admin_ID');
+
+        await assignPositionToUser({ mandalId, userId: newAdhyakshUserId, positionName: 'Adhyaksh' });
+        for (const holderId of previousHolderIds) {
+          await clearAppGrantsForUser({ mandalId, userId: holderId });
+        }
+        await clearAppGrantsForUser({ mandalId, userId: newAdhyakshUserId });
+        await transferPrimaryAdmin({ mandalId, currentUserId: mandal?.admin_ID, newUserId: newAdhyakshUserId });
+      } catch (err) {
+        return req.reject(err.statusCode || 500, err.message);
+      }
+
+      return SELECT.one.from(Mandals).where({ ID: mandalId });
+    });
+
+    this.on('changeMantri', 'Mandal', async (req) => {
+      const mandalId = req.params?.[0]?.ID || req.params?.[0];
+      const { newMantriUserId } = req.data;
+      const { mandalId: activeMandalId, userId } = req.user.attr || {};
+
+      if (!mandalId || !newMantriUserId) return req.reject(400, 'Mandal and new Mantri are required');
+      if (mandalId !== activeMandalId) return req.reject(403, 'You can only update your own mandal');
+
+      const actorPositions = await getActivePositionNames(userId, mandalId);
+      const canChangeMantri = actorPositions.includes('Mantri');
+      if (!canChangeMantri) return req.reject(403, 'Only the current Mantri can change Mantri');
+
+      const targetMembership = await SELECT.one.from(MandalMemberships)
+        .where({ user_ID: newMantriUserId, mandal_ID: mandalId, membership_status: 'active' });
+      if (!targetMembership) return req.reject(404, 'Selected member is not active in this mandal');
+
+      try {
+        const mantriPosition = await getPositionByName(mandalId, 'Mantri');
+        if (!mantriPosition) return req.reject(404, 'Mantri position not found for this mandal');
+        const currentAssignments = await getActivePositionAssignments(mantriPosition.ID);
+        const previousHolderIds = [...new Set(currentAssignments.map(a => a.user_ID))];
+
+        await assignPositionToUser({ mandalId, userId: newMantriUserId, positionName: 'Mantri' });
+        for (const holderId of previousHolderIds) {
+          await clearAppGrantsForUser({ mandalId, userId: holderId });
+        }
+        await clearAppGrantsForUser({ mandalId, userId: newMantriUserId });
+      } catch (err) {
+        return req.reject(err.statusCode || 500, err.message);
+      }
+
+      return SELECT.one.from(Mandals).where({ ID: mandalId });
+    });
+
     // ── Criticality computation for JoinRequests & JoinApprovals ──
     const STATUS_CRITICALITY = {
       submitted: 2,       // Warning (orange) — needs attention
-      payment_pending: 2, // Warning
-      payment_done: 5,    // Neutral
       under_review: 5,    // Neutral
       approved: 3,        // Positive (green)
       rejected: 1,        // Negative (red)
@@ -544,8 +727,6 @@ module.exports = class AdminService extends cds.ApplicationService {
     // ── JoinRequestStatusValues — fixed enum values for filter dropdown ──
     const REQUEST_STATUSES = [
       { code: 'submitted', value: 'Submitted' },
-      { code: 'payment_pending', value: 'Payment Pending' },
-      { code: 'payment_done', value: 'Payment Done' },
       { code: 'under_review', value: 'Under Review' },
       { code: 'approved', value: 'Approved' },
       { code: 'rejected', value: 'Rejected' },
@@ -580,38 +761,36 @@ module.exports = class AdminService extends cds.ApplicationService {
     ];
     this.on('READ', 'AvailableApps', () => AVAILABLE_APPS);
 
-    // ── MemberFieldConfig: requirement criticality (required=1/red, optional=2/warning, hidden=0/grey) ──
-    const REQ_CRITICALITY = { required: 1, optional: 2, hidden: 0 };
-    this.after('READ', 'MemberFieldConfig', (data) => {
-      for (const row of Array.isArray(data) ? data : [data]) {
-        if (row) row.requirementCriticality = REQ_CRITICALITY[row.requirement] ?? 0;
-      }
-    });
-
-    // ── MemberFieldConfig: auto-set mandal_ID on new field config rows ──
-    this.before('NEW', 'MemberFieldConfig', (req) => {
-      if (!req.data.mandal_ID) req.data.mandal_ID = req.user.attr.mandalId;
-    });
-
-    // ── MemberFieldConfig: auto-populate field_name from ProtectedField on SAVE ──
-    this.before('SAVE', 'Mandal', async (req) => {
-      if (!req.data.fieldConfigs) return;
-      const { ProtectedFields } = cds.entities('com.samanvay');
-      for (const fc of req.data.fieldConfigs) {
-        if (fc.field_ID && !fc.field_name) {
-          const pf = await SELECT.one.from(ProtectedFields).where({ ID: fc.field_ID }).columns('field_name');
-          if (pf) fc.field_name = pf.field_name;
-        }
-      }
-    });
-
     // ── Restrict AppGrants writes to full admins only ──
     // Prevents privilege escalation: a privileged member with 'appaccess' grant
     // must NOT be able to create/modify/delete grants (including for themselves).
     // Only mandal_admin, platform_admin, or is_admin users can manage access.
     this.before(['NEW', 'CREATE', 'SAVE', 'UPDATE', 'DELETE'], 'AppGrants', async (req) => {
-      const { isAdmin } = req.user.attr || {};
-      if (isAdmin || req.user.is('platform_admin')) return;
+      const { isAdmin, isAdhyaksh } = req.user.attr || {};
+      let targetUserId = req.data?.user_ID;
+      let targetMandalId = req.data?.mandal_ID || req.user.attr?.mandalId;
+
+      if ((!targetUserId || !targetMandalId) && req.data?.ID) {
+        const existingGrant = await SELECT.one.from(AppAccessGrants)
+          .where({ ID: req.data.ID })
+          .columns('user_ID', 'mandal_ID');
+        if (existingGrant) {
+          targetUserId = targetUserId || existingGrant.user_ID;
+          targetMandalId = targetMandalId || existingGrant.mandal_ID;
+        }
+      }
+
+      if (targetUserId && targetMandalId) {
+        const targetPositions = await getActivePositionNames(targetUserId, targetMandalId);
+        if (targetPositions.includes('Mantri') && !isAdhyaksh && !req.user.is('platform_admin')) {
+          return req.reject(403, 'Only Adhyaksh can change app access for Mantri');
+        }
+      }
+
+      if (isAdmin || isAdhyaksh || req.user.is('platform_admin')) {
+        return;
+      }
+
       const dbUser = await SELECT.one.from(Users).where({ ID: req.user.attr?.userId }).columns('role');
       if (dbUser?.role === 'platform_admin' || dbUser?.role === 'mandal_admin') return;
       return req.reject(403, 'Only mandal administrators can manage app access grants');

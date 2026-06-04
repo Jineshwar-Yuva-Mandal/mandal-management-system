@@ -22,14 +22,14 @@ type WorkflowType : String enum { member_joining; };
 type WorkflowActionType : String enum { approve; notify; };
 
 // ─── Membership Requests ───
-type RequestStatus : String enum { submitted; payment_pending; payment_done; under_review; approved; rejected; cancelled; };
+type RequestStatus : String enum { submitted; under_review; approved; rejected; cancelled; };
 type ApprovalDecision : String enum { pending; approved; rejected; };
 
 // ─── Shared ───
 type PaymentMode : String enum { cash; upi; bank_transfer; other; };
 
 // ─── Fines ───
-type FineStatus : String enum { pending; paid; verified; rejected; waived; };
+type FineStatus : String enum { pending; paid; waived; };
 
 // ─── Ledger ───
 type LedgerEntryType : String enum { fine_income; joining_fee; donation; event_expense; course_expense; misc_income; misc_expense; };
@@ -44,6 +44,3 @@ type RsvpStatus : String enum { attending; not_attending; maybe; };
 type CourseStatus : String enum { active; archived; draft; };
 type AssignmentStatus : String enum { assigned; in_progress; completed; overdue; };
 type TopicProgressStatus : String enum { not_started; in_progress; completed; };
-
-// ─── Member Field Config ───
-type FieldRequirement : String enum { required; optional; hidden; };

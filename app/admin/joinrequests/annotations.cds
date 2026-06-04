@@ -43,18 +43,6 @@ annotate service.JoinRequests with @(
         },
         {
             $Type : 'UI.DataField',
-            Value : paid_amount,
-            Label : '{i18n>PaidAmount}',
-            @UI.Importance : #High,
-        },
-        {
-            $Type : 'UI.DataField',
-            Value : payment_verified,
-            Label : '{i18n>PaymentVerified}',
-            @UI.Importance : #High,
-        },
-        {
-            $Type : 'UI.DataField',
             Value : createdAt,
             Label : '{i18n>RequestDate}',
             @UI.Importance : #Medium,
@@ -91,12 +79,6 @@ annotate service.JoinRequests with @(
         },
         {
             $Type  : 'UI.ReferenceFacet',
-            ID     : 'PaymentDetailsFacet',
-            Target : '@UI.FieldGroup#PaymentDetails',
-            Label  : '{i18n>PaymentDetails}',
-        },
-        {
-            $Type  : 'UI.ReferenceFacet',
             ID     : 'ApprovalsFacet',
             Target : 'approvals/@UI.LineItem#Approvals',
             Label  : '{i18n>ApprovalHistory}',
@@ -115,18 +97,6 @@ annotate service.JoinRequests with @(
             { $Type: 'UI.DataField', Value: requester_email, Label: '{i18n>Email}' },
             { $Type: 'UI.DataField', Value: requester_phone, Label: '{i18n>Phone}' },
             { $Type: 'UI.DataField', Value: user.full_name,  Label: '{i18n>LinkedUser}' },
-        ]
-    },
-
-    UI.FieldGroup #PaymentDetails : {
-        Data : [
-            { $Type: 'UI.DataField', Value: fee_amount,       Label: '{i18n>FeeAmount}' },
-            { $Type: 'UI.DataField', Value: paid_amount,       Label: '{i18n>PaidAmount}' },
-            { $Type: 'UI.DataField', Value: paid_date,         Label: '{i18n>PaymentDate}' },
-            { $Type: 'UI.DataField', Value: payment_mode,      Label: '{i18n>PaymentMode}' },
-            { $Type: 'UI.DataField', Value: payment_reference,    Label: '{i18n>PaymentReference}' },
-            { $Type: 'UI.DataField', Value: payment_verified,     Label: '{i18n>PaymentVerified}' },
-            { $Type: 'UI.DataField', Value: payment_verified_by.full_name, Label: '{i18n>Verifier}' },
         ]
     },
 

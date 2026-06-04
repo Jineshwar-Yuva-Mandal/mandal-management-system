@@ -64,17 +64,10 @@ service MemberService @(path: '/api/member') {
   @restrict: [{ grant: 'READ', where: 'mandal_ID = $user.mandalId' }]
   entity MyAttendance as projection on EventAttendance;
 
-  // ─── Fines ───
-  @restrict: [
-    { grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' },
-    { grant: 'payFine', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' },
-  ]
-  entity MyFines as projection on Fines {
-    *,
-    virtual payment_qr_url : String,
-  } actions {
-    action payFine(payment_reference : String) returns String;
-  };
+  // ─── Fines (read-only for members) ───
+  @readonly
+  @restrict: [{ grant: 'READ', where: 'user_ID = $user.userId and mandal_ID = $user.mandalId' }]
+  entity MyFines as projection on Fines;
 
   // ─── Courses ───
   @readonly
@@ -105,11 +98,4 @@ service MemberService @(path: '/api/member') {
   @readonly entity DietaryPrefValues      { key code : String; value : String; };
 
   // ─── Actions & Functions ───
-  action payAllFines(payment_reference : String) returns String;
-  function getPendingFinesSummary() returns {
-    totalAmount : Decimal(10,2);
-    fineCount   : Integer;
-    qrCode      : String;
-    upiId       : String;
-  };
 }

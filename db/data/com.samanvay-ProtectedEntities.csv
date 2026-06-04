@@ -19,7 +19,6 @@ ID,name,description
 31467801-7dc6-4815-b939-835fc2a144b9,ApprovalWorkflowSteps,Individual steps in approval workflows
 31467802-edf2-402d-b836-de8b8ea81298,MembershipRequests,Requests to join mandals
 31467803-1d5f-4e21-a463-980c6f6c730f,MembershipApprovals,Approval decisions on membership requests
-31467804-78a4-4967-829b-a7f5927ab229,MandalMemberFieldConfigs,Field configuration for mandal registration forms
 31467805-77b5-411b-a13a-e803fd8f1705,CustomEntity22,Custom entity configuration 22
 31467806-93b3-456c-83a7-4980920a83e4,CustomEntity23,Custom entity configuration 23
 31467807-3d42-47fd-b758-317347bb8c7a,CustomEntity24,Custom entity configuration 24
