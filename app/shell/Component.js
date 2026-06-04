@@ -105,6 +105,8 @@ sap.ui.define([
                     successMessage: "",
                     busy: false
                 },
+                currentAppKey: "",
+                navHistory: [],
                 adminApps: [],
                 memberApps: [
                     { key: "member/myprofile/webapp/index.html",           title: "My Profile",       desc: "View and edit your profile",     icon: "sap-icon://account" },

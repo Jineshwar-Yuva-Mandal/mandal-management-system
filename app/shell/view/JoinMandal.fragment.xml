@@ -15,7 +15,7 @@
                   class="sapUiSmallMarginBottom samanvaySubtitle"/>
 
             <MessageStrip
-                text="{= 'Your membership request for "' + ${/joinMandal/pendingRequestMandalName} + '" is under review. You cannot apply to another mandal until this request is approved, rejected, or withdrawn.' }"
+                text="{= 'Your membership request for ' + ${/joinMandal/pendingRequestMandalName} + ' is under review. You cannot apply to another mandal until this request is approved, rejected, or withdrawn.' }"
                 type="Information"
                 showIcon="true"
                 visible="{/joinMandal/hasPendingRequest}"

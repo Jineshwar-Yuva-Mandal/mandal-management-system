@@ -456,6 +456,9 @@ sap.ui.define([
         },
 
         onHomePress: function () {
+            var oModel = this.getView().getModel();
+            oModel.setProperty("/currentAppKey", "");
+            oModel.setProperty("/navHistory", []);
             this.byId("navContainer").backToTop();
             this.byId("sideNav").setSelectedKey("");
         },
@@ -561,36 +564,35 @@ sap.ui.define([
         /* ── App page back button ── */
 
         onAppBackPress: function () {
-            var oIframe = document.querySelector(".samanvayIframe");
-            if (oIframe && oIframe.contentWindow) {
-                try {
-                    var sUrlBefore = oIframe.contentWindow.location.href;
-                    oIframe.contentWindow.history.back();
-                    var that = this;
-                    setTimeout(function () {
-                        try {
-                            var sUrlAfter = oIframe.contentWindow.location.href;
-                            if (sUrlAfter === sUrlBefore) {
-                                that.onHomePress();
-                            }
-                        } catch (_e) {
-                            that.onHomePress();
-                        }
-                    }, 300);
-                } catch (_e) {
-                    this.onHomePress();
-                }
-            } else {
-                this.onHomePress();
+            var oModel = this.getView().getModel();
+            var aHistory = oModel.getProperty("/navHistory") || [];
+
+            if (aHistory.length > 0) {
+                var sPreviousKey = aHistory[aHistory.length - 1];
+                aHistory.pop();
+                oModel.setProperty("/navHistory", aHistory);
+                this._openApp(sPreviousKey, true);
+                return;
             }
+
+            this.onHomePress();
         },
 
         /* ── Core app opening logic ── */
 
-        _openApp: function (sKey) {
+        _openApp: function (sKey, bFromBack) {
             var oModel = this.getView().getModel();
             var oNavContainer = this.byId("navContainer");
             var oAppFrame = this.byId("appFrame");
+            var sCurrentKey = oModel.getProperty("/currentAppKey") || "";
+            var aHistory = oModel.getProperty("/navHistory") || [];
+
+            if (!bFromBack && sCurrentKey && sCurrentKey !== sKey) {
+                aHistory.push(sCurrentKey);
+                oModel.setProperty("/navHistory", aHistory);
+            }
+
+            oModel.setProperty("/currentAppKey", sKey);
 
             var sTitle = this._resolveAppTitle(sKey);
             oModel.setProperty("/appTitle", sTitle);
