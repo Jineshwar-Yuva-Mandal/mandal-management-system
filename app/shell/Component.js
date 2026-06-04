@@ -98,6 +98,9 @@ sap.ui.define([
                 joinMandal: {
                     mandals: [],
                     allMandals: [],
+                    hasPendingRequest: false,
+                    pendingRequest: null,
+                    pendingRequestMandalName: "",
                     errorMessage: "",
                     successMessage: "",
                     busy: false

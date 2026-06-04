@@ -25,6 +25,10 @@ service PublicService @(path: '/api/public') {
   // ─── Membership Requests ───
   @insertonly entity JoinRequests as projection on MembershipRequests;
 
+  // ─── My Join Requests (for authenticated onboarding users) ───
+  @cds.redirection.target: false
+  @readonly entity MyJoinRequests as projection on MembershipRequests;
+
   // ─── Functions ───
   function getAuthConfig() returns { url : String; anonKey : String; };
 
@@ -43,4 +47,6 @@ service PublicService @(path: '/api/public') {
     creatorEmail : String, creatorName : String, creatorPhone : String,
     authId : String
   ) returns BrowseMandals;
+
+  action withdrawJoinRequest(requestId : UUID) returns String;
 }

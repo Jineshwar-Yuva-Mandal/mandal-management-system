@@ -204,17 +204,34 @@ sap.ui.define([
             oModel.setProperty("/joinMandal/busy", true);
             oModel.setProperty("/joinMandal/errorMessage", "");
             oModel.setProperty("/joinMandal/successMessage", "");
+            oModel.setProperty("/joinMandal/hasPendingRequest", false);
+            oModel.setProperty("/joinMandal/pendingRequest", null);
             oModel.setProperty("/authView", "joinMandal");
             this.getOwnerComponent()._navigateTo("joinMandalPage");
             this._showBusy("Loading mandals…");
 
-            // Fetch mandals
-            fetch("./api/public/BrowseMandals")
-                .then(function (r) { return r.json(); })
-                .then(function (oData) {
-                    var aMandals = oData.value || [];
+            Promise.all([
+                fetch("./api/public/BrowseMandals").then(function (r) { return r.json(); }),
+                fetch("./api/public/MyJoinRequests?$expand=mandal($select=name)").then(function (r) {
+                    if (!r.ok) return { value: [] };
+                    return r.json();
+                })
+            ])
+                .then(function (results) {
+                    var oMandalData = results[0] || {};
+                    var oRequestData = results[1] || {};
+                    var aMandals = oMandalData.value || [];
+                    var aRequests = oRequestData.value || [];
+                    var oPending = aRequests.find(function (item) {
+                        return item.status === "submitted" || item.status === "under_review";
+                    }) || null;
+                    var sPendingMandalName = oPending?.mandal?.name || "selected mandal";
+
                     oModel.setProperty("/joinMandal/mandals", aMandals);
                     oModel.setProperty("/joinMandal/allMandals", aMandals);
+                    oModel.setProperty("/joinMandal/pendingRequest", oPending);
+                    oModel.setProperty("/joinMandal/pendingRequestMandalName", sPendingMandalName);
+                    oModel.setProperty("/joinMandal/hasPendingRequest", !!oPending);
                     oModel.setProperty("/joinMandal/busy", false);
                     that._hideBusy();
                 })
@@ -314,6 +331,11 @@ sap.ui.define([
             var sMandalName = oSource.data("mandalName");
             var oModel = this.getView().getModel();
 
+            if (oModel.getProperty("/joinMandal/hasPendingRequest")) {
+                oModel.setProperty("/joinMandal/errorMessage", "Your current membership request is under review. Please wait for a decision or withdraw the request first.");
+                return;
+            }
+
             // Initialize detail model
             oModel.setProperty("/joinDetail", {
                 mandalId: sMandalId,
@@ -336,6 +358,11 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             var oDetail = oModel.getProperty("/joinDetail") || {};
             var that = this;
+
+            if (oModel.getProperty("/joinMandal/hasPendingRequest")) {
+                oModel.setProperty("/joinDetail/errorMessage", "You already have a membership request under review.");
+                return;
+            }
 
             oModel.setProperty("/joinDetail/errorMessage", "");
             oModel.setProperty("/joinDetail/successMessage", "");
@@ -369,6 +396,12 @@ sap.ui.define([
                 oModel.setProperty("/joinDetail/busy", false);
                 oModel.setProperty("/joinDetail/successMessage",
                     "Your request to join \"" + oDetail.mandalName + "\" has been submitted! The mandal admin will review it.");
+                oModel.setProperty("/joinMandal/hasPendingRequest", true);
+                oModel.setProperty("/joinMandal/pendingRequest", {
+                    mandal_ID: oDetail.mandalId,
+                    status: "submitted"
+                });
+                oModel.setProperty("/joinMandal/pendingRequestMandalName", oDetail.mandalName || "selected mandal");
                 that._hideBusy();
             })
             .catch(function (err) {
@@ -376,6 +409,41 @@ sap.ui.define([
                 oModel.setProperty("/joinDetail/busy", false);
                 that._hideBusy();
             });
+        },
+
+        onWithdrawJoinRequest: function () {
+            var that = this;
+            var oModel = this.getView().getModel();
+            var oPending = oModel.getProperty("/joinMandal/pendingRequest");
+            if (!oPending || !oPending.ID) return;
+
+            oModel.setProperty("/joinMandal/busy", true);
+            oModel.setProperty("/joinMandal/errorMessage", "");
+            oModel.setProperty("/joinMandal/successMessage", "");
+            this._showBusy("Withdrawing your membership request…");
+
+            fetch("./api/public/withdrawJoinRequest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ requestId: oPending.ID })
+            })
+                .then(function (r) {
+                    if (!r.ok) return r.json().then(function (e) { throw new Error(e.error?.message || "Failed"); });
+                    return r.text();
+                })
+                .then(function () {
+                    oModel.setProperty("/joinMandal/hasPendingRequest", false);
+                    oModel.setProperty("/joinMandal/pendingRequest", null);
+                    oModel.setProperty("/joinMandal/pendingRequestMandalName", "");
+                    oModel.setProperty("/joinMandal/successMessage", "Your join request has been withdrawn. You can now apply to another mandal.");
+                    oModel.setProperty("/joinMandal/busy", false);
+                    that._hideBusy();
+                })
+                .catch(function (err) {
+                    oModel.setProperty("/joinMandal/errorMessage", err.message || "Failed to withdraw join request.");
+                    oModel.setProperty("/joinMandal/busy", false);
+                    that._hideBusy();
+                });
         },
 
         /* ═══════════════════════════════════════════

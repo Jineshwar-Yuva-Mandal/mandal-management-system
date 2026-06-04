@@ -123,10 +123,36 @@ annotate service.JoinRequests with @(
 
 // ─── Action parameter annotations ───
 annotate service.JoinRequests actions {
-    approveMembership(
+    approveMembership @(
+        Core.OperationAvailable : {
+            $edmJson : {
+                $Or : [
+                    { $Eq : [ { $Path : 'status' }, 'submitted' ] },
+                    { $Eq : [ { $Path : 'status' }, 'under_review' ] }
+                ]
+            }
+        },
+        Common.SideEffects : {
+            TargetProperties : [status, statusText, statusCriticality, remarks],
+            TargetEntities : [approvals],
+        }
+    )(
         remarks  @UI.MultiLineText @Common.Label: '{i18n>Remarks}'
     );
-    rejectMembership(
+    rejectMembership @(
+        Core.OperationAvailable : {
+            $edmJson : {
+                $Or : [
+                    { $Eq : [ { $Path : 'status' }, 'submitted' ] },
+                    { $Eq : [ { $Path : 'status' }, 'under_review' ] }
+                ]
+            }
+        },
+        Common.SideEffects : {
+            TargetProperties : [status, statusText, statusCriticality, remarks],
+            TargetEntities : [approvals],
+        }
+    )(
         remarks  @UI.MultiLineText @Common.Label: '{i18n>Remarks}'
     );
 };

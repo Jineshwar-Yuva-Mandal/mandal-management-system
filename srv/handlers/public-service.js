@@ -3,7 +3,7 @@ const cds = require('@sap/cds');
 module.exports = class PublicService extends cds.ApplicationService {
 
   async init() {
-    const { Users, Mandals, MandalMemberships } = cds.entities('com.samanvay');
+    const { Users, Mandals, MandalMemberships, MembershipRequests } = cds.entities('com.samanvay');
     const { NewUser } = this.entities;
 
     // ── Return Supabase config for the frontend ──
@@ -38,11 +38,56 @@ module.exports = class PublicService extends cds.ApplicationService {
 
     // ── Auto-link user_ID on join requests by requester email ──
     this.before('CREATE', 'JoinRequests', async (req) => {
+      const rawEmail = req.data.requester_email || (req.user?.id?.includes('@') ? req.user.id : '');
+      const requesterEmail = (rawEmail || '').toLowerCase().trim();
+      if (!requesterEmail) {
+        return req.reject(400, 'requester_email is required');
+      }
+
+      // A user can only have one active pending request at a time across mandals.
+      const existingPending = await SELECT.one.from(MembershipRequests)
+        .where({ requester_email: requesterEmail })
+        .and({ status: { in: ['submitted', 'under_review'] } })
+        .columns('ID', 'mandal_ID');
+      if (existingPending) {
+        return req.reject(409, 'Your membership request is already under review. Please wait for approval/rejection or withdraw it before applying to another mandal.');
+      }
+
+      req.data.requester_email = requesterEmail;
+
       if (!req.data.user_ID && req.data.requester_email) {
-        const email = req.data.requester_email.toLowerCase().trim();
-        const user = await SELECT.one.from(Users).columns('ID').where({ email });
+        const user = await SELECT.one.from(Users).columns('ID').where({ email: requesterEmail });
         if (user) req.data.user_ID = user.ID;
       }
+    });
+
+    this.before('READ', 'MyJoinRequests', (req) => {
+      const requesterEmail = (req.user?.id || '').toLowerCase().trim();
+      if (!requesterEmail || !requesterEmail.includes('@')) {
+        return req.reject(401, 'Please sign in to view your membership requests');
+      }
+
+      req.query.where({ requester_email: requesterEmail });
+    });
+
+    this.on('withdrawJoinRequest', async (req) => {
+      const requesterEmail = (req.user?.id || '').toLowerCase().trim();
+      const { requestId } = req.data || {};
+      if (!requesterEmail || !requesterEmail.includes('@')) {
+        return req.reject(401, 'Please sign in to withdraw your request');
+      }
+      if (!requestId) return req.reject(400, 'requestId is required');
+
+      const row = await SELECT.one.from(MembershipRequests)
+        .where({ ID: requestId, requester_email: requesterEmail })
+        .columns('ID', 'status');
+      if (!row) return req.reject(404, 'Membership request not found');
+      if (!['submitted', 'under_review'].includes(row.status)) {
+        return req.reject(409, 'Only under-review requests can be withdrawn');
+      }
+
+      await UPDATE(MembershipRequests, requestId).set({ status: 'cancelled' });
+      return 'Membership request withdrawn successfully';
     });
 
     // ── Create a new mandal — creator becomes superadmin ──
